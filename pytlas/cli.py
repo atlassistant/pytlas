@@ -1,2 +1,4 @@
+from .loading import import_skills
+
 def main():
-  print ('heho')
+  import_skills('skills')

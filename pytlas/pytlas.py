@@ -1,0 +1,2 @@
+class Pytlas:
+  pass
