@@ -27,7 +27,21 @@ class SlotValues(list):
     return len(self) == 0
   
   def first(self):
+    """Returns the first slot value if any.
+
+    Returns:
+      SlotValue: first slot value
+
+    """
+
     return self[0] if not self.is_empty() else SlotValue(None)
 
   def last(self):
+    """Returns the last slot value if any.
+
+    Returns:
+      SlotValue: last slot value
+
+    """
+
     return self[len(self) - 1] if not self.is_empty() else SlotValue(None)
