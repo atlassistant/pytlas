@@ -7,7 +7,10 @@ class SlotValue:
   
   def __init__(self, value, **kwargs):
     self.value = value
-    self.data = kwargs
+    self.meta = kwargs
+
+  def __str__(self):
+    return self.value
 
 class SlotValues(list):
   """Represents a list of SlotValue.

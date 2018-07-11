@@ -13,13 +13,13 @@ class PromptClient(cmd.Cmd):
 
     self._agent = Agent(interpreter, self, handlers)
   
-  def ask(self):
-    pass
+  def ask(self, slot, text, choices):
+    print (text)
 
   def answer(self):
     pass
 
-  def end(self):
+  def done(self):
     pass
 
   def do_exit(self, msg):

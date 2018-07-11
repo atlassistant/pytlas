@@ -1,13 +1,36 @@
 import logging
 from .request import Request
-from transitions import Machine
+from transitions import Machine, MachineError
+
+logging.getLogger('transitions').setLevel(logging.WARNING)
 
 PREFIX = 'pytlas/'
 STATE_ASLEEP = PREFIX + 'asleep'
 STATE_CANCEL = PREFIX + 'cancel'
+STATE_FALLBACK = PREFIX + 'fallback'
 STATE_ASK = PREFIX + 'ask'
 
+def is_builtin(state):
+  """Checks if the given state is a builtin one.
+  
+  Args:
+    state (str): State to check
+
+  Returns:
+    bool: True if it's a builtin state, false otherwise
+
+  """
+
+  return state.startswith(PREFIX)
+
 class Agent:
+  """Manages a conversation with a client.
+
+  Conversation state is represented by a finite state machine. It handle ask states
+  when the skill needs more information and trigger appropriate handler upon intent
+  parsing.
+
+  """
 
   def __init__(self, interpreter, client, handlers={}, **kwargs):
     self._logger = logging.getLogger(self.__class__.__name__.lower())
@@ -16,20 +39,70 @@ class Agent:
     self._handlers = handlers
     self._intents_queue = []
     self._request = None
-    self._asked_slot = None
 
-    # Contains all metadata tied to this particular instance
-    # This will be added to the Request object before sending it
-    self._meta = kwargs
+    self._asked_slot = None
+    self._choices = None
+    
+    self.meta = kwargs
 
     self._machine = None
     self._init_state_machine()
 
   def _init_state_machine(self):
-    states = [STATE_ASLEEP, STATE_ASK, STATE_CANCEL] + self._interpreter.intents
-    self._machine = Machine(model=self, states=states, initial=STATE_ASLEEP)
+    states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + self._interpreter.intents
+    self._machine = Machine(
+      model=self, 
+      states=states, 
+      send_event=True,
+      before_state_change=self._log_transition,
+      initial=STATE_ASLEEP)
 
     self._logger.info('Instantiated agent with %s states: %s' % (len(states), ', '.join(states)))
+
+    # Go to the asleep state from anywhere except the ask state
+    self._machine.add_transition(
+      STATE_ASLEEP, 
+      [STATE_CANCEL, STATE_FALLBACK] + self._interpreter.intents,
+      STATE_ASLEEP,
+      after=self.end_conversation)
+
+    # Go to the cancel state from anywhere except the asleep state
+    self._machine.add_transition(
+      STATE_CANCEL,
+      [STATE_ASK, STATE_FALLBACK] + self._interpreter.intents,
+      STATE_CANCEL,
+      after=None)
+
+    # Go to the ask state from every intents
+    self._machine.add_transition(
+      STATE_ASK,
+      [STATE_FALLBACK] + self._interpreter.intents,
+      STATE_ASK,
+      after=self._on_asked)
+
+    # And go to intents state from asleep or ask states
+    for intent in [STATE_FALLBACK] + self._interpreter.intents:
+      self._machine.add_transition(
+        intent,
+        [STATE_ASLEEP, STATE_ASK],
+        intent,
+        after=self._on_intent)
+
+  def _log_transition(self, e):
+    dest = e.transition.dest
+    msg = '⚡ %s: %s -> %s' % (e.event.name, e.transition.source, dest)
+
+    if dest == STATE_ASK:
+      msg += ' (slot: {slot}, choices: {choices})'.format(**e.kwargs)
+
+    self._logger.info(msg)
+
+  def _is_valid(self, data, required_keys=[]):
+    if not all(elem in data and data[elem] != None for elem in required_keys):
+      self._log.warning('One of required keys are not present or its value is equal to None in the data, required keys were %s' % required_keys)
+      return False
+
+    return True
 
   def parse(self, msg):
     """Parse a raw message.
@@ -39,37 +112,79 @@ class Agent:
 
     intents = self._interpreter.parse(msg)
 
-    self._logger.info('%s intent(s) found: %s' % (len(intents), ', '.join([str(i) for i in intents])))
+    # TODO: handle cancel one
 
-    self._intents_queue.extend(intents)
-    self._process_next_intent()
+    if self.state == STATE_ASK:
+      values = self._interpreter.parse_slot(self._request.intent.name, self._asked_slot, msg)
+      
+      self._request.intent.update_slots(**{ self._asked_slot: values })
+      self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, [str(v) for v in values]))
+      self.go(self._request.intent.name, intent=self._request.intent)
+    else:
+      self._logger.info('%s intent(s) found: %s' % (len(intents), ', '.join([str(i) for i in intents])))
 
-  def process(self, intent):
+      self._intents_queue.extend(intents)
+
+      if self.state == STATE_ASLEEP:
+        self._process_next_intent()
+
+  def _process_intent(self, intent):
     self._logger.info('Processing intent %s' % intent)
     
     if intent.name not in self._handlers:
       self._logger.error('No handler found for the intent "%s"' % intent.name)
+      self.done()
     else:
-      self._request = Request(self, intent)
+      if (self._request == None or self._request.intent != intent):
+        self._request = Request(self, intent)
+        self._logger.info('💬 New "%s" conversation started with id %s' % (intent.name, self._request.id))
+      
+      try:
+        self._handlers[intent.name](self._request) # Thread? Or nope
+      except Exception as err:
+        self._logger.error(err.msg)
 
-      self._logger.info('💬 New "%s" conversation started with id %s' % (intent.name, self._request.id))
+  def _on_intent(self, event):
+    if not self._is_valid(event.kwargs, ['intent']):
+      return
 
-      self._handlers[intent.name](self._request)
+    self._process_intent(event.kwargs.get('intent'))
 
-    self.end()
+  def _on_asked(self, event):
+    if not self._is_valid(event.kwargs, ['slot']):
+      return
+
+    self._asked_slot = event.kwargs.get('slot')
+    self._choices = event.kwargs.get('choices')
+
+    self._client.ask(**event.kwargs)
 
   def _process_next_intent(self):
     if len(self._intents_queue) > 0:
-      self.process(self._intents_queue.pop(0))
+      intent = self._intents_queue.pop(0)
 
-  def _go(self, state, **kwargs):
-    pass
+      self.go(intent.name, intent=intent)
 
-  def ask(self, slot, text):
+  def go(self, state, **kwargs):
+    """Try to move the state machine to the given state.
+
+    Args:
+      state (str): Desired state
+      kwargs (dict): Arguments
+
+    """
+
+    try:
+      self.trigger(state, **kwargs) # pylint: disable=E1101
+    except MachineError as err:
+      self._logger.error('Could not trigger "%s": %s' % (state, err))
+
+  def ask(self, slot, text, choices=None):
     """Ask something to the user.
     """
 
-    self._go(STATE_ASK, slot=slot, text=text)
+    self._client.done()
+    self.go(STATE_ASK, slot=slot, text=text, choices=choices)
 
   def answer(self, text):
     """Answer something to the user.
@@ -77,15 +192,24 @@ class Agent:
 
     self._client.answer(text)
 
-  def end(self):
+  def done(self):
+    """Done should be called by skills when they are done with their stuff. It enables
+    threaded scenarii. When asking something to the user, you should not call this method!
+
+    """
+
+    self.go(STATE_ASLEEP)
+
+  def end_conversation(self, event=None):
     """Ends a conversation, means nothing would come from the skill anymore and
     it does not require user inputs. This is especially useful when you are showing
     an activity indicator.
 
     """
 
-    if not self._asked_slot:
-      self._logger.info('Conversation ended')
-      self._request = None
-      self._client.end()
-      self._process_next_intent()
+    self._logger.info('Conversation %s has ended' % self._request.id)
+    self._request = None
+    self._asked_slot = None
+    self._choices = None
+    self._client.done()
+    self._process_next_intent()

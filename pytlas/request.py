@@ -9,5 +9,4 @@ class Request:
     self.intent = intent
     
     self.lang = self.agent._interpreter.lang
-    self.meta = self.agent._meta
     self.id = uuid.uuid4().hex

@@ -11,5 +11,8 @@ class Interpreter:
   def fit_as_needed(self):
     pass
 
+  def parse_slot(self, intent, slot, msg):
+    return []
+
   def parse(self, msg):
     return []

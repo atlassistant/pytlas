@@ -11,7 +11,12 @@ class DummyInterpreter(Interpreter):
     self.lang = 'en'
     self.intents = list(handlers.keys())
   
+  def parse_slot(self, intent, slot, msg):
+    return [
+      SlotValue(msg),
+    ]
+
   def parse(self, msg):
     return [
-      Intent('lights_on', rooms=[SlotValue('kitchen')]),
+      Intent('lights_on'),
     ]
