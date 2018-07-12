@@ -1,7 +1,7 @@
 import unittest, logging
 from unittest.mock import MagicMock
 from pytlas import Agent
-from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP
+from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.clients import Client
 from pytlas.interpreters import Interpreter, Intent, SlotValue
 
@@ -95,13 +95,11 @@ class AgentTests(unittest.TestCase):
     client.done.assert_called_once()
     self.assertEqual(STATE_ASK, agt.state)
 
-    called = False
     assertion_success = False
 
     def final_handler(r):
-      nonlocal request, called, assertion_success
+      nonlocal request, assertion_success
 
-      called = True
       assertion_success = r.id == request.id and r.intent.slot('a_slot').first().value == 'a value'
 
     handlers['should_ask'] = final_handler
@@ -109,24 +107,21 @@ class AgentTests(unittest.TestCase):
     agt.parse('Parse slot should be called')
     interp.parse_slot.assert_called_once_with('should_ask', 'a_slot', 'Parse slot should be called')
 
-    self.assertTrue(called)
     self.assertTrue(assertion_success)
 
   def test_ask_with_choices(self):
 
-    called = False
     assertion_success = False
     choices = ['kitchen', 'living room', 'bedroom']
 
     def handler(r):
-      nonlocal called, assertion_success
+      nonlocal assertion_success
 
       rooms = r.intent.slot('rooms')
 
       if not rooms:
         return r.agent.ask('rooms', 'Choose a room in one of those', choices)
 
-      called = True
       assertion_success = len(rooms) == 2 and all([r.value in choices for r in rooms])
 
       return r.agent.done()
@@ -155,7 +150,6 @@ class AgentTests(unittest.TestCase):
 
     agt.parse('would not be took into account in those tests')
 
-    self.assertTrue(called)
     self.assertTrue(assertion_success)
 
   def test_cancel(self):
@@ -184,3 +178,25 @@ class AgentTests(unittest.TestCase):
     self.assertIsNone(agt._choices)
     self.assertIsNone(agt._request)
     self.assertIsNone(agt._asked_slot)
+
+  def test_fallback(self):
+
+    assertion_success = False
+
+    def handler(r):
+      nonlocal assertion_success
+
+      assertion_success = r.intent.slot('text').first().value == 'something not catched'
+
+    client = Client()
+    handlers = {
+      STATE_FALLBACK: handler,
+    }
+    interp = Interpreter()
+    interp.intents = list(handlers.keys())
+    interp.parse = MagicMock(return_value=[])
+
+    agt = Agent(interp, client, handlers)
+    agt.parse('something not catched')
+
+    self.assertTrue(assertion_success)

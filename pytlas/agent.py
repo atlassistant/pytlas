@@ -1,5 +1,7 @@
 import logging, random
 from .request import Request
+from .interpreters.intent import Intent
+from .interpreters.slot import SlotValue
 from .skill import handlers as skill_handlers
 from transitions import Machine, MachineError
 from fuzzywuzzy import process
@@ -160,7 +162,7 @@ class Agent:
 
     self._logger.info('Parsing sentence "%s"' % msg)
 
-    intents = self._interpreter.parse(msg)
+    intents = self._interpreter.parse(msg) or [Intent(STATE_FALLBACK, text=[SlotValue(msg)])]
     cancel_intent = next((i for i in intents if i.name == STATE_CANCEL), None)
 
     if cancel_intent and self.state != STATE_ASLEEP:
