@@ -1,7 +1,7 @@
 import unittest, logging
 from unittest.mock import MagicMock
 from pytlas import Agent
-from pytlas.agent import STATE_ASK
+from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP
 from pytlas.clients import Client
 from pytlas.interpreters import Interpreter, Intent, SlotValue
 
@@ -159,4 +159,28 @@ class AgentTests(unittest.TestCase):
     self.assertTrue(assertion_success)
 
   def test_cancel(self):
-    self.skipTest('Implementation needed')
+    client = Client()
+    handlers = {
+      'lights_on': lambda r: r.agent.ask('rooms', 'Please specify a room'),
+    }
+    interp = Interpreter()
+    interp.intents = list(handlers.keys())
+    interp.parse = MagicMock(return_value=[
+      Intent('lights_on'),
+    ])
+
+    agt = Agent(interp, client, handlers)
+    agt.parse('turn lights on')
+
+    self.assertEqual(STATE_ASK, agt.state)
+
+    interp.parse = MagicMock(return_value=[
+      Intent(STATE_CANCEL),
+    ])
+
+    agt.parse('cancel')
+
+    self.assertEqual(STATE_ASLEEP, agt.state)
+    self.assertIsNone(agt._choices)
+    self.assertIsNone(agt._request)
+    self.assertIsNone(agt._asked_slot)

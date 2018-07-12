@@ -111,7 +111,7 @@ class Agent:
       STATE_CANCEL,
       [STATE_ASK, STATE_FALLBACK] + intents,
       STATE_CANCEL,
-      after=None)
+      after=self._on_intent)
 
     # Go to the ask state from every intents
     self._machine.add_transition(
@@ -146,13 +146,25 @@ class Agent:
 
   def parse(self, msg):
     """Parse a raw message.
+
+    The interpreter will be used to determine which intent(s) has been formulated
+    by the user and the state machine will move to the appropriate state calling
+    the right skill handler.
+
+    It will also handle some specific intents such as the cancel one and ask states.
+
+    Args:
+      msg (str): Raw message to parse
+
     """
 
     self._logger.info('Parsing sentence "%s"' % msg)
 
     intents = self._interpreter.parse(msg)
+    cancel_intent = next((i for i in intents if i.name == STATE_CANCEL), None)
 
-    # TODO: handle cancel one
+    if cancel_intent and self.state != STATE_ASLEEP:
+      self.go(STATE_CANCEL, intent=cancel_intent) # Go to the cancel intent right now!
 
     if self.state == STATE_ASK:
       values = self._interpreter.parse_slot(self._request.intent.name, self._asked_slot, msg)
@@ -165,6 +177,9 @@ class Agent:
       
       self.go(self._request.intent.name, intent=self._request.intent)
     else:
+      # Remove cancel intents since they have been processed earlier
+      intents = [i for i in intents if i.name != STATE_CANCEL]
+
       self._logger.info('%s intent(s) found: %s' % (len(intents), ', '.join([str(i) for i in intents])))
 
       self._intents_queue.extend(intents)
@@ -187,6 +202,7 @@ class Agent:
         self._handlers[intent.name](self._request) # Thread? Or nope
       except Exception as err:
         self._logger.error(err.msg)
+        self.done() # Go back to the asleep state
 
   def _on_intent(self, event):
     if not self._is_valid(event.kwargs, ['intent']):
