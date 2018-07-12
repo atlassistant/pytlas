@@ -1,14 +1,15 @@
-import logging
+import logging, random
 from .request import Request
+from .skill import handlers as skill_handlers
 from transitions import Machine, MachineError
 
 logging.getLogger('transitions').setLevel(logging.WARNING)
 
-PREFIX = 'pytlas/'
-STATE_ASLEEP = PREFIX + 'asleep'
-STATE_CANCEL = PREFIX + 'cancel'
-STATE_FALLBACK = PREFIX + 'fallback'
-STATE_ASK = PREFIX + 'ask'
+STATE_PREFIX = 'pytlas/'
+STATE_ASLEEP = STATE_PREFIX + 'asleep'
+STATE_CANCEL = STATE_PREFIX + 'cancel'
+STATE_FALLBACK = STATE_PREFIX + 'fallback'
+STATE_ASK = STATE_PREFIX + 'ask'
 
 def is_builtin(state):
   """Checks if the given state is a builtin one.
@@ -21,7 +22,23 @@ def is_builtin(state):
 
   """
 
-  return state.startswith(PREFIX)
+  return state.startswith(STATE_PREFIX)
+
+def keep_one(value):
+  """Keeps only one element if value is a list.
+
+  Args:
+    value (str, list): Value to check
+
+  Returns:
+    str: Random value in the given list if it's a list, else the given value
+
+  """
+
+  if type(value) is list:
+    return random.choice(value)
+
+  return value
 
 class Agent:
   """Manages a conversation with a client.
@@ -32,14 +49,14 @@ class Agent:
 
   """
 
-  def __init__(self, interpreter, client, handlers={}, **kwargs):
+  def __init__(self, interpreter, client, handlers=None, **kwargs):
     self._logger = logging.getLogger(self.__class__.__name__.lower())
     self._interpreter = interpreter
     self._client = client
-    self._handlers = handlers
+    self._handlers = handlers or skill_handlers
+
     self._intents_queue = []
     self._request = None
-
     self._asked_slot = None
     self._choices = None
     
@@ -49,7 +66,9 @@ class Agent:
     self._init_state_machine()
 
   def _init_state_machine(self):
-    states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + self._interpreter.intents
+    intents = [i for i in self._interpreter.intents if not is_builtin(i)]
+    states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + intents
+    
     self._machine = Machine(
       model=self, 
       states=states, 
@@ -62,26 +81,26 @@ class Agent:
     # Go to the asleep state from anywhere except the ask state
     self._machine.add_transition(
       STATE_ASLEEP, 
-      [STATE_CANCEL, STATE_FALLBACK] + self._interpreter.intents,
+      [STATE_CANCEL, STATE_FALLBACK] + intents,
       STATE_ASLEEP,
       after=self.end_conversation)
 
     # Go to the cancel state from anywhere except the asleep state
     self._machine.add_transition(
       STATE_CANCEL,
-      [STATE_ASK, STATE_FALLBACK] + self._interpreter.intents,
+      [STATE_ASK, STATE_FALLBACK] + intents,
       STATE_CANCEL,
       after=None)
 
     # Go to the ask state from every intents
     self._machine.add_transition(
       STATE_ASK,
-      [STATE_FALLBACK] + self._interpreter.intents,
+      [STATE_FALLBACK] + intents,
       STATE_ASK,
       after=self._on_asked)
 
     # And go to intents state from asleep or ask states
-    for intent in [STATE_FALLBACK] + self._interpreter.intents:
+    for intent in [STATE_FALLBACK] + intents:
       self._machine.add_transition(
         intent,
         [STATE_ASLEEP, STATE_ASK],
@@ -146,18 +165,22 @@ class Agent:
 
   def _on_intent(self, event):
     if not self._is_valid(event.kwargs, ['intent']):
-      return
+      return self.done()
 
     self._process_intent(event.kwargs.get('intent'))
 
   def _on_asked(self, event):
-    if not self._is_valid(event.kwargs, ['slot']):
-      return
+    if not self._is_valid(event.kwargs, ['slot', 'text']):
+      return self.done()
 
-    self._asked_slot = event.kwargs.get('slot')
-    self._choices = event.kwargs.get('choices')
+    text = keep_one(event.kwargs.get('text'))
+    slot = event.kwargs.get('slot')
+    choices = event.kwargs.get('choices')
 
-    self._client.ask(**event.kwargs)
+    self._asked_slot = slot
+    self._choices = choices
+
+    self._client.ask(slot, text, choices)
 
   def _process_next_intent(self):
     if len(self._intents_queue) > 0:
@@ -190,7 +213,7 @@ class Agent:
     """Answer something to the user.
     """
 
-    self._client.answer(text)
+    self._client.answer(keep_one(text))
 
   def done(self):
     """Done should be called by skills when they are done with their stuff. It enables

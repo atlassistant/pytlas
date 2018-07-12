@@ -1,20 +1,23 @@
 from pytlas import intent
 
+def turn_lights(req, on):
+  rooms = req.intent.slot('rooms')
+
+  if not rooms:
+    return req.agent.ask('rooms', [
+      'For which room?',
+      'Which room Sir?',
+      'Please specify a room',
+    ])
+
+  req.agent.answer('Turning lights %s in %s' % ('on' if on else 'off', ', '.join(room.value for room in rooms)))
+
+  return req.agent.done()
+
 @intent('lights_on')
 def turn_on(req):
-  room = req.intent.slot('rooms').first().value
-
-  if not room:
-    return req.agent.ask('rooms', 'Which room?')
-  
-  print ('Hello from turn on')
-  print (req.intent.slot('rooms').first().value)
-  
-  return req.agent.done()
+  return turn_lights(req, True)
 
 @intent('lights_off')
 def turn_off(req):
-  print ('Hello from turn off')
-  print (req.intent.slot('rooms').first().value)
-  
-  return req.agent.done()
+  return turn_lights(req, False)

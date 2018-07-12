@@ -5,7 +5,7 @@ class Client:
   def ask(self, slot, text, choices):
     pass
 
-  def answer(self):
+  def answer(self, text):
     pass
 
   def done(self):
