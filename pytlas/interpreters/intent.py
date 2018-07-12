@@ -6,7 +6,8 @@ class Intent:
   
   def __init__(self, name, **kwargs):
     self.name = name
-    self.slots = { k: SlotValues(v) for (k, v) in kwargs.items() }
+    self.slots = {}
+    self.update_slots(**kwargs)
 
   def slot(self, slot_name):
     """Retrieve slot values for the given slot name.

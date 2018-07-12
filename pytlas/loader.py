@@ -6,6 +6,9 @@ def list_skills(directory):
   Args:
     directory (str): Directory in which we should retrieve skills
 
+  Returns:
+    generator: List of skill files
+
   """
 
   for path in glob.glob('%s/*.py' % directory):

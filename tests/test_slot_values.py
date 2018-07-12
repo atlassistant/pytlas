@@ -13,6 +13,20 @@ class SlotValuesTests(unittest.TestCase):
 
     self.assertEqual('rooms', v.meta['entity'])
 
+  def test_slots_values_convert_to_slot_value(self):
+
+    v = SlotValues(['kitchen', 'bedroom'])
+
+    self.assertIsInstance(v[0], SlotValue)
+    self.assertEqual(v[0].value, 'kitchen')
+
+  def test_slots_values_without_iterable(self):
+
+    v = SlotValues('kitchen')
+    
+    self.assertIsInstance(v[0], SlotValue)
+    self.assertEqual(v[0].value, 'kitchen')
+
   def test_slot_values_empty(self):
 
     v = SlotValues()

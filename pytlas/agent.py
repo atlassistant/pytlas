@@ -1,5 +1,6 @@
 import logging, random
 from .request import Request
+from .localization import translations
 from .interpreters.intent import Intent
 from .interpreters.slot import SlotValue
 from .skill import handlers as skill_handlers
@@ -141,7 +142,7 @@ class Agent:
 
   def _is_valid(self, data, required_keys=[]):
     if not all(elem in data and data[elem] != None for elem in required_keys):
-      self._log.warning('One of required keys are not present or its value is equal to None in the data, required keys were %s' % required_keys)
+      self._logger.warning('One of required keys are not present or its value is equal to None in the data, required keys were %s' % required_keys)
       return False
 
     return True
@@ -162,48 +163,54 @@ class Agent:
 
     self._logger.info('Parsing sentence "%s"' % msg)
 
-    intents = self._interpreter.parse(msg) or [Intent(STATE_FALLBACK, text=[SlotValue(msg)])]
+    intents = self._interpreter.parse(msg) or [Intent(STATE_FALLBACK, text=msg)]
     cancel_intent = next((i for i in intents if i.name == STATE_CANCEL), None)
 
-    if cancel_intent and self.state != STATE_ASLEEP:
-      self.go(STATE_CANCEL, intent=cancel_intent) # Go to the cancel intent right now!
-
-    if self.state == STATE_ASK:
-      values = self._interpreter.parse_slot(self._request.intent.name, self._asked_slot, msg)
-      
-      if self._choices:
-        values = list(find_matches(self._choices, values))
-
-      self._request.intent.update_slots(**{ self._asked_slot: values })
-      self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, [str(v) for v in values]))
-      
-      self.go(self._request.intent.name, intent=self._request.intent)
-    else:
-      # Remove cancel intents since they have been processed earlier
+    # Either way, extend the intent queue with new intents
+    if self.state != STATE_ASK: # pylint: disable=E1101
       intents = [i for i in intents if i.name != STATE_CANCEL]
 
       self._logger.info('%s intent(s) found: %s' % (len(intents), ', '.join([str(i) for i in intents])))
 
       self._intents_queue.extend(intents)
+    
+    # If the user wants to cancel the current action, immediately go to the cancel state
+    if cancel_intent and self.state != STATE_ASLEEP: # pylint: disable=E1101
+      self.go(STATE_CANCEL, intent=cancel_intent) # Go to the cancel intent right now!
+    else:
+      if self.state == STATE_ASK: # pylint: disable=E1101
+        values = self._interpreter.parse_slot(self._request.intent.name, self._asked_slot, msg)
+        
+        if self._choices:
+          values = list(find_matches(self._choices, values))
 
-      if self.state == STATE_ASLEEP:
+        self._request.intent.update_slots(**{ self._asked_slot: values })
+        self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, [str(v) for v in values]))
+        
+        self.go(self._request.intent.name, intent=self._request.intent)
+      elif self.state == STATE_ASLEEP: # pylint: disable=E1101
         self._process_next_intent()
 
   def _process_intent(self, intent):
     self._logger.info('Processing intent %s' % intent)
+
+    handler = self._handlers.get(intent.name)
     
-    if intent.name not in self._handlers:
+    if not handler:
       self._logger.error('No handler found for the intent "%s"' % intent.name)
       self.done()
     else:
       if (self._request == None or self._request.intent != intent):
-        self._request = Request(self, intent)
+        # Creates the request and load module translations for the interpreter language
+        # if any
+        self._request = Request(self, intent, 
+          translations.get(handler.__module__, {}).get(self._interpreter.lang, {}))
         self._logger.info('💬 New "%s" conversation started with id %s' % (intent.name, self._request.id))
       
       try:
-        self._handlers[intent.name](self._request) # Thread? Or nope
+        handler(self._request) # TODO multi threaded call
       except Exception as err:
-        self._logger.error(err.msg)
+        self._logger.error(err)
         self.done() # Go back to the asleep state
 
   def _on_intent(self, event):

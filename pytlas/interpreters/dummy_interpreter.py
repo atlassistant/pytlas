@@ -8,7 +8,7 @@ class DummyInterpreter(Interpreter):
   def __init__(self):
     super(DummyInterpreter, self).__init__()
 
-    self.lang = 'en'
+    self.lang = 'fr'
     self.intents = list(handlers.keys())
   
   def parse_slot(self, intent, slot, msg):

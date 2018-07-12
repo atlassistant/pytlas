@@ -1,5 +1,6 @@
 import logging, argparse, sys
 from .loader import import_skills
+from .localization import import_translations
 from .interpreters.dummy_interpreter import DummyInterpreter
 from .clients.prompt import PromptClient
 
@@ -16,5 +17,6 @@ def main():
   args = parser.parse_args(sys.argv[1:])
 
   import_skills(args.skill_dir)
+  import_translations(args.skill_dir)
 
   PromptClient(DummyInterpreter()).cmdloop()
