@@ -2,7 +2,9 @@ import logging, random
 from .request import Request
 from .skill import handlers as skill_handlers
 from transitions import Machine, MachineError
+from fuzzywuzzy import process
 
+# Silent the transitions logger
 logging.getLogger('transitions').setLevel(logging.WARNING)
 
 STATE_PREFIX = 'pytlas/'
@@ -39,6 +41,25 @@ def keep_one(value):
     return random.choice(value)
 
   return value
+
+def find_matches(choices, values):
+  """Find elements that fuzzy match the available choices.
+
+  Args:
+    choices (list): Available choices
+    values (list): List of SlotValue we should compare with available choices
+
+  Returns:
+    generator: matched SlotValue updated with matched value if any
+
+  """
+
+  for value in values:
+    match = process.extractOne(value.value, choices, score_cutoff=60)
+
+    if match:
+      value.value = match[0] # Update the inner value with the matched one
+      yield value
 
 class Agent:
   """Manages a conversation with a client.
@@ -136,8 +157,12 @@ class Agent:
     if self.state == STATE_ASK:
       values = self._interpreter.parse_slot(self._request.intent.name, self._asked_slot, msg)
       
+      if self._choices:
+        values = list(find_matches(self._choices, values))
+
       self._request.intent.update_slots(**{ self._asked_slot: values })
       self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, [str(v) for v in values]))
+      
       self.go(self._request.intent.name, intent=self._request.intent)
     else:
       self._logger.info('%s intent(s) found: %s' % (len(intents), ', '.join([str(i) for i in intents])))

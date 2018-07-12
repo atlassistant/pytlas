@@ -96,15 +96,67 @@ class AgentTests(unittest.TestCase):
     self.assertEqual(STATE_ASK, agt.state)
 
     called = False
+    assertion_success = False
 
     def final_handler(r):
-      nonlocal request, called
-      self.assertEqual(r.id, request.id)
-      self.assertEqual('a value', r.intent.slot('a_slot').first().value)
+      nonlocal request, called, assertion_success
+
       called = True
+      assertion_success = r.id == request.id and r.intent.slot('a_slot').first().value == 'a value'
 
     handlers['should_ask'] = final_handler
 
     agt.parse('Parse slot should be called')
     interp.parse_slot.assert_called_once_with('should_ask', 'a_slot', 'Parse slot should be called')
+
     self.assertTrue(called)
+    self.assertTrue(assertion_success)
+
+  def test_ask_with_choices(self):
+
+    called = False
+    assertion_success = False
+    choices = ['kitchen', 'living room', 'bedroom']
+
+    def handler(r):
+      nonlocal called, assertion_success
+
+      rooms = r.intent.slot('rooms')
+
+      if not rooms:
+        return r.agent.ask('rooms', 'Choose a room in one of those', choices)
+
+      called = True
+      assertion_success = len(rooms) == 2 and all([r.value in choices for r in rooms])
+
+      return r.agent.done()
+    
+    client = Client()
+    client.ask = MagicMock()
+    handlers = {
+      'lights_on': handler,
+    }
+    interp = Interpreter()
+    interp.intents = list(handlers.keys())
+    interp.parse = MagicMock(return_value=[
+      Intent('lights_on'),
+    ])
+    interp.parse_slot = MagicMock(return_value=[
+      SlotValue('kitch'),
+      SlotValue('living one'),
+    ])
+
+    agt = Agent(interp, client, handlers)
+    agt.parse('turn the lights on')
+
+    client.ask.assert_called_once_with('rooms', 'Choose a room in one of those', choices)
+    self.assertEqual(STATE_ASK, agt.state)
+    self.assertEqual(choices, agt._choices)
+
+    agt.parse('would not be took into account in those tests')
+
+    self.assertTrue(called)
+    self.assertTrue(assertion_success)
+
+  def test_cancel(self):
+    self.skipTest('Implementation needed')

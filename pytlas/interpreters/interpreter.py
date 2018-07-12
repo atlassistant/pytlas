@@ -1,4 +1,5 @@
 import logging
+from .slot import SlotValue
 
 class Interpreter:
 
@@ -12,7 +13,7 @@ class Interpreter:
     pass
 
   def parse_slot(self, intent, slot, msg):
-    return []
+    return [SlotValue(msg)] # Default is to wrap the raw msg in a SlotValue
 
   def parse(self, msg):
     return []
