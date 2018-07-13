@@ -3,11 +3,12 @@ from .slot import SlotValue
 
 class Interpreter:
 
-  def __init__(self):
+  def __init__(self, training_filepath=None):
     self._logger = logging.getLogger(self.__class__.__name__.lower())
     
     self.lang = None
     self.intents = []
+    self.training_filepath = training_filepath
   
   def fit_as_needed(self):
     pass

@@ -1,7 +1,7 @@
 import logging, argparse, sys
 from .loader import import_skills
 from .localization import import_translations
-from .interpreters.dummy_interpreter import DummyInterpreter
+from .interpreters.dummy import DummyInterpreter
 from .clients.prompt import PromptClient
 
 def main():

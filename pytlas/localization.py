@@ -32,5 +32,5 @@ def import_translations(directory):
     if module not in translations:
       translations[module] = {}
 
-    with open(translation_path) as f:
+    with open(translation_path, encoding='utf-8') as f:
       translations[module][lang[1:]] = json.load(f)
