@@ -26,4 +26,4 @@ class Intent:
     self.slots.update({ k: SlotValues(v) for (k, v) in kwargs.items() })
 
   def __str__(self):
-    return '"%s" with %s slot(s): %s' % (self.name, len(self.slots), ', '.join(self.slots.keys()))
+    return '"%s" with "%s" slot(s): %s' % (self.name, len(self.slots), ', '.join(self.slots.keys()))

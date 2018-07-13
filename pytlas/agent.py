@@ -100,7 +100,7 @@ class Agent:
       before_state_change=self._log_transition,
       initial=STATE_ASLEEP)
 
-    self._logger.info('Instantiated agent with %s states: %s' % (len(states), ', '.join(states)))
+    self._logger.info('Instantiated agent with "%s" states: %s' % (len(states), ', '.join('"%s"' % s for s in states)))
 
     # Go to the asleep state from anywhere except the ask state
     self._machine.add_transition(
@@ -133,7 +133,7 @@ class Agent:
 
   def _log_transition(self, e):
     dest = e.transition.dest
-    msg = '⚡ %s: %s -> %s' % (e.event.name, e.transition.source, dest)
+    msg = '⚡ "%s": %s -> %s' % (e.event.name, e.transition.source, dest)
 
     if dest == STATE_ASK:
       msg += ' (slot: {slot}, choices: {choices})'.format(**e.kwargs)
@@ -170,7 +170,7 @@ class Agent:
     if self.state != STATE_ASK: # pylint: disable=E1101
       intents = [i for i in intents if i.name != STATE_CANCEL]
 
-      self._logger.info('%s intent(s) found: %s' % (len(intents), ', '.join([str(i) for i in intents])))
+      self._logger.info('"%s" intent(s) found: %s' % (len(intents), ', '.join([str(i) for i in intents])))
 
       self._intents_queue.extend(intents)
     
@@ -185,7 +185,7 @@ class Agent:
           values = list(find_matches(self._choices, values))
 
         self._request.intent.update_slots(**{ self._asked_slot: values })
-        self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, [str(v) for v in values]))
+        self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, ['"%s"' % v for v in values]))
         
         self.go(self._request.intent.name, intent=self._request.intent)
       elif self.state == STATE_ASLEEP: # pylint: disable=E1101
@@ -205,7 +205,7 @@ class Agent:
         # if any
         self._request = Request(self, intent, 
           translations.get(handler.__module__, {}).get(self._interpreter.lang, {}))
-        self._logger.info('💬 New "%s" conversation started with id %s' % (intent.name, self._request.id))
+        self._logger.info('💬 New "%s" conversation started with id "%s"' % (intent.name, self._request.id))
       
       try:
         handler(self._request) # TODO multi threaded call
@@ -280,7 +280,7 @@ class Agent:
 
     """
 
-    self._logger.info('Conversation %s has ended' % self._request.id)
+    self._logger.info('Conversation "%s" has ended' % self._request.id)
     self._request = None
     self._asked_slot = None
     self._choices = None

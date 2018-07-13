@@ -12,3 +12,5 @@ class SnipsInterpreter(Interpreter):
     """
 
     super(SnipsInterpreter, self).__init__(training_filepath)
+
+    self._output_directory = output_directory
