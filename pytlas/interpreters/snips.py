@@ -1,5 +1,7 @@
 import os, json
 from .interpreter import Interpreter, compute_checksum
+from .intent import Intent
+from .slot import SlotValue
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.builtin_entities import BuiltinEntityParser, is_builtin_entity
 
@@ -66,3 +68,27 @@ class SnipsInterpreter(Interpreter):
 
     self._entity_parser = BuiltinEntityParser(self.lang)
     self.intents = list(self._engine._dataset_metadata.get('slot_name_mappings', {}).keys())
+
+  def parse(self, msg):
+    # TODO manage multiple intents in the same sentence
+
+    parsed = self._engine.parse(msg)
+
+    if parsed['intent'] == None:
+      return []
+
+    slots = {}
+
+    for slot in parsed['slots']:
+      name = slot['slotName']
+      parsed_slot = slot['value']
+      value = SlotValue(parsed_slot.get('value'), **parsed_slot)
+
+      if name in slots:
+        slots[name].append(value)
+      else:
+        slots[name] = [value]
+
+    return [
+      Intent(parsed['intent']['intentName'], **slots),
+    ]
