@@ -20,6 +20,7 @@ setup(
   install_requires=[
     'transitions==0.6.4',
     'fuzzywuzzy==0.16.0',
+    'colorlog==2.2.0',
   ],
   extras_require={
     'snips': [

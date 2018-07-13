@@ -249,7 +249,7 @@ class Agent:
 
     try:
       self.trigger(state, **kwargs) # pylint: disable=E1101
-    except MachineError as err:
+    except (MachineError, AttributeError) as err:
       self._logger.error('Could not trigger "%s": %s' % (state, err))
 
   def ask(self, slot, text, choices=None):
