@@ -37,10 +37,13 @@ def main():
 
   parser = argparse.ArgumentParser()
   parser.set_defaults(
-    skills_dir='skills'
+    skills_dir='skills',
+    training_file='training.json',
+    output_dir='output',
   )
 
   parser.add_argument('-s', '--skills_dir', help='Specifies the directory containing python skills')
+  parser.add_argument('-t', '--training_file', help='Path to the training file')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
 
   args = parser.parse_args(sys.argv[1:])
@@ -51,4 +54,14 @@ def main():
   import_skills(args.skills_dir)
   import_translations(args.skills_dir)
 
-  PromptClient(DummyInterpreter()).cmdloop()
+  interpreter = DummyInterpreter()
+
+  try:
+    from .interpreters.snips import SnipsInterpreter
+    interpreter = SnipsInterpreter(args.training_file, args.output_dir)
+  except ImportError:
+    log.warning('Could not import the "snips" interpreter, is "snips-nlu" installed? Using a dummy interpreter instead')
+
+  interpreter.fit_as_needed()
+
+  PromptClient(interpreter).cmdloop()
