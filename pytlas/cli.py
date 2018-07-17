@@ -10,12 +10,12 @@ class CustomFormatter(ColoredFormatter):
   """
 
   def __init__(self):
-    super(CustomFormatter, self).__init__('%(log_color)s %(levelname)s %(reset)s %(name)s %(bold_black)s%(message)s', 
+    super(CustomFormatter, self).__init__('%(log_color)s%(levelname)s%(reset)s\t%(name)s\t%(reset)s%(message)s', 
     log_colors={
       'DEBUG': 'green',
-      'INFO': 'black,bg_cyan',
-      'WARNING': 'black,bg_yellow',
-      'ERROR': 'black,bg_red',
+      'INFO': 'cyan',
+      'WARNING': 'yellow',
+      'ERROR': 'red',
     })
 
     self._pattern = re.compile('"(.*?)"')
@@ -23,10 +23,16 @@ class CustomFormatter(ColoredFormatter):
   def format(self, record):
     msg = super(CustomFormatter, self).format(record)
 
-    return self._pattern.sub(r'%s\1%s' % (escape_codes['cyan'], escape_codes['bold_black']), msg) + escape_codes['reset']
+    return self._pattern.sub(r'%s\1%s' % (escape_codes['cyan'], escape_codes['reset']), msg) + escape_codes['reset']
 
-def main():
-  # Sets up the colored logger
+def install_logs(verbose=False):
+  """Installs a custom formatter to color output logs.
+
+  Args:
+    verbose (bool): Verbose output
+
+  """
+
   log = logging.getLogger()
   formatter = CustomFormatter()
   stream = logging.StreamHandler()
@@ -35,6 +41,10 @@ def main():
 
   log.addHandler(stream)
 
+  if verbose:
+    log.setLevel(logging.DEBUG)
+
+def main():
   parser = argparse.ArgumentParser()
   parser.set_defaults(
     skills_dir='skills',
@@ -44,13 +54,12 @@ def main():
 
   parser.add_argument('-s', '--skills_dir', help='Specifies the directory containing python skills')
   parser.add_argument('-t', '--training_file', help='Path to the training file')
+  parser.add_argument('-o', '--output_dir', help='Path to output directory for trained files')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
 
   args = parser.parse_args(sys.argv[1:])
 
-  if args.verbose:
-    log.setLevel(logging.DEBUG)
-
+  install_logs(args.verbose)
   import_skills(args.skills_dir)
   import_translations(args.skills_dir)
 
@@ -60,7 +69,7 @@ def main():
     from .interpreters.snips import SnipsInterpreter
     interpreter = SnipsInterpreter(args.training_file, args.output_dir)
   except ImportError:
-    log.warning('Could not import the "snips" interpreter, is "snips-nlu" installed? Using a dummy interpreter instead')
+    logging.warning('Could not import the "snips" interpreter, is "snips-nlu" installed? Using a dummy interpreter instead')
 
   interpreter.fit_as_needed()
 
