@@ -5,8 +5,8 @@ class SlotValue:
 
   """
   
-  def __init__(self, value, **kwargs):
-    self.value = value
+  def __init__(self, raw_value, **kwargs):
+    self.value = raw_value
     self.meta = kwargs
 
   def __str__(self):

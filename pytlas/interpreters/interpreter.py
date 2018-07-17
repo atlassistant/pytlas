@@ -20,12 +20,12 @@ class Interpreter:
 
   """
 
-  def __init__(self, training_filepath=None):
+  def __init__(self, training_directory=None):
     self._logger = logging.getLogger(self.__class__.__name__.lower())
     
     self.lang = None
     self.intents = []
-    self.training_filepath = training_filepath
+    self.training_directory = training_directory
   
   def fit_as_needed(self):
     """Fit the interpreter if it's needed (ie. the checksum does not match).

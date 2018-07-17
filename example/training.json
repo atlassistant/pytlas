@@ -1,44 +1,3 @@
-import unittest
-from unittest.mock import patch, mock_open
-
-snips_imported = True
-
-try:
-  from pytlas.interpreters.snips import SnipsInterpreter
-except ImportError:
-  snips_imported = False
-
-def snips_available(func):
-  """Check if snips is imported before executing the test
-  """
-
-  def new(*args, **kwargs):
-    if not snips_imported:
-      return args[0].skipTest('snips could not be imported')
-
-    return func(*args, **kwargs)
-
-  return new
-    
-
-class SnipsTests(unittest.TestCase):
-
-  @snips_available
-  @patch('builtins.open')
-  def test_parse(self, open_mock):
-    interp = self._prepare_interpreter(open_mock)
-    intents = interp.parse('will it rain on Paris tomorrow')
-
-    self.assertEqual(1, len(intents))
-
-  @snips_available
-  @patch('builtins.open')
-  def test_parse_slot(self, open_mock):
-    interp = self._prepare_interpreter(open_mock)
-
-  def _prepare_interpreter(self, open_mock):
-    open_mock.side_effect = [
-      mock_open(read_data="""
 {
   "intents": {
     "lights_on": {
@@ -282,11 +241,3 @@ class SnipsTests(unittest.TestCase):
   "entities": {"snips/datetime": {}, "location": { "use_synonyms": true, "automatically_extensible": true, "data": [] }},
   "language": "en"
 }
-""").return_value,
-      mock_open(read_data='').return_value,
-    ]
-
-    interp = SnipsInterpreter('example', False)
-    interp.fit_as_needed()
-
-    return interp

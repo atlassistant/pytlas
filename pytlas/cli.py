@@ -42,19 +42,17 @@ def install_logs(verbose=False):
   log.addHandler(stream)
 
   if verbose:
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
 
 def main():
   parser = argparse.ArgumentParser()
   parser.set_defaults(
     skills_dir='skills',
-    training_file='training.json',
-    output_dir='output',
+    training_dir='',
   )
 
   parser.add_argument('-s', '--skills_dir', help='Specifies the directory containing python skills')
-  parser.add_argument('-t', '--training_file', help='Path to the training file')
-  parser.add_argument('-o', '--output_dir', help='Path to output directory for trained files')
+  parser.add_argument('-t', '--training_dir', help='Path to the training directory')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
 
   args = parser.parse_args(sys.argv[1:])
@@ -67,7 +65,7 @@ def main():
 
   try:
     from .interpreters.snips import SnipsInterpreter
-    interpreter = SnipsInterpreter(args.training_file, args.output_dir)
+    interpreter = SnipsInterpreter(args.training_dir)
   except ImportError:
     logging.warning('Could not import the "snips" interpreter, is "snips-nlu" installed? Using a dummy interpreter instead')
 
