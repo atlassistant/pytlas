@@ -61,4 +61,8 @@ class SnipsTests(unittest.TestCase):
     self.assertEqual(1, len(slots))
     self.assertTrue(datetime.datetime.now().date().isoformat() in slots[0].value)
 
-    slots = interp.parse_slot('lights_on', 'room', 'kitchen and bedroom')
+    slots = [s.value for s in interp.parse_slot('lights_on', 'room', 'kitchen and bedroom')]
+
+    self.assertEqual(2, len(slots))
+    self.assertTrue('kitchen' in slots)
+    self.assertTrue('bedroom' in slots)

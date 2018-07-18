@@ -4,6 +4,7 @@ from .intent import Intent
 from .slot import SlotValue
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.builtin_entities import BuiltinEntityParser, is_builtin_entity
+from fuzzywuzzy import process
 # from snips_nlu.default_configs import CONFIG_EN
 
 class SnipsInterpreter(Interpreter):
@@ -137,8 +138,11 @@ class SnipsInterpreter(Interpreter):
       else:
         entity = self._entities.get(entity_label)
 
-        # Not automatically extensible, try to parse it
+        # Not automatically extensible, try to fuzzy match it
         if entity and entity['automatically_extensible'] == False:
-            pass
+            choices = set(entity['utterances'].values())
+            results = process.extractBests(msg, choices, score_cutoff=60)
+            
+            return [SlotValue(r[0]) for r in results]
 
     return super(SnipsInterpreter, self).parse_slot(intent, slot, msg)
