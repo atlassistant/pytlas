@@ -1,10 +1,10 @@
 from pytlas import intent
 
 def turn_lights(req, on):
-  rooms = req.intent.slot('rooms')
+  rooms = req.intent.slot('room')
 
   if not rooms:
-    return req.agent.ask('rooms', [
+    return req.agent.ask('room', [
       req._('For which rooms?'),
       req._('Which rooms Sir?'),
       req._('Please specify some rooms'),

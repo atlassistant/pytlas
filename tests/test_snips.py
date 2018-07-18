@@ -1,4 +1,4 @@
-import unittest
+import unittest, datetime
 from unittest.mock import patch, mock_open
 
 snips_imported = True
@@ -24,269 +24,41 @@ def snips_available(func):
 class SnipsTests(unittest.TestCase):
 
   @snips_available
-  @patch('builtins.open')
-  def test_parse(self, open_mock):
-    interp = self._prepare_interpreter(open_mock)
-    intents = interp.parse('will it rain on Paris tomorrow')
+  def test_with_no_training_file(self):
+    interp = SnipsInterpreter('', False)
+    interp.fit_as_needed()
+
+  @snips_available
+  def test_parse(self):
+    interp = SnipsInterpreter('./../example', False)
+    interp.fit_as_needed()
+
+    self.assertEqual(3, len(interp.intents))
+
+    intents = interp.parse('will it rain in Paris and London today')
 
     self.assertEqual(1, len(intents))
 
+    intent = intents[0]
+
+    self.assertEqual(2, len(intent.slots))
+    self.assertEqual(1, len(intent.slot('date')))
+    self.assertTrue(datetime.datetime.now().date().isoformat() in intent.slot('date').first().value)
+    self.assertEqual(2, len(intent.slot('city')))
+
+    city_values = [i.value for i in intent.slot('city')]
+
+    self.assertTrue('paris' in city_values)
+    self.assertTrue('london' in city_values)
+
   @snips_available
-  @patch('builtins.open')
-  def test_parse_slot(self, open_mock):
-    interp = self._prepare_interpreter(open_mock)
-
-  def _prepare_interpreter(self, open_mock):
-    open_mock.side_effect = [
-      mock_open(read_data="""
-{
-  "intents": {
-    "lights_on": {
-      "utterances": [
-        {"data": [{"text": "turn lights on please"}]},
-        {"data": [{"text": "i want some lights"}]},
-        {"data": [{"text": "lights on"}]},
-        {"data": [{"text": "turn the lights on please"}]}
-      ]
-    },
-    "lights_off": {
-      "utterances": [
-        {"data": [{"text": "please turn the lights off"}]},
-        {"data": [{"text": "turn lights off please"}]},
-        {"data": [{"text": "can you turn the lights off"}]},
-        {"data": [{"text": "turn the lights off please"}]},
-        {"data": [{"text": "gimme some obscurity"}]}
-      ]
-    },
-    "get_forecast": {
-      "utterances": [
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "London", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "London", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "what's the weather like in "},
-            {"text": "London", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
-          ]
-        }
-      ]
-    }
-  },
-  "entities": {"snips/datetime": {}, "location": { "use_synonyms": true, "automatically_extensible": true, "data": [] }},
-  "language": "en"
-}
-""").return_value,
-      mock_open(read_data='').return_value,
-    ]
-
-    interp = SnipsInterpreter('example', False)
+  def test_parse_slot(self):
+    interp = SnipsInterpreter('./../example', False)
     interp.fit_as_needed()
 
-    return interp
+    slots = interp.parse_slot('get_forecast', 'date', 'on today')
+
+    self.assertEqual(1, len(slots))
+    self.assertTrue(datetime.datetime.now().date().isoformat() in slots[0].value)
+
+    slots = interp.parse_slot('lights_on', 'room', 'kitchen and bedroom')

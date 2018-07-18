@@ -1,243 +1,1313 @@
 {
+  "language": "en",
+  "entities": {
+    "location": {
+      "use_synonyms": true,
+      "automatically_extensible": true,
+      "data": [{"value": "los angeles", "synonyms": ["la"]}]
+    },
+    "snips/datetime": {},
+    "room": {
+      "use_synonyms": false,
+      "automatically_extensible": false,
+      "data": []
+    }
+  },
   "intents": {
-    "lights_on": {
-      "utterances": [
-        {"data": [{"text": "turn lights on please"}]},
-        {"data": [{"text": "i want some lights"}]},
-        {"data": [{"text": "lights on"}]},
-        {"data": [{"text": "turn the lights on please"}]}
-      ]
-    },
-    "lights_off": {
-      "utterances": [
-        {"data": [{"text": "please turn the lights off"}]},
-        {"data": [{"text": "turn lights off please"}]},
-        {"data": [{"text": "can you turn the lights off"}]},
-        {"data": [{"text": "turn the lights off please"}]},
-        {"data": [{"text": "gimme some obscurity"}]}
-      ]
-    },
     "get_forecast": {
       "utterances": [
         {
           "data": [
-            {"text": "will it be sunny on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
+            {"text": "will it be sunny in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
           ]
         },
         {
           "data": [
-            {"text": "will it rain on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": "will it be sunny in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "will it be sunny in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
             {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "what kind of weather should I expect "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "la", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            }
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "london", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "at the end of the day",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "la", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            }
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "london", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "tomorrow morning",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "la", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            }
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "london", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {
+              "text": "this afternoon",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            },
+            {"text": " in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "la", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            }
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "london", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "tell me if it is going to rain "},
+            {"text": "today", "slot_name": "date", "entity": "snips/datetime"},
+            {"text": " in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "What is the weather in "},
+            {"text": "los angeles", "slot_name": "city", "entity": "location"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "What is the weather in "},
+            {"text": "la", "slot_name": "city", "entity": "location"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "What is the weather in "},
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            },
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "What is the weather in "},
+            {"text": "tokyo", "slot_name": "city", "entity": "location"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "What is the weather in "},
+            {"text": "london", "slot_name": "city", "entity": "location"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "What is the weather in "},
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"},
+            {"text": " ?"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "What is the weather in "},
+            {"text": "paris", "slot_name": "city", "entity": "location"},
+            {"text": " ?"}
           ]
         },
         {
           "data": [
             {"text": "what's the weather like in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"}
+            {"text": "los angeles", "slot_name": "city", "entity": "location"}
           ]
         },
         {
           "data": [
             {"text": "what's the weather like in "},
-            {"text": "London", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
+            {"text": "la", "slot_name": "city", "entity": "location"}
           ]
         },
         {
           "data": [
             {"text": "what's the weather like in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
+            {
+              "text": "rio de janeiro",
+              "slot_name": "city",
+              "entity": "location"
+            }
           ]
         },
         {
           "data": [
             {"text": "what's the weather like in "},
-            {"text": "London", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
+            {"text": "tokyo", "slot_name": "city", "entity": "location"}
           ]
         },
         {
           "data": [
             {"text": "what's the weather like in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it rain on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
+            {"text": "london", "slot_name": "city", "entity": "location"}
           ]
         },
         {
           "data": [
             {"text": "what's the weather like in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"}
-          ]
-        },
-        {
-          "data": [
-            {"text": "will it be sunny on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
+            {"text": "tel aviv", "slot_name": "city", "entity": "location"}
           ]
         },
         {
           "data": [
             {"text": "what's the weather like in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"}
+            {"text": "paris", "slot_name": "city", "entity": "location"}
+          ]
+        }
+      ]
+    },
+    "lights_on": {
+      "utterances": [
+        {
+          "data": [
+            {"text": "turn lights on in "},
+            {"text": "living room", "slot_name": "room", "entity": "room"}
           ]
         },
         {
           "data": [
-            {"text": "what's the weather like in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"}
+            {"text": "turn lights on in "},
+            {"text": "kitchen", "slot_name": "room", "entity": "room"}
           ]
         },
         {
           "data": [
-            {"text": "what's the weather like in "},
-            {"text": "London", "slot_name": "city", "entity": "location"},
-            {"text": " on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"}
+            {"text": "turn lights on in "},
+            {"text": "bedroom", "slot_name": "room", "entity": "room"}
           ]
         },
         {
           "data": [
-            {"text": "will it rain on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
+            {"text": "lights on in "},
+            {"text": "living room", "slot_name": "room", "entity": "room"}
           ]
         },
         {
           "data": [
-            {"text": "will it be sunny on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
+            {"text": "lights on in "},
+            {"text": "kitchen", "slot_name": "room", "entity": "room"}
           ]
         },
         {
           "data": [
-            {"text": "will it be sunny on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
+            {"text": "lights on in "},
+            {"text": "bedroom", "slot_name": "room", "entity": "room"}
           ]
         },
         {
           "data": [
-            {"text": "will it rain on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Rouen", "slot_name": "city", "entity": "location"}
+            {"text": "start the "},
+            {"text": "living room", "slot_name": "room", "entity": "room"},
+            {"text": " lights"}
           ]
         },
         {
           "data": [
-            {"text": "will it be sunny on "},
-            {"text": "monday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
+            {"text": "start the "},
+            {"text": "kitchen", "slot_name": "room", "entity": "room"},
+            {"text": " lights"}
           ]
         },
         {
           "data": [
-            {"text": "will it be sunny on "},
-            {"text": "sunday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "Paris", "slot_name": "city", "entity": "location"}
+            {"text": "start the "},
+            {"text": "bedroom", "slot_name": "room", "entity": "room"},
+            {"text": " lights"}
           ]
         },
         {
           "data": [
-            {"text": "will it rain on "},
-            {"text": "tuesday", "slot_name": "date", "entity": "snips/datetime"},
-            {"text": " in "},
-            {"text": "London", "slot_name": "city", "entity": "location"}
+            {"text": "turn "},
+            {"text": "living room", "slot_name": "room", "entity": "room"},
+            {"text": " lights on please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "turn "},
+            {"text": "kitchen", "slot_name": "room", "entity": "room"},
+            {"text": " lights on please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "turn "},
+            {"text": "bedroom", "slot_name": "room", "entity": "room"},
+            {"text": " lights on please"}
+          ]
+        }
+      ]
+    },
+    "lights_off": {
+      "utterances": [
+        {
+          "data": [
+            {"text": "turn lights off in "},
+            {"text": "living room", "slot_name": "room", "entity": "room"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "turn lights off in "},
+            {"text": "kitchen", "slot_name": "room", "entity": "room"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "turn lights off in "},
+            {"text": "bedroom", "slot_name": "room", "entity": "room"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "lights off in "},
+            {"text": "living room", "slot_name": "room", "entity": "room"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "lights off in "},
+            {"text": "kitchen", "slot_name": "room", "entity": "room"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "lights off in "},
+            {"text": "bedroom", "slot_name": "room", "entity": "room"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "close the "},
+            {"text": "living room", "slot_name": "room", "entity": "room"},
+            {"text": " lights"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "close the "},
+            {"text": "kitchen", "slot_name": "room", "entity": "room"},
+            {"text": " lights"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "close the "},
+            {"text": "bedroom", "slot_name": "room", "entity": "room"},
+            {"text": " lights"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "turn "},
+            {"text": "living room", "slot_name": "room", "entity": "room"},
+            {"text": " lights off please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "turn "},
+            {"text": "kitchen", "slot_name": "room", "entity": "room"},
+            {"text": " lights off please"}
+          ]
+        },
+        {
+          "data": [
+            {"text": "turn "},
+            {"text": "bedroom", "slot_name": "room", "entity": "room"},
+            {"text": " lights off please"}
           ]
         }
       ]
     }
-  },
-  "entities": {"snips/datetime": {}, "location": { "use_synonyms": true, "automatically_extensible": true, "data": [] }},
-  "language": "en"
+  }
 }

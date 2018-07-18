@@ -5,6 +5,7 @@ COPY . /src
 WORKDIR /src
 
 RUN pip install -e ".[snips]"
+RUN snips-nlu download en
 
 VOLUME [ "/pytlas" ]
 WORKDIR /pytlas
