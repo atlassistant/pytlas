@@ -197,7 +197,7 @@ class Agent:
     handler = self._handlers.get(intent.name)
     
     if not handler:
-      self._logger.error('No handler found for the intent "%s"' % intent.name)
+      self._logger.warning('No handler found for the intent "%s"' % intent.name)
       self.done()
     else:
       if (self._request == None or self._request.intent != intent):
@@ -280,7 +280,9 @@ class Agent:
 
     """
 
-    self._logger.info('Conversation "%s" has ended' % self._request.id)
+    if self._request:
+      self._logger.info('Conversation "%s" has ended' % self._request.id)
+
     self._request = None
     self._asked_slot = None
     self._choices = None

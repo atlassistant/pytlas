@@ -25,7 +25,7 @@ class CustomFormatter(ColoredFormatter):
 
     return self._pattern.sub(r'%s\1%s' % (escape_codes['cyan'], escape_codes['reset']), msg) + escape_codes['reset']
 
-def install_logs(verbose=False):
+def install_logs(verbosity=logging.WARNING):
   """Installs a custom formatter to color output logs.
 
   Args:
@@ -40,11 +40,9 @@ def install_logs(verbose=False):
   stream.setFormatter(formatter)
 
   log.addHandler(stream)
+  log.setLevel(verbosity)
 
-  if verbose:
-    log.setLevel(logging.INFO)
-
-def main():
+def create_parser():
   parser = argparse.ArgumentParser()
   parser.set_defaults(
     skills_dir='skills',
@@ -54,20 +52,31 @@ def main():
   parser.add_argument('-s', '--skills_dir', help='Specifies the directory containing python skills')
   parser.add_argument('-t', '--training_dir', help='Path to the training directory')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+  parser.add_argument('-vv', '--trace', action='store_true', help='Ultra verbose output')
 
-  args = parser.parse_args(sys.argv[1:])
+  return parser
 
-  install_logs(args.verbose)
+def main():
+  args = create_parser().parse_args(sys.argv[1:])
+
+  verbosity = logging.WARNING
+
+  if args.verbose:
+    verbosity = logging.INFO
+  elif args.trace:
+    verbosity = logging.DEBUG
+
+  install_logs(verbosity)
   import_skills(args.skills_dir)
   import_translations(args.skills_dir)
-
+  
   interpreter = DummyInterpreter()
 
   try:
     from .interpreters.snips import SnipsInterpreter
     interpreter = SnipsInterpreter(args.training_dir)
   except ImportError:
-    logging.warning('Could not import the "snips" interpreter, is "snips-nlu" installed? Using a dummy interpreter instead')
+    logging.warning('Could not import the "snips" interpreter, is "snips-nlu" installed? Using a dummy interpreter instead') 
 
   interpreter.fit_as_needed()
 

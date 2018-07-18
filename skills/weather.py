@@ -8,5 +8,7 @@ def on_forecast(req):
   for city in cities:
     print (city.value)
     print (city.meta)
+
+  print (req.intent.slot('date').first().value)
     
   return req.agent.done()
