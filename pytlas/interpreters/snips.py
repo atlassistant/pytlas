@@ -20,15 +20,11 @@ class SnipsInterpreter(Interpreter):
 
     """
 
-    super(SnipsInterpreter, self).__init__(training_directory)
+    super(SnipsInterpreter, self).__init__('snips', training_directory)
 
     self._engine = None
     self._entity_parser = None
     self._persist = persist
-
-    self._cache_directory = os.path.join(self.training_directory, 'cache')
-    self._training_filepath = os.path.join(self.training_directory, 'training.json')
-    self._checksum_filepath = os.path.join(self._cache_directory, 'training.checksum')
 
   def fit_as_needed(self):
     self._logger.info('Using "snips v%s"' % __version__)
@@ -38,7 +34,7 @@ class SnipsInterpreter(Interpreter):
 
     # Try to computes training checksum first
     try:
-      with open(self._training_filepath) as f:
+      with open(self.training_filepath) as f:
         training_str = f.read()
         training_checksum = compute_checksum(training_str)
         training_data = json.loads(training_str)
@@ -46,21 +42,23 @@ class SnipsInterpreter(Interpreter):
         self.lang = training_data['language']
     except FileNotFoundError:
       # No training file, do nothing
+      self._logger.warning('No training file found, engine will be not fitted!')
+
       training_checksum = None
       training_data = None
       self.lang = 'en'
 
     # Try to open the cached checksum
     try:
-      with open(self._checksum_filepath) as f:
+      with open(self.checksum_filepath) as f:
         cached_checksum = f.read()
     except FileNotFoundError:
-      pass
+      self._logger.debug('Checksum file not found')
 
     # If they matched, load the engine from the cache directory
     if training_checksum and training_checksum == cached_checksum:
-      self._logger.info('Checksums matched, loading engine from "%s"' % self._cache_directory)
-      self._engine = SnipsNLUEngine.from_path(self._cache_directory) 
+      self._logger.info('Checksums matched, loading engine from "%s"' % self.cache_directory)
+      self._engine = SnipsNLUEngine.from_path(self.cache_directory) 
     else:
       # Else retrain it
       self._logger.info('Checksum has changed, retraining the engine from "%s"' % self.training_directory)
@@ -75,14 +73,14 @@ class SnipsInterpreter(Interpreter):
 
       # If we want to cache our engine, do it now!
       if self._persist:
-        self._logger.info('Persisting trained engine to "%s"' % self._cache_directory)
+        self._logger.info('Persisting trained engine to "%s"' % self.cache_directory)
         
-        shutil.rmtree(self._cache_directory, ignore_errors=True)
+        shutil.rmtree(self.cache_directory, ignore_errors=True)
 
-        self._engine.persist(self._cache_directory)
+        self._engine.persist(self.cache_directory)
 
         if training_checksum:
-          with open(self._checksum_filepath, mode='w') as f:
+          with open(self.checksum_filepath, mode='w') as f:
             f.write(training_checksum)
 
     self._entity_parser = BuiltinEntityParser(self.lang)
@@ -96,12 +94,24 @@ class SnipsInterpreter(Interpreter):
 
     self.intents = list(self._slot_mappings.keys())
 
+  @property
+  def is_ready(self):
+    """Returns true if the interpreter is ready.
+
+    Returns:
+      bool: Ready or not
+
+    """
+
+    return self._engine and self._engine.fitted
+
   def parse(self, msg):
+    if not self.is_ready:
+      return []
+
     # TODO manage multiple intents in the same sentence
 
     parsed = self._engine.parse(msg)
-
-    # print (json.dumps(parsed, indent=2))
 
     if parsed['intent'] == None:
       return []
@@ -123,6 +133,9 @@ class SnipsInterpreter(Interpreter):
     ]
 
   def parse_slot(self, intent, slot, msg):
+    if not self.is_ready:
+      return []
+
     entity_label = self._slot_mappings.get(intent, {}).get(slot)
 
     if entity_label:
@@ -140,7 +153,7 @@ class SnipsInterpreter(Interpreter):
 
         # Not automatically extensible, try to fuzzy match it
         if entity and entity['automatically_extensible'] == False:
-            choices = set(entity['utterances'].values())
+            choices = set(entity['utterances'].values()) # TODO use keys instead for synonyms
             results = process.extractBests(msg, choices, score_cutoff=60)
             
             return [SlotValue(r[0]) for r in results]

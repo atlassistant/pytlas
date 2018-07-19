@@ -8,7 +8,7 @@ from pytlas.interpreters import Interpreter, Intent, SlotValue
 class AgentTests(unittest.TestCase):
 
   def test_simple_intent(self):
-    interp = Interpreter()
+    interp = Interpreter('test')
     client = Client()
     handlers = {
       'lights_on': MagicMock(),
@@ -38,7 +38,7 @@ class AgentTests(unittest.TestCase):
       nonlocal lights_off_request
       lights_off_request = r
 
-    interp = Interpreter()
+    interp = Interpreter('test')
     client = Client()
     handlers = {
       'lights_on': lights_on,
@@ -73,7 +73,7 @@ class AgentTests(unittest.TestCase):
       request = r
       r.agent.ask('a_slot', 'Please fill the slot')
 
-    interp = Interpreter()
+    interp = Interpreter('test')
     client = Client()
     client.ask = MagicMock()
     client.done = MagicMock()
@@ -131,7 +131,7 @@ class AgentTests(unittest.TestCase):
     handlers = {
       'lights_on': handler,
     }
-    interp = Interpreter()
+    interp = Interpreter('test')
     interp.intents = list(handlers.keys())
     interp.parse = MagicMock(return_value=[
       Intent('lights_on'),
@@ -157,7 +157,7 @@ class AgentTests(unittest.TestCase):
     handlers = {
       'lights_on': lambda r: r.agent.ask('rooms', 'Please specify a room'),
     }
-    interp = Interpreter()
+    interp = Interpreter('test')
     interp.intents = list(handlers.keys())
     interp.parse = MagicMock(return_value=[
       Intent('lights_on'),
@@ -192,7 +192,7 @@ class AgentTests(unittest.TestCase):
     handlers = {
       STATE_FALLBACK: handler,
     }
-    interp = Interpreter()
+    interp = Interpreter('test')
     interp.intents = list(handlers.keys())
     interp.parse = MagicMock(return_value=[])
 

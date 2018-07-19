@@ -10,7 +10,7 @@ from fuzzywuzzy import process
 # Silent the transitions logger
 logging.getLogger('transitions').setLevel(logging.WARNING)
 
-STATE_PREFIX = 'pytlas/'
+STATE_PREFIX = 'pytlas__'
 STATE_ASLEEP = STATE_PREFIX + 'asleep'
 STATE_CANCEL = STATE_PREFIX + 'cancel'
 STATE_FALLBACK = STATE_PREFIX + 'fallback'

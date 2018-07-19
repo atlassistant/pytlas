@@ -1,4 +1,4 @@
-import logging, hashlib
+import logging, hashlib, os
 from .slot import SlotValue
 
 def compute_checksum(data):
@@ -20,12 +20,22 @@ class Interpreter:
 
   """
 
-  def __init__(self, training_directory=None):
-    self._logger = logging.getLogger(self.__class__.__name__.lower())
+  def __init__(self, name, training_directory=None):
+    self._logger = logging.getLogger(name)
     
     self.lang = None
+    self.name = name
     self.intents = []
     self.training_directory = training_directory
+
+    self.cache_directory = ''
+    self.training_filepath = ''
+    self.checksum_filepath = ''
+
+    if self.training_directory:
+      self.cache_directory = os.path.join(self.training_directory, 'cache')
+      self.training_filepath = os.path.join(self.training_directory, 'training.json')
+      self.checksum_filepath = os.path.join(self.cache_directory, 'training.checksum')
   
   def fit_as_needed(self):
     """Fit the interpreter if it's needed (ie. the checksum does not match).

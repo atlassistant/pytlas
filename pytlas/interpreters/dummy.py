@@ -6,7 +6,7 @@ from ..skill import handlers
 class DummyInterpreter(Interpreter):
 
   def __init__(self):
-    super(DummyInterpreter, self).__init__()
+    super(DummyInterpreter, self).__init__('dummy')
 
     self.lang = 'fr'
     self.intents = list(handlers.keys())

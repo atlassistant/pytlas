@@ -29,10 +29,18 @@ class SnipsTests(unittest.TestCase):
     interp.fit_as_needed()
 
   @snips_available
+  def test_not_fitted(self):
+    interp = SnipsInterpreter('', False)
+
+    self.assertFalse(interp.is_ready)
+    self.assertEqual([], interp.parse('a message'))
+
+  @snips_available
   def test_parse(self):
     interp = SnipsInterpreter('./../example', False)
     interp.fit_as_needed()
 
+    self.assertTrue(interp.is_ready)
     self.assertEqual(3, len(interp.intents))
 
     intents = interp.parse('will it rain in Paris and London today')
