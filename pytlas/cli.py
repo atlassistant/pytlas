@@ -47,12 +47,14 @@ def create_parser():
   parser.set_defaults(
     skills_dir='skills',
     training_dir='',
+    verbose=False,
+    debug=False,
   )
 
   parser.add_argument('-s', '--skills_dir', help='Specifies the directory containing python skills')
   parser.add_argument('-t', '--training_dir', help='Path to the training directory')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
-  parser.add_argument('-vv', '--trace', action='store_true', help='Ultra verbose output')
+  parser.add_argument('--debug', action='store_true', help='Debug mode')
 
   return parser
 
@@ -63,7 +65,8 @@ def main():
 
   if args.verbose:
     verbosity = logging.INFO
-  elif args.trace:
+  
+  if args.debug:
     verbosity = logging.DEBUG
 
   install_logs(verbosity)
