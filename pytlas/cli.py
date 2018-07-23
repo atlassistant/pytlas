@@ -49,12 +49,14 @@ def create_parser():
     training_dir='',
     verbose=False,
     debug=False,
+    reload=False,
   )
 
   parser.add_argument('-s', '--skills_dir', help='Specifies the directory containing python skills')
   parser.add_argument('-t', '--training_dir', help='Path to the training directory')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
   parser.add_argument('--debug', action='store_true', help='Debug mode')
+  parser.add_argument('-r', '--reload', action='store_true', help='Reload on skill files change')
 
   return parser
 
@@ -70,7 +72,7 @@ def main():
     verbosity = logging.DEBUG
 
   install_logs(verbosity)
-  import_skills(args.skills_dir)
+  import_skills(args.skills_dir, args.reload)
   import_translations(args.skills_dir)
   
   interpreter = DummyInterpreter()

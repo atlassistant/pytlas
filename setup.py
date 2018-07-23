@@ -21,6 +21,7 @@ setup(
     'transitions==0.6.4',
     'fuzzywuzzy==0.16.0',
     'colorlog==2.2.0',
+    'watchgod==0.2',
   ],
   extras_require={
     'snips': [

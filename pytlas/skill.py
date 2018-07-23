@@ -3,6 +3,13 @@ import logging
 handlers = {}
 
 def intent(intent_name):
+  """Decorator used to register an intent handler.
+
+  Args:
+    intent_name (str): Name of the intent to handle
+  
+  """
+  
   def new(func):
     logging.info('Registered "%s.%s" which should handle "%s" intent' % (func.__module__, func.__name__, intent_name))
 

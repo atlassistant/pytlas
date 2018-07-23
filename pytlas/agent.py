@@ -208,6 +208,7 @@ class Agent:
         self._logger.info('💬 New "%s" conversation started with id "%s"' % (intent.name, self._request.id))
       
       try:
+        self._logger.debug('Calling handler "%s"' % handler)
         handler(self._request) # TODO multi threaded call
       except Exception as err:
         self._logger.error(err)

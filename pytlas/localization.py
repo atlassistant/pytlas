@@ -1,4 +1,4 @@
-import json, glob, os
+import json, glob, os, logging
 
 # Represents translations by module/lang
 translations = {}
@@ -24,6 +24,8 @@ def import_translations(directory):
     directory (str): Directory containing translation files
 
   """
+
+  logging.debug('Importing translations from "%s"' % directory)
 
   for translation_path in list_translations(directory):
     name_with_lang, _ = os.path.splitext(os.path.basename(translation_path))
