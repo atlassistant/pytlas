@@ -43,10 +43,18 @@ def install_logs(verbosity=logging.WARNING):
   log.setLevel(verbosity)
 
 def create_parser():
+  """Creates the parser that pytlas CLI internaly use.
+
+  This is useful if you want to give the same options in your own program.
+
+  Returns:
+    ArgumentParser: Parser to use
+
+  """
   parser = argparse.ArgumentParser()
   parser.set_defaults(
     skills_dir='skills',
-    training_dir='',
+    training_dir='training',
     verbose=False,
     debug=False,
     reload=False,

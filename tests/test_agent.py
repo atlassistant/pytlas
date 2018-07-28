@@ -2,6 +2,7 @@ import unittest, logging
 from unittest.mock import MagicMock
 from pytlas import Agent
 from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
+from pytlas.card import Card
 from pytlas.clients import Client
 from pytlas.interpreters import Interpreter, Intent, SlotValue
 
@@ -200,3 +201,23 @@ class AgentTests(unittest.TestCase):
     agt.parse('something not catched')
 
     self.assertTrue(assertion_success)
+
+  def test_cards(self):
+    card = Card('Title', 'Content text')
+    
+    def handler(r):
+      nonlocal card
+      r.agent.answer('Some text', card)
+
+      return r.agent.done()
+
+    client = Client()
+    client.answer = MagicMock()
+    handlers = {
+      STATE_FALLBACK: handler,
+    }
+    interp = Interpreter('test')
+    agt = Agent(interp, client, handlers)
+    agt.parse('something not matched')
+
+    client.answer.assert_called_once_with('Some text', [card])

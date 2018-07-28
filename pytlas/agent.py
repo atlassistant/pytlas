@@ -74,6 +74,16 @@ class Agent:
   """
 
   def __init__(self, interpreter, client, handlers=None, **kwargs):
+    """Initialize an agent.
+
+    Args:
+      interpreter (Interpreter): Interpreter used to convert human language to intents
+      client (Client): Client to communicate with the user
+      handlers (dict): Dictionary of intent: handler to use. If no one is provided, all handlers registered will be used instead.
+      kwargs (dict): Every other properties will be made available through the self.meta property
+
+    """
+
     self._logger = logging.getLogger(self.__class__.__name__.lower())
     self._interpreter = interpreter
     self._client = client
@@ -255,16 +265,30 @@ class Agent:
 
   def ask(self, slot, text, choices=None):
     """Ask something to the user.
+
+    Args:
+      slot (str): Name of the slot asked for
+      text (str, list): Text to show to the user
+      choices (list): List of available choices
+
     """
 
     self._client.done()
     self.go(STATE_ASK, slot=slot, text=text, choices=choices)
 
-  def answer(self, text):
+  def answer(self, text, cards=None):
     """Answer something to the user.
+
+    Args:
+      text (str, list): Text to show to the user
+      cards (list, Card): List of Card to show if any
+
     """
 
-    self._client.answer(keep_one(text))
+    if cards and type(cards) is not list:
+      cards = [cards]
+
+    self._client.answer(keep_one(text), cards)
 
   def done(self):
     """Done should be called by skills when they are done with their stuff. It enables

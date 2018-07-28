@@ -15,7 +15,7 @@ class PromptClient(cmd.Cmd):
   def ask(self, slot, text, choices):
     print (text)
 
-  def answer(self, text):
+  def answer(self, text, cards):
     print (text)
 
   def done(self):

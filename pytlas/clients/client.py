@@ -34,11 +34,12 @@ class Client:
 
     pass
 
-  def answer(self, text):
+  def answer(self, text, cards):
     """Answer will be called by the agent to display informations to the user.
 
     Args:
       text (str): Text to show to the user
+      cards (list): List of Card to show to the user
 
     """
     
