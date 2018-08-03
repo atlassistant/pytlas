@@ -2,15 +2,6 @@ class Client:
   """Base interface for a client to implement.
   """
 
-  def __init__(self, agent=None):
-    """Instantiates a new Client for the given agent.
-
-    Args:
-      agent (Agent): Agent tied to this client
-    """
-
-    self._agent = agent
-
   def parse(self, msg):
     """Parses the given message.
 
@@ -19,8 +10,7 @@ class Client:
     
     """
 
-    if self._agent:
-      self._agent.parse(msg)
+    pass
 
   def ask(self, slot, text, choices):
     """Ask will be called by the agent when a skill needs more information to go on.
