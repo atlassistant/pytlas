@@ -24,7 +24,7 @@ source
 
   or
 
-  $ pip install -e .
+  $ pip install -e ."[snips]"
 
 Testing
 -------

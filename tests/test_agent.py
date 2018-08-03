@@ -180,6 +180,24 @@ class AgentTests(unittest.TestCase):
     self.assertIsNone(agt._request)
     self.assertIsNone(agt._asked_slot)
 
+  def test_setup(self):
+    interp = Interpreter('test')
+    interp.intents = ['intent_one', 'intent_two']
+    client = Client()
+    client.done = MagicMock()
+    agt = Agent(interp, client)
+
+    self.assertIsNotNone(agt._machine)
+    self.assertEqual(6, len(agt._machine.states))
+
+    interp.intents = ['intent_one', 'intent_two', 'intent_three']
+    self.assertEqual(6, len(agt._machine.states))
+
+    agt.setup()
+
+    self.assertEqual(7, len(agt._machine.states))
+    client.done.assert_called_once()
+
   def test_fallback(self):
 
     assertion_success = False

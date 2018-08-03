@@ -97,9 +97,20 @@ class Agent:
     self.meta = kwargs
 
     self._machine = None
-    self._init_state_machine()
+    self.setup()
 
-  def _init_state_machine(self):
+  def setup(self):
+    """Setup the state machine based on the interpreter available intents. This is
+    especialy useful if you have trained the interpreter after creating this agent.
+
+    This method is also called from the constructor.
+
+    """
+
+    # Ends the conversation if the machine already exists, just to make sure
+    if self._machine:
+      self.end_conversation()
+
     intents = [i for i in self._interpreter.intents if not is_builtin(i)]
     states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + intents
     
