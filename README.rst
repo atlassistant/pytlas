@@ -1,9 +1,18 @@
-pytlas
-======
+pytlas |travis| |pypi| |license|
+================================
+
+.. |travis| image:: https://travis-ci.org/atlassistant/pytlas.svg?branch=master
+    :target: https://travis-ci.org/atlassistant/pytlas
+
+.. |pypi| image:: https://badge.fury.io/py/pytlas.svg
+    :target: https://badge.fury.io/py/pytlas
+
+.. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
+    :target: https://www.gnu.org/licenses/gpl-3.0
 
 An open-source 🤖 assistant built for people and made to be super easy to setup and understand.
 
-I first started to develop `atlas<https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.
+I first started to develop `atlas <https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.
 
 I have ditched the **MQTT** part to keep things super simple to understand.
 

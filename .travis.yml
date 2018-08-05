@@ -1,0 +1,8 @@
+language: python
+python:
+  - "3.6"
+install:
+  - pip install -e ."[snips]"
+  - snips-nlu download en
+script:
+  - cd tests && python -m unittest -v
