@@ -1,7 +1,11 @@
 pytlas
 ======
 
-Python 3 assistant made to be super simple to setup!
+An open-source 🤖 assistant built for people and made to be super easy to setup and understand.
+
+I first started to develop `atlas<https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.
+
+I have ditched the **MQTT** part to keep things super simple to understand.
 
 Installation
 ------------
@@ -28,6 +32,18 @@ source
 
 Usage
 -----
+
+From the terminal
+~~~~~~~~~~~~~~~~~
+
+This line will start the pytlas command prompt with training data from `example/` and skills in the `example/skills/` directory. Every python file in the `example/skills/` will be imported by the CLI so handlers will be registered and called when appropriate.
+
+.. code-block:: bash
+
+  $ pytlas -t example -s example/skills
+
+From code
+~~~~~~~~~
 
 .. code-block:: python
 
