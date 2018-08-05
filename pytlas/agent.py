@@ -73,20 +73,28 @@ class Agent:
 
   """
 
-  def __init__(self, interpreter, client, handlers=None, **kwargs):
+  def __init__(self, interpreter, handlers=None, 
+    on_ask=None, on_answer=None, on_done=None, **kwargs):
     """Initialize an agent.
 
     Args:
       interpreter (Interpreter): Interpreter used to convert human language to intents
-      client (Client): Client to communicate with the user
       handlers (dict): Dictionary of intent: handler to use. If no one is provided, all handlers registered will be used instead.
+      on_ask (func): Handler called when a skill needs more user input
+      on_answer (func): Handler called called when a skill wants to give an answer to the user
+      on_done (func): Called when a skill has ended its work
       kwargs (dict): Every other properties will be made available through the self.meta property
 
     """
 
     self._logger = logging.getLogger(self.__class__.__name__.lower())
     self._interpreter = interpreter
-    self._client = client
+
+    # Register handlers
+    self.on_ask = on_ask
+    self.on_answer = on_answer
+    self.on_done = on_done
+
     self._handlers = handlers or skill_handlers
 
     self._intents_queue = []
@@ -252,7 +260,8 @@ class Agent:
     self._asked_slot = slot
     self._choices = choices
 
-    self._client.ask(slot, text, choices)
+    if self.on_ask:
+      self.on_ask(slot, text, choices)
 
   def _process_next_intent(self):
     if len(self._intents_queue) > 0:
@@ -284,7 +293,9 @@ class Agent:
 
     """
 
-    self._client.done()
+    if self.on_done:
+      self.on_done()
+
     self.go(STATE_ASK, slot=slot, text=text, choices=choices)
 
   def answer(self, text, cards=None):
@@ -299,7 +310,8 @@ class Agent:
     if cards and type(cards) is not list:
       cards = [cards]
 
-    self._client.answer(keep_one(text), cards)
+    if self.on_answer:
+      self.on_answer(keep_one(text), cards)
 
   def done(self):
     """Done should be called by skills when they are done with their stuff. It enables
@@ -322,5 +334,8 @@ class Agent:
     self._request = None
     self._asked_slot = None
     self._choices = None
-    self._client.done()
+
+    if self.on_done:
+      self.on_done()
+      
     self._process_next_intent()

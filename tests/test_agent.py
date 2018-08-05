@@ -3,14 +3,12 @@ from unittest.mock import MagicMock
 from pytlas import Agent
 from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.card import Card
-from pytlas.clients import Client
 from pytlas.interpreters import Interpreter, Intent, SlotValue
 
 class AgentTests(unittest.TestCase):
 
   def test_simple_intent(self):
     interp = Interpreter('test')
-    client = Client()
     handlers = {
       'lights_on': MagicMock(),
       'lights_off': MagicMock(),
@@ -20,7 +18,7 @@ class AgentTests(unittest.TestCase):
       Intent('lights_on')
     ])
 
-    agt = Agent(interp, client, handlers)
+    agt = Agent(interp, handlers)
     agt.parse('turn lights on')
 
     handlers['lights_on'].assert_called_once()
@@ -40,7 +38,6 @@ class AgentTests(unittest.TestCase):
       lights_off_request = r
 
     interp = Interpreter('test')
-    client = Client()
     handlers = {
       'lights_on': lights_on,
       'lights_off': lights_off,
@@ -51,7 +48,7 @@ class AgentTests(unittest.TestCase):
       Intent('lights_off')
     ])
     
-    agt = Agent(interp, client, handlers)
+    agt = Agent(interp, handlers)
     agt.parse('turn lights on and off')
 
     self.assertIsNotNone(lights_on_request)
@@ -75,9 +72,9 @@ class AgentTests(unittest.TestCase):
       r.agent.ask('a_slot', 'Please fill the slot')
 
     interp = Interpreter('test')
-    client = Client()
-    client.ask = MagicMock()
-    client.done = MagicMock()
+    ask = MagicMock()
+    done = MagicMock()
+    
     handlers = {
       'should_ask': handler,
     }
@@ -89,11 +86,11 @@ class AgentTests(unittest.TestCase):
       SlotValue('a value'),
     ])
 
-    agt = Agent(interp, client, handlers)
+    agt = Agent(interp, handlers, on_ask=ask, on_done=done)
     agt.parse('You should ask for a slot')
 
-    client.ask.assert_called_once_with('a_slot', 'Please fill the slot', None)
-    client.done.assert_called_once()
+    ask.assert_called_once_with('a_slot', 'Please fill the slot', None)
+    done.assert_called_once()
     self.assertEqual(STATE_ASK, agt.state)
 
     assertion_success = False
@@ -127,8 +124,7 @@ class AgentTests(unittest.TestCase):
 
       return r.agent.done()
     
-    client = Client()
-    client.ask = MagicMock()
+    ask = MagicMock()
     handlers = {
       'lights_on': handler,
     }
@@ -142,10 +138,10 @@ class AgentTests(unittest.TestCase):
       SlotValue('living one'),
     ])
 
-    agt = Agent(interp, client, handlers)
+    agt = Agent(interp, handlers, on_ask=ask)
     agt.parse('turn the lights on')
 
-    client.ask.assert_called_once_with('rooms', 'Choose a room in one of those', choices)
+    ask.assert_called_once_with('rooms', 'Choose a room in one of those', choices)
     self.assertEqual(STATE_ASK, agt.state)
     self.assertEqual(choices, agt._choices)
 
@@ -154,7 +150,6 @@ class AgentTests(unittest.TestCase):
     self.assertTrue(assertion_success)
 
   def test_cancel(self):
-    client = Client()
     handlers = {
       'lights_on': lambda r: r.agent.ask('rooms', 'Please specify a room'),
     }
@@ -164,7 +159,7 @@ class AgentTests(unittest.TestCase):
       Intent('lights_on'),
     ])
 
-    agt = Agent(interp, client, handlers)
+    agt = Agent(interp, handlers)
     agt.parse('turn lights on')
 
     self.assertEqual(STATE_ASK, agt.state)
@@ -183,9 +178,8 @@ class AgentTests(unittest.TestCase):
   def test_setup(self):
     interp = Interpreter('test')
     interp.intents = ['intent_one', 'intent_two']
-    client = Client()
-    client.done = MagicMock()
-    agt = Agent(interp, client)
+    done = MagicMock()
+    agt = Agent(interp, on_done=done)
 
     self.assertIsNotNone(agt._machine)
     self.assertEqual(6, len(agt._machine.states))
@@ -196,7 +190,7 @@ class AgentTests(unittest.TestCase):
     agt.setup()
 
     self.assertEqual(7, len(agt._machine.states))
-    client.done.assert_called_once()
+    done.assert_called_once()
 
   def test_fallback(self):
 
@@ -207,7 +201,6 @@ class AgentTests(unittest.TestCase):
 
       assertion_success = r.intent.slot('text').first().value == 'something not catched'
 
-    client = Client()
     handlers = {
       STATE_FALLBACK: handler,
     }
@@ -215,7 +208,7 @@ class AgentTests(unittest.TestCase):
     interp.intents = list(handlers.keys())
     interp.parse = MagicMock(return_value=[])
 
-    agt = Agent(interp, client, handlers)
+    agt = Agent(interp, handlers)
     agt.parse('something not catched')
 
     self.assertTrue(assertion_success)
@@ -229,13 +222,12 @@ class AgentTests(unittest.TestCase):
 
       return r.agent.done()
 
-    client = Client()
-    client.answer = MagicMock()
+    answer = MagicMock()
     handlers = {
       STATE_FALLBACK: handler,
     }
     interp = Interpreter('test')
-    agt = Agent(interp, client, handlers)
+    agt = Agent(interp, handlers, on_answer=answer)
     agt.parse('something not matched')
 
-    client.answer.assert_called_once_with('Some text', [card])
+    answer.assert_called_once_with('Some text', [card])

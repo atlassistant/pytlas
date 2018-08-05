@@ -1,9 +1,10 @@
-import logging, argparse, sys, re
+import logging, argparse, sys, re, cmd
 from colorlog import ColoredFormatter, escape_codes
 from .loader import import_skills
 from .localization import import_translations
 from .interpreters.dummy import DummyInterpreter
-from .clients.prompt import PromptClient
+from .agent import Agent
+from .version import __version__
 
 class CustomFormatter(ColoredFormatter):
   """Custom formatter used to highlight every words wrapped by quotes.
@@ -24,6 +25,35 @@ class CustomFormatter(ColoredFormatter):
     msg = super(CustomFormatter, self).format(record)
 
     return self._pattern.sub(r'%s\1%s' % (escape_codes['cyan'], escape_codes['reset']), msg) + escape_codes['reset']
+
+class Prompt(cmd.Cmd):
+  intro = 'pytlas prompt v%s' % __version__
+  prompt = '> '
+
+  def __init__(self, agent):
+    super(Prompt, self).__init__()
+
+    self._agent = agent
+
+    # Attach handlers
+    self._agent.on_ask = self.ask
+    self._agent.on_answer = self.answer
+    self._agent.on_done = self.done
+  
+  def ask(self, slot, text, choices):
+    print (text)
+
+  def answer(self, text, cards):
+    print (text)
+
+  def done(self):
+    pass
+
+  def do_exit(self, msg):
+    return True
+
+  def default(self, msg):
+    self._agent.parse(msg)
 
 def install_logs(verbosity=logging.WARNING):
   """Installs a custom formatter to color output logs.
@@ -93,4 +123,4 @@ def main():
 
   interpreter.fit_as_needed()
 
-  PromptClient(interpreter).cmdloop()
+  Prompt(Agent(interpreter)).cmdloop()
