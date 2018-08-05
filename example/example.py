@@ -38,6 +38,10 @@ if __name__ == '__main__':
   # interpreter with needed files from this directory.
 
   interpreter = SnipsInterpreter('.')
+
+  # Train the interpreter if training data has changed, else it will be loaded
+  # from the cache directory.
+
   interpreter.fit_as_needed()
   
   # The `Agent` exposes some handlers used to communicate with the outside world.
