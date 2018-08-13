@@ -52,12 +52,12 @@ class SnipsTests(unittest.TestCase):
     self.assertEqual(2, len(intent.slots))
     self.assertEqual(1, len(intent.slot('date')))
     self.assertTrue(datetime.datetime.now().date().isoformat() in intent.slot('date').first().value)
-    self.assertEqual(2, len(intent.slot('city')))
+    self.assertEqual(2, len(intent.slot('location')))
 
-    city_values = [i.value for i in intent.slot('city')]
+    location_values = [i.value for i in intent.slot('location')]
 
-    self.assertTrue('paris' in city_values)
-    self.assertTrue('london' in city_values)
+    self.assertTrue('paris' in location_values)
+    self.assertTrue('london' in location_values)
 
   @snips_available
   def test_parse_slot(self):
@@ -74,3 +74,13 @@ class SnipsTests(unittest.TestCase):
     self.assertEqual(2, len(slots))
     self.assertTrue('kitchen' in slots)
     self.assertTrue('bedroom' in slots)
+
+  @snips_available
+  def test_parse_slot_with_synonym(self):
+    interp = SnipsInterpreter('./../example', False)
+    interp.fit_as_needed()
+
+    slots = [s.value for s in interp.parse_slot('lights_on', 'room', 'kitchen and cellar')]
+    self.assertEqual(2, len(slots))
+    self.assertTrue('kitchen' in slots)
+    self.assertTrue('basement' in slots)

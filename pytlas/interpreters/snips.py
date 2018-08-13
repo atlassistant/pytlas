@@ -153,9 +153,9 @@ class SnipsInterpreter(Interpreter):
 
         # Not automatically extensible, try to fuzzy match it
         if entity and entity['automatically_extensible'] == False:
-            choices = set(entity['utterances'].values()) # TODO use keys instead for synonyms
-            results = process.extractBests(msg, choices, score_cutoff=60)
-            
-            return [SlotValue(r[0]) for r in results]
+            choices = set([k.lower() for k in entity['utterances'].keys()])
+            results = [entity['utterances'][r[0]] for r in process.extractBests(msg, choices, score_cutoff=60)]
+                        
+            return [SlotValue(r) for r in results]
 
     return super(SnipsInterpreter, self).parse_slot(intent, slot, msg)
