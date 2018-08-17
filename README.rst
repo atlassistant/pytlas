@@ -37,7 +37,7 @@ source
 
   or
 
-  $ pip install -e ."[snips]"
+  $ pip install -e .[snips]
 
 Usage
 -----

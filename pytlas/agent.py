@@ -10,11 +10,12 @@ from fuzzywuzzy import process
 # Silent the transitions logger
 logging.getLogger('transitions').setLevel(logging.WARNING)
 
-STATE_PREFIX = 'pytlas__'
-STATE_ASLEEP = STATE_PREFIX + 'asleep'
-STATE_CANCEL = STATE_PREFIX + 'cancel'
-STATE_FALLBACK = STATE_PREFIX + 'fallback'
-STATE_ASK = STATE_PREFIX + 'ask'
+STATE_PREFIX = '__'
+STATE_SUFFIX = '__'
+STATE_ASLEEP = STATE_PREFIX + 'asleep' + STATE_SUFFIX
+STATE_CANCEL = STATE_PREFIX + 'cancel' + STATE_SUFFIX
+STATE_FALLBACK = STATE_PREFIX + 'fallback' + STATE_SUFFIX
+STATE_ASK = STATE_PREFIX + 'ask' + STATE_SUFFIX
 
 def is_builtin(state):
   """Checks if the given state is a builtin one.
@@ -27,7 +28,7 @@ def is_builtin(state):
 
   """
 
-  return state.startswith(STATE_PREFIX)
+  return state.startswith(STATE_PREFIX) and state.endswith(STATE_SUFFIX)
 
 def keep_one(value):
   """Keeps only one element if value is a list.
@@ -176,7 +177,7 @@ class Agent:
 
     return True
 
-  def parse(self, msg):
+  def parse(self, msg, **kwargs):
     """Parse a raw message.
 
     The interpreter will be used to determine which intent(s) has been formulated
@@ -187,12 +188,18 @@ class Agent:
 
     Args:
       msg (str): Raw message to parse
+      kwargs (dict): Optional metadata to add to the request
 
     """
 
     self._logger.info('Parsing sentence "%s"' % msg)
 
     intents = self._interpreter.parse(msg) or [Intent(STATE_FALLBACK, text=msg)]
+
+    # Add meta to each parsed intents
+    for intent in intents:
+      intent.meta.update(kwargs)
+
     cancel_intent = next((i for i in intents if i.name == STATE_CANCEL), None)
 
     # Either way, extend the intent queue with new intents
@@ -213,7 +220,10 @@ class Agent:
         if self._choices:
           values = list(find_matches(self._choices, values))
 
+        # Update slots and meta
         self._request.intent.update_slots(**{ self._asked_slot: values })
+        self._request.intent.meta.update(kwargs)
+
         self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, ['"%s"' % v for v in values]))
         
         self.go(self._request.intent.name, intent=self._request.intent)
@@ -238,7 +248,7 @@ class Agent:
       
       try:
         self._logger.debug('Calling handler "%s"' % handler)
-        handler(self._request) # TODO multi threaded call
+        handler(self._request)
       except Exception as err:
         self._logger.error(err)
         self.done() # Go back to the asleep state
@@ -247,7 +257,7 @@ class Agent:
     if not self._is_valid(event.kwargs, ['intent']):
       return self.done()
 
-    self._process_intent(event.kwargs.get('intent'))
+    self._process_intent(**event.kwargs)
 
   def _on_asked(self, event):
     if not self._is_valid(event.kwargs, ['slot', 'text']):

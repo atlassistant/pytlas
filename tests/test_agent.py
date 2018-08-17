@@ -49,15 +49,17 @@ class AgentTests(unittest.TestCase):
     ])
     
     agt = Agent(interp, handlers)
-    agt.parse('turn lights on and off')
+    agt.parse('turn lights on and off', meta='a meta value')
 
     self.assertIsNotNone(lights_on_request)
+    self.assertEqual({ 'meta': 'a meta value' }, lights_on_request.intent.meta)
     self.assertIsNone(lights_off_request)
     self.assertEqual('lights_on', agt.state)
 
     agt.done() # Since we use a mock, we should call it ourselves
 
     self.assertIsNotNone(lights_off_request)
+    self.assertEqual({ 'meta': 'a meta value' }, lights_off_request.intent.meta)
     self.assertEqual('lights_off', agt.state)
 
     self.assertNotEqual(lights_on_request.id, lights_off_request.id)
@@ -98,11 +100,11 @@ class AgentTests(unittest.TestCase):
     def final_handler(r):
       nonlocal request, assertion_success
 
-      assertion_success = r.id == request.id and r.intent.slot('a_slot').first().value == 'a value'
+      assertion_success = r.id == request.id and r.intent.slot('a_slot').first().value == 'a value' and r.intent.meta == { 'meta': 'a meta value' }
 
     handlers['should_ask'] = final_handler
 
-    agt.parse('Parse slot should be called')
+    agt.parse('Parse slot should be called', meta='a meta value')
     interp.parse_slot.assert_called_once_with('should_ask', 'a_slot', 'Parse slot should be called')
 
     self.assertTrue(assertion_success)

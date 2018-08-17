@@ -1,6 +1,6 @@
 import unittest
 from pytlas.interpreters import SlotValue
-from pytlas.agent import STATE_PREFIX, find_matches, is_builtin, keep_one
+from pytlas.agent import STATE_PREFIX, STATE_SUFFIX, find_matches, is_builtin, keep_one
 
 class AgentUtilsTests(unittest.TestCase):
 
@@ -18,7 +18,7 @@ class AgentUtilsTests(unittest.TestCase):
     self.assertTrue('bedroom' in matched_values)
 
   def test_is_builtin(self):
-    self.assertTrue(is_builtin(STATE_PREFIX + 'something'))
+    self.assertTrue(is_builtin(STATE_PREFIX + 'something' + STATE_SUFFIX))
     self.assertFalse(is_builtin('something'))
 
   def test_keep_one(self):

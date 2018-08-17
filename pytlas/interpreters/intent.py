@@ -7,6 +7,7 @@ class Intent:
   def __init__(self, name, **kwargs):
     self.name = name
     self.slots = {}
+    self.meta = {}
     self.update_slots(**kwargs)
 
   def slot(self, slot_name):
@@ -32,4 +33,4 @@ class Intent:
     self.slots.update({ k: SlotValues(v) for (k, v) in kwargs.items() })
 
   def __str__(self):
-    return '"%s" with "%s" slot(s): %s' % (self.name, len(self.slots), ', '.join(self.slots.keys()))
+    return '"%s" (%s)' % (self.name, ', '.join([ '"%s"=%s' % (k, ['"%s"' % vv.value for vv in v]) for k, v in self.slots.items() ]))
