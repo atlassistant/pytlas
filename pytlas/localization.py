@@ -28,10 +28,15 @@ def import_translations(directory):
 
   for translation_path in list_translations(directory):
     name_with_lang, _ = os.path.splitext(os.path.basename(translation_path))
-    module, lang = os.path.splitext(name_with_lang)
+    module, lang_ext = os.path.splitext(name_with_lang)
+    lang = lang_ext[1:]
 
     if module not in translations:
       translations[module] = {}
 
+    if lang not in translations[module]:
+      translations[module][lang] = {}
+
+    # Here we extend translations to avoid conflicts
     with open(translation_path, encoding='utf-8') as f:
-      translations[module][lang[1:]] = json.load(f)
+      translations[module][lang].update(json.load(f))

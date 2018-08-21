@@ -24,7 +24,7 @@ pip
 
 .. code-block:: bash
 
-  $ pip install pytlas
+  $ pip install pytlas[snips]
 
 source
 ~~~~~~

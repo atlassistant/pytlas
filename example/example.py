@@ -60,4 +60,4 @@ if __name__ == '__main__':
   # - 'Turning lights on in kitchen' is printed to the terminal by the `on_answer` delegate defined above
   # - `done` is called by the skill so the agent transitions back to the 'asleep' state
 
-  agent.parse('turn the lights on in kitchen please')
+  agent.parse('turn the lights on in kitchen and in bedroom please')

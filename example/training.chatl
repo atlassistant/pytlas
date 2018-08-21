@@ -1,0 +1,56 @@
+%[get_forecast]
+  will it be sunny in @[location] at @[date#at]
+  what's the weather like in @[location] on @[date#on]
+  will it rain in @[location] @[date]
+  what kind of weather should I expect at @[date#at] in @[location]
+  what will be the weather on @[date#on] in @[location]
+  tell me if it is going to rain @[date] in @[location]
+
+%[lights_on]
+  turn the @[room]'s lights on would you
+  turn lights on in the @[room]
+  lights on in @[room] please
+  turn on the lights in @[room]
+  turn the lights on in @[room]
+  enlight me in @[room]
+
+%[lights_off]
+  turn the @[room]'s lights off would you
+  turn lights off in the @[room]
+  lights off in @[room] please
+  turn off the lights in @[room]
+  turn the lights off in @[room]
+
+~[los angeles]
+  la
+
+@[date](type=snips/datetime)
+  tomorrow
+  today
+  this evening
+
+@[date#at]
+  the end of the day
+  nine o'clock
+
+@[date#on]
+  tuesday
+  monday
+
+@[location]
+  ~[los angeles]
+  paris
+  rio de janeiro
+  tokyo
+  london
+  tel aviv
+  paris
+
+~[basement]
+  cellar
+
+@[room](extensible=false)
+  living room
+  kitchen
+  bedroom
+  ~[basement]
