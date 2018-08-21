@@ -14,7 +14,7 @@ def list_translations(directory):
 
   """
 
-  for path in glob.glob('%s/*.*.json' % directory):
+  for path in glob.glob('%s/**/*.*.json' % directory):
     yield path
 
 def import_translations(directory):

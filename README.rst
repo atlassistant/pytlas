@@ -10,7 +10,7 @@ pytlas |travis| |pypi| |license|
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
-An open-source 🤖 assistant built for people and made to be super easy to setup and understand.
+An open-source 🤖 assistant library built for people and made to be super easy to setup and understand.
 
 I first started to develop `atlas <https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.
 
@@ -38,6 +38,8 @@ source
   or
 
   $ pip install -e .[snips]
+
+⚠️ If you want to use `snips-nlu` as the backend, you would have to download needed resources with `snips-nlu download <language_code>` as per `the documentation <https://github.com/snipsco/snips-nlu#language-resources>`_.
 
 Usage
 -----
