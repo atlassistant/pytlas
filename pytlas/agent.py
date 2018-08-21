@@ -242,8 +242,7 @@ class Agent:
       if (self._request == None or self._request.intent != intent):
         # Creates the request and load module translations for the interpreter language
         # if any
-        self._request = Request(self, intent, 
-          translations.get(handler.__module__, {}).get(self._interpreter.lang, {}))
+        self._request = Request(self, intent, translations.get(handler.__module__, {}).get(self._interpreter.lang, {}))
         self._logger.info('💬 New "%s" conversation started with id "%s"' % (intent.name, self._request.id))
       
       try:

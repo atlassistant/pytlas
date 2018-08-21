@@ -51,8 +51,7 @@ def list_skills(directory):
 
   """
 
-  for path in glob.glob('%s/**/*.py' % directory):
-    yield path
+  return glob.glob('%s/**/*.py' % directory)
 
 def import_skills(directory, auto_reload=False):
   """Import skills inside the givne directory.
@@ -65,7 +64,7 @@ def import_skills(directory, auto_reload=False):
 
   logging.debug('Importing skills from "%s"' % directory)
 
-  plugins = list(list_skills(directory))
+  plugins = list_skills(directory)
 
   sys.path.extend(list(set([_get_module_path(p) for p in plugins])))
 
