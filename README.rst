@@ -39,7 +39,11 @@ source
 
   $ pip install -e .[snips]
 
-⚠️ If you want to use `snips-nlu` as the backend, you would have to download needed resources with `snips-nlu download <language_code>` as per `the documentation <https://github.com/snipsco/snips-nlu#language-resources>`_.
+⚠️ If you want to use `snips-nlu` as the backend, you would have to download needed resources with as per `the documentation <https://github.com/snipsco/snips-nlu#language-resources>`_:
+
+.. code-block:: bash
+
+  $ snips-nlu download en
 
 Usage
 -----
@@ -120,7 +124,7 @@ From code
     # - 'Turning lights on in kitchen' is printed to the terminal by the `on_answer` delegate defined above
     # - `done` is called by the skill so the agent transitions back to the 'asleep' state
 
-    agent.parse('turn the lights on in the kitchen please')
+    agent.parse('turn the lights on in kitchen please')
 
 Testing
 -------
