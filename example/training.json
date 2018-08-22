@@ -185,6 +185,34 @@
               "entity": "location"
             }
           ]
+        },
+        {
+          "data": [
+            {
+              "text": "will it rain in "
+            },
+            {
+              "text": "los angeles",
+              "slot_name": "location",
+              "entity": "location"
+            },
+            {
+              "text": " and "
+            },
+            {
+              "text": "los angeles",
+              "slot_name": "location",
+              "entity": "location"
+            },
+            {
+              "text": " "
+            },
+            {
+              "text": "tomorrow",
+              "slot_name": "date",
+              "entity": "snips/datetime"
+            }
+          ]
         }
       ]
     },
