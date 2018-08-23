@@ -5,7 +5,7 @@ from .slot import SlotValue
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.builtin_entities import BuiltinEntityParser, is_builtin_entity
 from fuzzywuzzy import process
-# from snips_nlu.default_configs import CONFIG_EN
+import snips_nlu.default_configs as snips_confs
 
 class SnipsInterpreter(Interpreter):
   """Wraps the snips-nlu stuff to provide valuable informations to an agent.
@@ -65,7 +65,15 @@ class SnipsInterpreter(Interpreter):
       
       load_resources('snips_nlu_%s' % self.lang)
 
-      self._engine = SnipsNLUEngine()
+      config = None
+
+      try:
+        self._logger.info('Importing default configuration for language "%s"' % self.lang)
+        config = getattr(snips_confs, 'CONFIG_%s' % self.lang.upper())
+      except AttributeError:
+        self._logger.warning('Could not import default configuration, it will use the generic one instead')
+
+      self._engine = SnipsNLUEngine(config)
 
       # If we have training data, fit the engine
       if training_data:
