@@ -177,7 +177,7 @@ class AgentTests(unittest.TestCase):
     self.assertIsNone(agt._request)
     self.assertIsNone(agt._asked_slot)
 
-  def test_setup(self):
+  def test_build(self):
     interp = Interpreter('test')
     interp.intents = ['intent_one', 'intent_two']
     done = MagicMock()
@@ -189,7 +189,7 @@ class AgentTests(unittest.TestCase):
     interp.intents = ['intent_one', 'intent_two', 'intent_three']
     self.assertEqual(6, len(agt._machine.states))
 
-    agt.setup()
+    agt.build()
 
     self.assertEqual(7, len(agt._machine.states))
     done.assert_called_once()

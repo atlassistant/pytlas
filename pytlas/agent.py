@@ -106,9 +106,9 @@ class Agent:
     self.meta = kwargs
 
     self._machine = None
-    self.setup()
+    self.build()
 
-  def setup(self):
+  def build(self):
     """Setup the state machine based on the interpreter available intents. This is
     especialy useful if you have trained the interpreter after creating this agent.
 
