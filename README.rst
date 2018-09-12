@@ -39,7 +39,7 @@ source
 
   $ pip install -e .[snips]
 
-⚠️ If you want to use `snips-nlu` as the backend, you would have to download needed resources with as per `the documentation <https://github.com/snipsco/snips-nlu#language-resources>`_:
+⚠️ If you want to use `snips-nlu` as the backend, you would have to download needed resources with the following command as per `the documentation <https://github.com/snipsco/snips-nlu#language-resources>`_:
 
 .. code-block:: bash
 
@@ -51,7 +51,7 @@ Usage
 From the terminal
 ~~~~~~~~~~~~~~~~~
 
-This line will start the pytlas command prompt with training data from `example/` and skills in the `example/skills/` directory. Every python file in the `example/skills/` will be imported by the CLI so handlers will be registered and called when appropriate.
+This line will start the pytlas command prompt with training data from `example/` and skills in the `example/skills/` directory. Every python files in the `example/skills/` will be imported by the CLI so handlers will be registered and called when appropriate.
 
 .. code-block:: bash
 

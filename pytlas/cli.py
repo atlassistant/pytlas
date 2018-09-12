@@ -1,7 +1,6 @@
 import logging, argparse, sys, re, cmd
 from colorlog import ColoredFormatter, escape_codes
-from .loader import import_skills
-from .localization import import_translations
+from .loaders import import_skills, import_translations
 from .interpreters.dummy import DummyInterpreter
 from .agent import Agent
 from .version import __version__

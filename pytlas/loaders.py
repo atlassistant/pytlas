@@ -1,6 +1,7 @@
 from .skill import handlers
+from .localization import translations
 from watchgod import watch
-import os, glob, sys, logging, threading, importlib
+import os, json, glob, sys, logging, threading, importlib
 
 def _get_module_import_parts(path):
   module = os.path.basename(os.path.dirname(path))
@@ -62,6 +63,10 @@ def import_skills(directory, auto_reload=False):
 
   """
 
+  # TODO Use importlib instead to enable relative imports!! 
+  # sys.path.append(directory)
+  # importlib.import_module ()
+
   logging.debug('Importing skills from "%s"' % directory)
 
   plugins = list_skills(directory)
@@ -75,3 +80,43 @@ def import_skills(directory, auto_reload=False):
 
   if auto_reload:
     threading.Thread(target=_watch, args=(directory,), daemon=True).start()
+
+def list_translations(directory):
+  """List translations files in the given directory.
+
+  Args:
+    directory (str): Directory which contain translation files
+
+  Returns:
+    generator: List of translation file paths
+
+  """
+
+  return glob.glob('%s/**/*.*.json' % directory)
+
+def import_translations(directory):
+  """Import translations in the global translations object.
+
+  Args:
+    directory (str): Directory containing translation files
+
+  """
+
+  logging.debug('Importing translations from "%s"' % directory)
+
+  for translation_path in list_translations(directory):
+    name_with_lang, _ = os.path.splitext(os.path.basename(translation_path))
+    module, lang_ext = os.path.splitext(name_with_lang)
+    lang = lang_ext[1:]
+
+    if module not in translations:
+      translations[module] = {}
+
+    if lang not in translations[module]:
+      translations[module][lang] = {}
+
+    # Here we extend translations to avoid conflicts
+    with open(translation_path, encoding='utf-8') as f:
+      data = json.load(f)
+      translations[module][lang].update(data)
+      logging.info('Imported "%d" translations from "%s" for the lang "%s"' % (len(data), module, lang))

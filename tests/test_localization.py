@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch, mock_open
-from pytlas.localization import list_translations, import_translations, translations
+from pytlas.loaders import list_translations, import_translations
+from pytlas.localization import translations
 
 class LocalizationTests(unittest.TestCase):
 
