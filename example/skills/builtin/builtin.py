@@ -1,4 +1,4 @@
-from pytlas import intent
+from pytlas.skill import intent
 
 @intent('__fallback__')
 def fallback(r):

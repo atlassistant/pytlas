@@ -1,6 +1,6 @@
 import logging, argparse, sys, re, cmd
 from colorlog import ColoredFormatter, escape_codes
-from .loaders import import_skills, import_translations
+from .importers import import_skills
 from .interpreters.dummy import DummyInterpreter
 from .agent import Agent
 from .version import __version__
@@ -110,7 +110,6 @@ def main():
 
   install_logs(verbosity)
   import_skills(args.skills_dir, args.reload)
-  import_translations(args.skills_dir)
   
   interpreter = DummyInterpreter()
 

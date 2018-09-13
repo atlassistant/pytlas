@@ -1,6 +1,7 @@
 import logging, random
 from .request import Request
-from .localization import translations
+from .utils import get_package_name_from_module
+from .localization import module_translations
 from .interpreters.intent import Intent
 from .interpreters.slot import SlotValue
 from .skill import handlers as skill_handlers
@@ -242,7 +243,9 @@ class Agent:
       if (self._request == None or self._request.intent != intent):
         # Creates the request and load module translations for the interpreter language
         # if any
-        self._request = Request(self, intent, translations.get(handler.__module__, {}).get(self._interpreter.lang, {}))
+        self._request = Request(self, intent, 
+          module_translations.get(get_package_name_from_module(handler.__module__), {}).get(self._interpreter.lang, {}))
+          
         self._logger.info('💬 New "%s" conversation started with id "%s"' % (intent.name, self._request.id))
       
       try:

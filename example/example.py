@@ -3,7 +3,8 @@
 # parsed slots. It will also manage the conversation states so skills can ask
 # for user inputs if they need to.
 
-from pytlas import Agent, intent
+from pytlas import Agent
+from pytlas.skill import intent
 from pytlas.interpreters.snips import SnipsInterpreter
 
 # Here we are registering a function (with the intent decorator) as an handler 

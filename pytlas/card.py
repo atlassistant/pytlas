@@ -1,5 +1,6 @@
 class Card:
-  """Simple class to hold card properties.
+  """Simple class to hold card properties which the primary way for skill to communicate
+  visual data to the end user.
   """
   
   def __init__(self, header, text, subhead=None, header_link=None, media=None):
@@ -10,7 +11,7 @@ class Card:
       text (str): Content text to show
       subhead (str): Subheader
       header_link (str): Optional link tied to the header
-      media (str): Media tied to this card
+      media (str): Media tied to this card, ideally you should give a base64 string
 
     """
     
