@@ -39,17 +39,45 @@ source
 
   $ pip install -e .[snips]
 
-⚠️ If you want to use `snips-nlu` as the backend, you would have to download needed resources with the following command as per `the documentation <https://github.com/snipsco/snips-nlu#language-resources>`_:
+Additional resources
+~~~~~~~~~~~~~~~~~~~~
+
+⚠️ If you want to use `snips-nlu` as the backend (which is the default), you would have to download needed resources with the following command as per `the documentation <https://github.com/snipsco/snips-nlu#language-resources>`_ where `en` is the language code you plan to use :
 
 .. code-block:: bash
 
   $ snips-nlu download en
+
+or
+
+.. code-block:: bash
+
+  $ snips-nlu download-all-languages
+
+to download all languages resources.
+
+Training
+--------
+
+In order for pytlas to understand you, you must train the interpreter. By default, only the `SnipsInterpreter` is available and should be train using its specific dataset format.
+
+To generate this training dataset, you can use `chatito <https://github.com/rodrigopivi/Chatito>`_, `chatl <https://github.com/atlassistant/chatl>`_, `the snips-nlu dataset generation tool <https://snips-nlu.readthedocs.io/en/latest/tutorial.html#snips-dataset-format>`_ or any other tool of your choice.
+
+Once you have that training json file, you should give the directory path of this file to the `SnipsInterpreter` constructor. So if you have put your file in `training/training.json`, you should instantiate the interpreter with `SnipsInterpreter('./training')`. It will make use of 3 paths:
+
+- cache_directory (`./training/cache/`): This is where the trained engine will be put 
+- training_filepath (`./training/training.json`): Path to the file used to train the model
+- checksum_filepath (`./training/trained.checksum`): Generated checksum of the training file, this is used to avoid retraining the engine if training data hasn't changed between 2 runs
+
+*TODO: split this category to make it more clear on where to put files*
 
 Usage
 -----
 
 From the terminal
 ~~~~~~~~~~~~~~~~~
+
+pytlas include a basic CLI interface to interact with the system.
 
 This line will start the pytlas command prompt with training data from `example/` and skills in the `example/skills/` directory. Every python files in the `example/skills/` will be imported by the CLI so handlers will be registered and called when appropriate.
 
@@ -59,6 +87,8 @@ This line will start the pytlas command prompt with training data from `example/
 
 From code
 ~~~~~~~~~
+
+Here is a snippet which cover the basics of using pytlas inside your own program :
 
 .. code-block:: python
 
@@ -125,6 +155,37 @@ From code
     # - `done` is called by the skill so the agent transitions back to the 'asleep' state
 
     agent.parse('turn the lights on in kitchen please')
+
+Creating a skill
+----------------
+
+Creating skills is fairly easy. You can look at the `example/skills/` folder but here is a simple explanation of how it works.
+
+Every folder into the `<skills>` folder will be loaded as a python module. So let's say we want to create a new skill called `my_skill`. Go to the directory which contains your other skills and make a new directory `my_skill`. Inside this folder, create a new required `__init__.py` file that will be called when the skill is first imported :
+
+.. code-block:: python
+
+  from pytlas.skill import intent
+  from pytlas.localization import translations
+
+  # You can also use relative import if your skill contains multiple files
+  # from .subfile import *
+
+  @translations('fr')
+  def fr_translations(): return {
+    'hello': 'bonjour',
+    'bye': 'au revoir',
+  }
+
+  @intent('on_some_intent_triggered')
+  def my_handler(r):
+    r.agent.answer(r._('hello'))
+
+    # Put your logic here
+
+    return r.agent.done() # See examples
+
+And that's all you need to know to create and share your own skills!
 
 Testing
 -------

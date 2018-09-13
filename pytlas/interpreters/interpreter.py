@@ -35,7 +35,7 @@ class Interpreter:
     if self.training_directory:
       self.cache_directory = os.path.join(self.training_directory, 'cache')
       self.training_filepath = os.path.join(self.training_directory, 'training.json')
-      self.checksum_filepath = os.path.join(self.cache_directory, 'training.checksum')
+      self.checksum_filepath = os.path.join(self.cache_directory, 'trained.checksum')
   
   def fit_as_needed(self):
     """Fit the interpreter if it's needed (ie. the checksum does not match).

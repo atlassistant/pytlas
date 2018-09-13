@@ -25,7 +25,7 @@ setup(
   ],
   extras_require={
     'snips': [
-      'snips-nlu==0.16.2',
+      'snips-nlu==0.16.5',
     ],
   },
   entry_points={
