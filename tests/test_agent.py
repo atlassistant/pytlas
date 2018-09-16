@@ -180,11 +180,19 @@ class AgentTests(unittest.TestCase):
   def test_build(self):
     interp = Interpreter('test')
     interp.intents = ['intent_one', 'intent_two']
+    interp.parse = MagicMock(return_value=[
+      Intent('intent_three'),
+    ])
+    handler = MagicMock()
     done = MagicMock()
-    agt = Agent(interp, on_done=done)
+    agt = Agent(interp, { 'intent_three': handler }, on_done=done)
 
     self.assertIsNotNone(agt._machine)
     self.assertEqual(6, len(agt._machine.states))
+
+    agt.parse('something')
+
+    handler.assert_not_called()
 
     interp.intents = ['intent_one', 'intent_two', 'intent_three']
     self.assertEqual(6, len(agt._machine.states))
@@ -193,6 +201,10 @@ class AgentTests(unittest.TestCase):
 
     self.assertEqual(7, len(agt._machine.states))
     done.assert_called_once()
+
+    agt.parse('something')
+
+    handler.assert_called_once()
 
   def test_fallback(self):
 
