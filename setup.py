@@ -22,6 +22,7 @@ setup(
     'fuzzywuzzy==0.16.0',
     'colorlog==2.2.0',
     'watchgod==0.2',
+    'pychatl==1.1.0',
   ],
   extras_require={
     'snips': [

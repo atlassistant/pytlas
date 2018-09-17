@@ -37,7 +37,8 @@ def get_caller_package_name():
   return get_root_package_name(inspect.currentframe().f_back.f_back.f_globals['__name__'])
 
 def get_module_path(module_name):
-  """Retrieve the path where a module is defined.
+  """Retrieve the path where a module is defined. If the module could not be found
+  or it doesn't have a path property, the current working directory will be returned.
 
   Args:
     module_name (str): Name of the module
@@ -47,4 +48,7 @@ def get_module_path(module_name):
 
   """
 
-  return sys.modules[module_name].__path__[0]
+  try:
+    return sys.modules[module_name].__path__[0]
+  except (AttributeError, KeyError):
+    return os.getcwd()

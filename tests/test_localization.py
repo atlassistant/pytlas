@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch, mock_open
 from pytlas.localization import translations, register, module_translations
 
 @translations ('fr', 'amodule')
@@ -25,3 +26,14 @@ class LocalizationTests(unittest.TestCase):
     self.assertTrue('en' in module_translations['amodule'])
     self.assertEqual('hello', module_translations['amodule']['en']['hi'])
     self.assertEqual('see ya!', module_translations['amodule']['en']['bye'])
+
+    with patch('builtins.open') as mock:
+      mock_open(mock, """
+{
+  "hello": "buongiorno",
+  "bye": "arrivederci"
+}
+""")
+
+      with patch('pytlas.localization.get_module_path', return_value='/home/pytlas/amodule') as mock_module_path:
+        register('it', './a_path', 'amodule')

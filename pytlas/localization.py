@@ -21,7 +21,7 @@ def register(lang, path_or_data, package=None):
   else:
     path = path_or_data if os.path.isabs(path_or_data) else os.path.abspath(os.path.join(get_module_path(package), path_or_data))
 
-    with open (path, encoding='utf-8') as f:
+    with open (path) as f:
       data = json.load(f)
 
   if package not in module_translations:
