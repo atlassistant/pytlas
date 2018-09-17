@@ -1,7 +1,6 @@
 import logging, argparse, sys, re, cmd
 from colorlog import ColoredFormatter, escape_codes
 from .importers import import_skills
-from .interpreters.dummy import DummyInterpreter
 from .agent import Agent
 from .version import __version__
 
@@ -82,16 +81,18 @@ def create_parser():
   """
   parser = argparse.ArgumentParser()
   parser.set_defaults(
+    lang='en',
     skills_dir='skills',
-    training_dir='training',
+    cache_dir='cache',
     verbose=False,
     debug=False,
     reload=False,
   )
 
   parser.add_argument('-s', '--skills_dir', help='Specifies the directory containing python skills')
-  parser.add_argument('-t', '--training_dir', help='Path to the training directory')
+  parser.add_argument('-c', '--cache_dir', help='Path to the training cache directory')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+  parser.add_argument('-l', '--lang', help='Lang of the interpreter to use')
   parser.add_argument('--debug', action='store_true', help='Debug mode')
   parser.add_argument('-r', '--reload', action='store_true', help='Reload on skill files change')
 
@@ -110,15 +111,13 @@ def main():
 
   install_logs(verbosity)
   import_skills(args.skills_dir, args.reload)
-  
-  interpreter = DummyInterpreter()
 
   try:
     from .interpreters.snips import SnipsInterpreter
-    interpreter = SnipsInterpreter(args.training_dir)
+    
+    interpreter = SnipsInterpreter(args.lang, args.cache_dir)
+    interpreter.fit_from_skill_data()
+
+    Prompt(Agent(interpreter)).cmdloop()
   except ImportError:
-    logging.warning('Could not import the "snips" interpreter, is "snips-nlu" installed? Using a dummy interpreter instead') 
-
-  interpreter.fit_as_needed()
-
-  Prompt(Agent(interpreter)).cmdloop()
+    logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 

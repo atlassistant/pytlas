@@ -1,4 +1,4 @@
-import os, json, shutil
+import os, shutil
 from .interpreter import Interpreter, compute_checksum
 from .intent import Intent
 from .slot import SlotValue
@@ -11,58 +11,58 @@ class SnipsInterpreter(Interpreter):
   """Wraps the snips-nlu stuff to provide valuable informations to an agent.
   """
 
-  def __init__(self, training_directory, persist=True):
+  def __init__(self, lang, cache_directory, persist=True):
     """Instantiates a new Snips interpreter.
 
     Args:
-      training_directory (str): Path where training and trained files are placed
+      lang (str): Language used for this interpreter (ie. en, fr, ...)
+      cache_directory (str): Path where training and trained files are placed
       persist (bool): True if trained engine should be persisted
 
     """
 
-    super(SnipsInterpreter, self).__init__('snips', training_directory)
+    super(SnipsInterpreter, self).__init__('snips', lang, cache_directory)
 
     self._engine = None
     self._entity_parser = None
     self._persist = persist
+    self._slot_mappings = {}
+    self._entities = {}
 
-  def fit_as_needed(self):
-    self._logger.info('Using "snips v%s"' % __version__)
+  def _configure(self):
+    self._entity_parser = BuiltinEntityParser(self.lang)
 
-    training_checksum = None
+    self._slot_mappings = self._engine._dataset_metadata.get('slot_name_mappings', {})
+    self._entities = self._engine._dataset_metadata.get('entities', {})
+
+    self.intents = list(self._slot_mappings.keys())
+
+  def load_from_cache(self):
+    self._logger.info('Loading engine from "%s"' % self.cache_directory)
+
+    self._engine = SnipsNLUEngine.from_path(self.cache_directory)
+
+    self._configure()
+
+  def fit(self, data):
+    self._logger.info('Fitting using "snips v%s"' % __version__)
+
+    checksum = compute_checksum(data)
+
+    # Try to load the used checksum
+
+    cached_checksum_path = os.path.join(self.cache_directory, 'trained.checksum')
     cached_checksum = None
 
-    # Try to computes training checksum first
     try:
-      with open(self.training_filepath) as f:
-        training_str = f.read()
-        training_checksum = compute_checksum(training_str)
-        training_data = json.loads(training_str)
-
-        self.lang = training_data['language']
-    except FileNotFoundError:
-      # No training file, do nothing
-      self._logger.warning('No training file found, engine will be not fitted!')
-
-      training_checksum = None
-      training_data = None
-      self.lang = 'en'
-
-    # Try to open the cached checksum
-    try:
-      with open(self.checksum_filepath) as f:
+      with open(cached_checksum_path) as f:
         cached_checksum = f.read()
     except FileNotFoundError:
       self._logger.debug('Checksum file not found')
 
-    # If they matched, load the engine from the cache directory
-    if training_checksum and training_checksum == cached_checksum:
-      self._logger.info('Checksums matched, loading engine from "%s"' % self.cache_directory)
-      self._engine = SnipsNLUEngine.from_path(self.cache_directory) 
+    if checksum == cached_checksum:
+      self.load_from_cache()
     else:
-      # Else retrain it
-      self._logger.info('Checksum has changed, retraining the engine from "%s"' % self.training_directory)
-      
       load_resources('snips_nlu_%s' % self.lang)
 
       config = None
@@ -74,12 +74,8 @@ class SnipsInterpreter(Interpreter):
         self._logger.warning('Could not import default configuration, it will use the generic one instead')
 
       self._engine = SnipsNLUEngine(config)
+      self._engine.fit(data)
 
-      # If we have training data, fit the engine
-      if training_data:
-        self._engine.fit(training_data)
-
-      # If we want to cache our engine, do it now!
       if self._persist:
         self._logger.info('Persisting trained engine to "%s"' % self.cache_directory)
         
@@ -87,20 +83,10 @@ class SnipsInterpreter(Interpreter):
 
         self._engine.persist(self.cache_directory)
 
-        if training_checksum:
-          with open(self.checksum_filepath, mode='w') as f:
-            f.write(training_checksum)
+        with open(cached_checksum_path, mode='w') as f:
+          f.write(checksum)
 
-    self._entity_parser = BuiltinEntityParser(self.lang)
-
-    if self._engine._dataset_metadata:
-      self._slot_mappings = self._engine._dataset_metadata.get('slot_name_mappings', {})
-      self._entities = self._engine._dataset_metadata.get('entities', {})
-    else:
-      self._slot_mappings = {}
-      self._entities = {}
-
-    self.intents = list(self._slot_mappings.keys())
+      self._configure()
 
   @property
   def is_ready(self):

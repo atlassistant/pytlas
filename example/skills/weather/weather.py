@@ -1,8 +1,8 @@
 from pytlas.skill import intent
 from pytlas.training import training
 
-@training('fr')
-def fr_data(): return """
+@training('en')
+def en_data(): return """
 %[get_forecast]
   will it be sunny in @[location] at @[date#at]
   what's the weather like in @[location] on @[date#on]
@@ -36,6 +36,7 @@ def fr_data(): return """
   london
   tel aviv
   paris
+  new york
 
 """
 

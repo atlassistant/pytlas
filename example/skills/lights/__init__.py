@@ -3,4 +3,4 @@ from pytlas.training import register as register_training
 from .skill import *
 
 register ('fr', './lights.fr.json')
-register_training ('fr', './lights.dsl')
+register_training ('en', './lights.dsl')

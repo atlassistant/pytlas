@@ -1,8 +1,13 @@
-import logging, hashlib, os
+import logging, hashlib, os, json
 from .slot import SlotValue
+from ..training import module_trainings
+from pychatl.utils import deep_update
+import pychatl.postprocess as postprocessors
 
 def compute_checksum(data):
-  """Generates a checksum from a raw string.
+  """Generates a checksum from a raw string or object.
+
+  If the given data is not a string, a json representation will be used.
   
   Args:
     data (str): Raw string to compute checksum for
@@ -12,6 +17,9 @@ def compute_checksum(data):
 
   """
 
+  if not isinstance(data, str):
+    data = json.dumps(data)
+
   return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
 class Interpreter:
@@ -20,28 +28,63 @@ class Interpreter:
 
   """
 
-  def __init__(self, name, training_directory=None):
+  def __init__(self, name, lang, cache_directory=None):
     self._logger = logging.getLogger(name)
     
-    self.lang = None
+    self.lang = lang
     self.name = name
     self.intents = []
-    self.training_directory = training_directory
+    self.cache_directory = cache_directory
 
-    self.cache_directory = ''
-    self.training_filepath = ''
-    self.checksum_filepath = ''
-
-    if self.training_directory:
-      self.cache_directory = os.path.join(self.training_directory, 'cache')
-      self.training_filepath = os.path.join(self.training_directory, 'training.json')
-      self.checksum_filepath = os.path.join(self.cache_directory, 'trained.checksum')
-  
-  def fit_as_needed(self):
-    """Fit the interpreter if it's needed (ie. the checksum does not match).
+  def load_from_cache(self):
+    """Loads the interpreter from the cache directory.
     """
 
     pass
+
+  def fit(self, data):
+    """Fit the interpreter with given data.
+    
+    Args:
+      data (dict): Training data
+
+    """
+
+    pass
+
+  def fit_from_skill_data(self):
+    """Fit the interpreter with every training data registered in the system.
+    """
+
+    self._logger.info('Merging skill training data from "%d" modules' % len(module_trainings))
+
+    data = {}
+
+    for (module, module_data) in module_trainings.items():
+      lang_data = module_data.get(self.lang)
+
+      if lang_data:
+        data = deep_update(data, lang_data)
+      else:
+        self._logger.warning('Skill "%s" does not seem to have training data for the lang %s' % (module, self.lang))
+
+    try:
+      data = getattr(postprocessors, self.name)(data, { 'language': self.lang })
+    except AttributeError:
+      return self._logger.critical('No post-processors found on pychatl for this interpreter!')
+
+    self.fit(data)
+
+  def fit_from_file(self, path):
+    """Fit the interpreter from a training file path.
+
+    Args:
+      path (str): Path to the training file
+
+    """
+
+    with open(path) as f:
+      self.fit(json.load(f))
 
   def parse_slot(self, intent, slot, msg):
     return [SlotValue(msg)] # Default is to wrap the raw msg in a SlotValue

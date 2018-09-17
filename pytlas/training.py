@@ -1,5 +1,5 @@
 import logging, os
-from .utils import get_caller_package_name, get_module_path
+from .utils import get_caller_package_name, get_absolute_path_to_package_file
 from pychatl import parse
 
 # Training data per module / lang
@@ -17,10 +17,10 @@ def register(lang, path_or_data, package=None):
 
   package = package or get_caller_package_name()
 
-  path = path_or_data if os.path.isabs(path_or_data) else os.path.abspath(os.path.join(get_module_path(package), path_or_data))
+  abspath = get_absolute_path_to_package_file(path_or_data, package)
   
-  if os.path.isfile(path):
-    with open(path) as f:
+  if os.path.isfile(abspath):
+    with open(abspath) as f:
       data = f.read()
   else:
     data = path_or_data
@@ -32,8 +32,11 @@ def register(lang, path_or_data, package=None):
 
   module_trainings[package][lang] = parsed_data
 
-  logging.info('Imported training data ("%d" intents, "%d" entities and "%d" synonyms) from "%s" for the lang "%s"' % 
-    (len(parsed_data['intents']), len(parsed_data['entities']), len(parsed_data['synonyms']), package, lang))
+  def flatten(type):
+    return ', '.join(['"%s"' % d for d in parsed_data[type].keys()])
+
+  logging.info('Imported training data (intents: %s / entities: %s / synonyms: %s) from "%s" for the lang "%s"' % 
+    (flatten('intents'), flatten('entities'), flatten('synonyms'), package, lang))
 
 def training(lang, package=None):
   """Decorator applied to a function that returns DSL data to register training data.

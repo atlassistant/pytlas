@@ -52,3 +52,17 @@ def get_module_path(module_name):
     return sys.modules[module_name].__path__[0]
   except (AttributeError, KeyError):
     return os.getcwd()
+
+def get_absolute_path_to_package_file(path, package):
+  """Returns an absolute filepath to a path contained within a package.
+
+  Args:
+    path (str): Path to manipulate
+    package (str): Name of the package
+
+  Returns:
+    str: If path is already an absolute path, nothing will be made, else, the absolute path will be computed
+
+  """
+
+  return path if os.path.isabs(path) else os.path.abspath(os.path.join(get_module_path(package), path))

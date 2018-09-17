@@ -1,5 +1,5 @@
 import json, logging, os
-from .utils import get_caller_package_name, get_module_path
+from .utils import get_caller_package_name, get_absolute_path_to_package_file
 
 # Represents translations by module/lang
 module_translations = {}
@@ -19,9 +19,9 @@ def register(lang, path_or_data, package=None):
   if type (path_or_data) is dict:
     data = path_or_data
   else:
-    path = path_or_data if os.path.isabs(path_or_data) else os.path.abspath(os.path.join(get_module_path(package), path_or_data))
+    abspath = get_absolute_path_to_package_file(path_or_data, package)
 
-    with open (path) as f:
+    with open (abspath) as f:
       data = json.load(f)
 
   if package not in module_translations:
