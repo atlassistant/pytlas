@@ -3,9 +3,7 @@
 # parsed slots. It will also manage the conversation states so skills can ask
 # for user inputs if they need to.
 
-from pytlas import Agent
-from pytlas.skill import intent
-from pytlas.training import training
+from pytlas import Agent, intent, training
 from pytlas.interpreters.snips import SnipsInterpreter
 
 # Here, we register a sentence as training data for the specified language

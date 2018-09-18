@@ -1,6 +1,5 @@
-from pytlas.localization import register
-from pytlas.training import register as register_training
+from pytlas import register_training, register_translations
 from .skill import *
 
-register ('fr', './lights.fr.json')
+register_translations ('fr', './lights.fr.json')
 register_training ('en', './lights.dsl')

@@ -56,21 +56,6 @@ or
 
 to download all languages resources.
 
-Training
---------
-
-In order for pytlas to understand you, you must train the interpreter. By default, only the `SnipsInterpreter` is available and should be train using its specific dataset format.
-
-To generate this training dataset, you can use `chatito <https://github.com/rodrigopivi/Chatito>`_, `chatl <https://github.com/atlassistant/chatl>`_, `the snips-nlu dataset generation tool <https://snips-nlu.readthedocs.io/en/latest/tutorial.html#snips-dataset-format>`_ or any other tool of your choice.
-
-Once you have that training json file, you should give the directory path of this file to the `SnipsInterpreter` constructor. So if you have put your file in `training/training.json`, you should instantiate the interpreter with `SnipsInterpreter('./training')`. It will make use of 3 paths:
-
-- cache_directory (`./training/cache/`): This is where the trained engine will be put 
-- training_filepath (`./training/training.json`): Path to the file used to train the model
-- checksum_filepath (`./training/trained.checksum`): Generated checksum of the training file, this is used to avoid retraining the engine if training data hasn't changed between 2 runs
-
-*TODO: split this category to make it more clear on where to put files*
-
 Usage
 -----
 
@@ -79,11 +64,11 @@ From the terminal
 
 pytlas include a basic CLI interface to interact with the system.
 
-This line will start the pytlas command prompt with training data from `example/` and skills in the `example/skills/` directory. Every python files in the `example/skills/` will be imported by the CLI so handlers will be registered and called when appropriate.
+This line will start the pytlas command prompt with skills located in the `example/skills/` directory. It will load all data and fit the engine before starting the prompt.
 
 .. code-block:: bash
 
-  $ pytlas -t example -s example/skills
+  $ pytlas -s example/skills -v
 
 From code
 ~~~~~~~~~
@@ -97,8 +82,37 @@ Here is a snippet which cover the basics of using pytlas inside your own program
   # parsed slots. It will also manage the conversation states so skills can ask
   # for user inputs if they need to.
 
-  from pytlas import Agent, intent
+  from pytlas import Agent, intent, training
   from pytlas.interpreters.snips import SnipsInterpreter
+
+  # Here, we register a sentence as training data for the specified language
+  # Those training sample are written using a simple DSL named chatl. It make it 
+  # back-end agnostic and is much more readable than raw dataset needed by NLU
+  # engines.
+  #
+  # Those data will be parsed by `pychatl` to output the correct dataset use for the fit
+  # part.
+
+  @training('en')
+  def en_data(): return """
+  %[lights_on]
+    turn the @[room]'s lights on would you
+    turn lights on in the @[room]
+    lights on in @[room] please
+    turn on the lights in @[room]
+    turn the lights on in @[room]
+    enlight me in @[room]
+
+  ~[basement]
+    cellar
+
+  @[room](extensible=false)
+    living room
+    kitchen
+    bedroom
+    ~[basement]
+
+  """
 
   # Here we are registering a function (with the intent decorator) as an handler 
   # for the intent 'lights_on'.
@@ -131,12 +145,12 @@ Here is a snippet which cover the basics of using pytlas inside your own program
     # Each interpreter as its own training format so here we are loading the snips 
     # interpreter with needed files from this directory.
 
-    interpreter = SnipsInterpreter('.')
+    interpreter = SnipsInterpreter('en')
 
-    # Train the interpreter if training data has changed, else it will be loaded
-    # from the cache directory.
+    # Train the interpreter using training data register with the `training` decorator
+    # or `pytlas.training.register` function.
 
-    interpreter.fit_as_needed()
+    interpreter.fit_from_skill_data()
     
     # The `Agent` exposes some handlers used to communicate with the outside world.
 
@@ -151,41 +165,23 @@ Here is a snippet which cover the basics of using pytlas inside your own program
     # - A 'lights_on' intents is retrieved and contains 'kitchen' as the 'room' slot value
     # - Since the `Agent` is asleep, it will transition to the 'lights_on' state
     # - Transitioning to this state call the appropriate handler (at the beginning of this file)
-    # - 'Turning lights on in kitchen' is printed to the terminal by the `on_answer` delegate defined above
+    # - 'Turning lights on in kitchen, bedroom' is printed to the terminal by the `on_answer` delegate defined above
     # - `done` is called by the skill so the agent transitions back to the 'asleep' state
 
-    agent.parse('turn the lights on in kitchen please')
+    agent.parse('turn the lights on in kitchen and in bedroom please')
 
 Creating a skill
 ----------------
 
-Creating skills is fairly easy. You can look at the `example/skills/` folder but here is a simple explanation of how it works.
+Skill are reusable piece of code that you can share with others and do the actual job. You can have a skill that fetch weather forecasts, another one that talks with your home connected components, that's entirely up to you!
 
-Every folder into the `<skills>` folder will be loaded as a python module. So let's say we want to create a new skill called `my_skill`. Go to the directory which contains your other skills and make a new directory `my_skill`. Inside this folder, create a new required `__init__.py` file that will be called when the skill is first imported :
+Skills are self-contained and composed of 3 specific components:
 
-.. code-block:: python
+- Training data: examples of how to trigger specific intents from natural language, defined in a tiny Domain Specific Language not tied to a particular NLU engine,
+- Translations: simple key/value pair used by your skill for different languages,
+- Intent handlers: Python code called when a specific intent has been parsed by `pytlas`
 
-  from pytlas.skill import intent
-  from pytlas.localization import translations
-
-  # You can also use relative import if your skill contains multiple files
-  # from .subfile import *
-
-  @translations('fr')
-  def fr_translations(): return {
-    'hello': 'bonjour',
-    'bye': 'au revoir',
-  }
-
-  @intent('on_some_intent_triggered')
-  def my_handler(r):
-    r.agent.answer(r._('hello'))
-
-    # Put your logic here
-
-    return r.agent.done() # See examples
-
-And that's all you need to know to create and share your own skills!
+Have a look at the `example/skills` folder to see how it works.
 
 Testing
 -------

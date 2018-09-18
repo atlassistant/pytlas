@@ -1,4 +1,4 @@
-from pytlas.skill import intent
+from pytlas import intent
 
 def turn_lights(req, on):
   rooms = req.intent.slot('room')

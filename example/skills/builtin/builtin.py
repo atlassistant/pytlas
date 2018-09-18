@@ -1,5 +1,4 @@
-from pytlas.skill import intent
-from pytlas.training import training
+from pytlas import intent, training
 
 @training('en')
 def en_data(): return """

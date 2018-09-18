@@ -83,7 +83,7 @@ def create_parser():
   parser.set_defaults(
     lang='en',
     skills_dir='skills',
-    cache_dir='cache',
+    cache_dir=None,
     verbose=False,
     debug=False,
     reload=False,
