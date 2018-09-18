@@ -8,7 +8,7 @@ from pytlas.interpreters import Interpreter, Intent, SlotValue
 class AgentTests(unittest.TestCase):
 
   def test_simple_intent(self):
-    interp = Interpreter('test')
+    interp = Interpreter('test', 'en')
     handlers = {
       'lights_on': MagicMock(),
       'lights_off': MagicMock(),
@@ -37,7 +37,7 @@ class AgentTests(unittest.TestCase):
       nonlocal lights_off_request
       lights_off_request = r
 
-    interp = Interpreter('test')
+    interp = Interpreter('test', 'en')
     handlers = {
       'lights_on': lights_on,
       'lights_off': lights_off,
@@ -73,7 +73,7 @@ class AgentTests(unittest.TestCase):
       request = r
       r.agent.ask('a_slot', 'Please fill the slot')
 
-    interp = Interpreter('test')
+    interp = Interpreter('test', 'en')
     ask = MagicMock()
     done = MagicMock()
     
@@ -130,7 +130,7 @@ class AgentTests(unittest.TestCase):
     handlers = {
       'lights_on': handler,
     }
-    interp = Interpreter('test')
+    interp = Interpreter('test', 'en')
     interp.intents = list(handlers.keys())
     interp.parse = MagicMock(return_value=[
       Intent('lights_on'),
@@ -155,7 +155,7 @@ class AgentTests(unittest.TestCase):
     handlers = {
       'lights_on': lambda r: r.agent.ask('rooms', 'Please specify a room'),
     }
-    interp = Interpreter('test')
+    interp = Interpreter('test', 'en')
     interp.intents = list(handlers.keys())
     interp.parse = MagicMock(return_value=[
       Intent('lights_on'),
@@ -178,7 +178,7 @@ class AgentTests(unittest.TestCase):
     self.assertIsNone(agt._asked_slot)
 
   def test_build(self):
-    interp = Interpreter('test')
+    interp = Interpreter('test', 'en')
     interp.intents = ['intent_one', 'intent_two']
     interp.parse = MagicMock(return_value=[
       Intent('intent_three'),
@@ -218,7 +218,7 @@ class AgentTests(unittest.TestCase):
     handlers = {
       STATE_FALLBACK: handler,
     }
-    interp = Interpreter('test')
+    interp = Interpreter('test', 'en')
     interp.intents = list(handlers.keys())
     interp.parse = MagicMock(return_value=[])
 
@@ -240,7 +240,7 @@ class AgentTests(unittest.TestCase):
     handlers = {
       STATE_FALLBACK: handler,
     }
-    interp = Interpreter('test')
+    interp = Interpreter('test', 'en')
     agt = Agent(interp, handlers, on_answer=answer)
     agt.parse('something not matched')
 

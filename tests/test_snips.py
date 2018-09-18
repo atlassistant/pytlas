@@ -24,21 +24,16 @@ def snips_available(func):
 class SnipsTests(unittest.TestCase):
 
   @snips_available
-  def test_with_no_training_file(self):
-    interp = SnipsInterpreter('', False)
-    interp.fit_as_needed()
-
-  @snips_available
   def test_not_fitted(self):
-    interp = SnipsInterpreter('', False)
+    interp = SnipsInterpreter('en')
 
     self.assertFalse(interp.is_ready)
     self.assertEqual([], interp.parse('a message'))
 
   @snips_available
   def test_parse(self):
-    interp = SnipsInterpreter('./../example', False)
-    interp.fit_as_needed()
+    interp = SnipsInterpreter('en')
+    interp.fit_from_file('./training.json')
 
     self.assertTrue(interp.is_ready)
     self.assertEqual(3, len(interp.intents))
@@ -61,8 +56,8 @@ class SnipsTests(unittest.TestCase):
 
   @snips_available
   def test_parse_slot(self):
-    interp = SnipsInterpreter('./../example', False)
-    interp.fit_as_needed()
+    interp = SnipsInterpreter('en')
+    interp.fit_from_file('./training.json')
 
     slots = interp.parse_slot('get_forecast', 'date', 'on today')
 
@@ -77,8 +72,8 @@ class SnipsTests(unittest.TestCase):
 
   @snips_available
   def test_parse_slot_with_synonym(self):
-    interp = SnipsInterpreter('./../example', False)
-    interp.fit_as_needed()
+    interp = SnipsInterpreter('en')
+    interp.fit_from_file('./training.json')
 
     slots = [s.value for s in interp.parse_slot('lights_on', 'room', 'kitchen and cellar')]
     self.assertEqual(2, len(slots))

@@ -5,7 +5,37 @@
 
 from pytlas import Agent
 from pytlas.skill import intent
+from pytlas.training import training
 from pytlas.interpreters.snips import SnipsInterpreter
+
+# Here, we register a sentence as training data for the specified language
+# Those training sample are written using a simple DSL named chatl. It make it 
+# back-end agnostic and is much more readable than raw dataset needed by NLU
+# engines.
+#
+# Those data will be parsed by `pychatl` to output the correct dataset use for the fit
+# part.
+
+@training('en')
+def en_data(): return """
+%[lights_on]
+  turn the @[room]'s lights on would you
+  turn lights on in the @[room]
+  lights on in @[room] please
+  turn on the lights in @[room]
+  turn the lights on in @[room]
+  enlight me in @[room]
+
+~[basement]
+  cellar
+
+@[room](extensible=false)
+  living room
+  kitchen
+  bedroom
+  ~[basement]
+
+"""
 
 # Here we are registering a function (with the intent decorator) as an handler 
 # for the intent 'lights_on'.
@@ -38,12 +68,12 @@ if __name__ == '__main__':
   # Each interpreter as its own training format so here we are loading the snips 
   # interpreter with needed files from this directory.
 
-  interpreter = SnipsInterpreter('.')
+  interpreter = SnipsInterpreter('en')
 
-  # Train the interpreter if training data has changed, else it will be loaded
-  # from the cache directory.
+  # Train the interpreter using training data register with the `training` decorator
+  # or `pytlas.training.register` function.
 
-  interpreter.fit_as_needed()
+  interpreter.fit_from_skill_data()
   
   # The `Agent` exposes some handlers used to communicate with the outside world.
 
@@ -58,7 +88,7 @@ if __name__ == '__main__':
   # - A 'lights_on' intents is retrieved and contains 'kitchen' as the 'room' slot value
   # - Since the `Agent` is asleep, it will transition to the 'lights_on' state
   # - Transitioning to this state call the appropriate handler (at the beginning of this file)
-  # - 'Turning lights on in kitchen' is printed to the terminal by the `on_answer` delegate defined above
+  # - 'Turning lights on in kitchen, bedroom' is printed to the terminal by the `on_answer` delegate defined above
   # - `done` is called by the skill so the agent transitions back to the 'asleep' state
 
   agent.parse('turn the lights on in kitchen and in bedroom please')

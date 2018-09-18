@@ -28,7 +28,10 @@ def register(lang, path_or_data, package=None):
   if package not in module_trainings:
     module_trainings[package] = {}
 
-  parsed_data = parse(data)
+  try:
+    parsed_data = parse(data)
+  except Exception as ex:
+    return logging.error('Could not parse "%s" training data: %s' % (package, ex))
 
   module_trainings[package][lang] = parsed_data
 

@@ -16,7 +16,7 @@ def register(lang, path_or_data, package=None):
 
   package = package or get_caller_package_name()
   
-  if type (path_or_data) is dict:
+  if isinstance(path_or_data, dict):
     data = path_or_data
   else:
     abspath = get_absolute_path_to_package_file(path_or_data, package)

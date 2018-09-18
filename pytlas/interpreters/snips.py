@@ -2,6 +2,7 @@ import os, shutil
 from .interpreter import Interpreter, compute_checksum
 from .intent import Intent
 from .slot import SlotValue
+from ..utils import read_file
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.builtin_entities import BuiltinEntityParser, is_builtin_entity
 from fuzzywuzzy import process
@@ -11,27 +12,23 @@ class SnipsInterpreter(Interpreter):
   """Wraps the snips-nlu stuff to provide valuable informations to an agent.
   """
 
-  def __init__(self, lang, cache_directory, persist=True):
+  def __init__(self, lang, cache_directory=None):
     """Instantiates a new Snips interpreter.
 
     Args:
       lang (str): Language used for this interpreter (ie. en, fr, ...)
       cache_directory (str): Path where training and trained files are placed
-      persist (bool): True if trained engine should be persisted
 
     """
 
     super(SnipsInterpreter, self).__init__('snips', lang, cache_directory)
 
     self._engine = None
-    self._entity_parser = None
-    self._persist = persist
+    self._entity_parser = BuiltinEntityParser(self.lang)
     self._slot_mappings = {}
     self._entities = {}
 
   def _configure(self):
-    self._entity_parser = BuiltinEntityParser(self.lang)
-
     self._slot_mappings = self._engine._dataset_metadata.get('slot_name_mappings', {})
     self._entities = self._engine._dataset_metadata.get('entities', {})
 
@@ -45,19 +42,22 @@ class SnipsInterpreter(Interpreter):
     self._configure()
 
   def fit(self, data):
+    data_lang = data.get('language')
+
+    if data_lang != self.lang:
+      self._logger.warning('Training language "%s" and interpreter language "%s" do not match, things could go badly' % (data_lang, self.lang))
+
     self._logger.info('Fitting using "snips v%s"' % __version__)
 
     checksum = compute_checksum(data)
-
-    # Try to load the used checksum
-
-    cached_checksum_path = os.path.join(self.cache_directory, 'trained.checksum')
     cached_checksum = None
 
-    try:
-      with open(cached_checksum_path) as f:
-        cached_checksum = f.read()
-    except FileNotFoundError:
+    # Try to load the used checksum
+    if self.cache_directory:
+      cached_checksum_path = os.path.join(self.cache_directory, 'trained.checksum')
+      cached_checksum = read_file(cached_checksum_path, ignore_errors=True)
+
+    if not cached_checksum:
       self._logger.debug('Checksum file not found')
 
     if checksum == cached_checksum:
@@ -76,7 +76,7 @@ class SnipsInterpreter(Interpreter):
       self._engine = SnipsNLUEngine(config)
       self._engine.fit(data)
 
-      if self._persist:
+      if self.cache_directory:
         self._logger.info('Persisting trained engine to "%s"' % self.cache_directory)
         
         shutil.rmtree(self.cache_directory, ignore_errors=True)

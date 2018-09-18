@@ -1,4 +1,12 @@
 from pytlas.skill import intent
+from pytlas.training import training
+
+@training('en')
+def en_data(): return """
+%[__cancel__]
+  cancel
+  abandon the command
+"""
 
 @intent('__fallback__')
 def fallback(r):

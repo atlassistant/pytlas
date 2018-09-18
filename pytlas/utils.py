@@ -66,3 +66,24 @@ def get_absolute_path_to_package_file(path, package):
   """
 
   return path if os.path.isabs(path) else os.path.abspath(os.path.join(get_module_path(package), path))
+
+def read_file(path, ignore_errors=False):
+  """Read the file content at the specified path.
+
+  Args:
+    path (str): Path to be read
+    ignore_errors: True if you don't want exception to be raised (None will be returned)
+
+  Returns:
+    str: Content of the file or None if not found and ignore_errors was true
+    
+  """
+
+  try:
+    with open(path) as f:
+      return f.read()
+  except Exception as e:
+    if not ignore_errors:
+      raise e
+
+    return None

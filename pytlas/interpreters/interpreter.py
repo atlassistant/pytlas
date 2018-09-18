@@ -66,7 +66,7 @@ class Interpreter:
       if lang_data:
         data = deep_update(data, lang_data)
       else:
-        self._logger.warning('Skill "%s" does not seem to have training data for the lang %s' % (module, self.lang))
+        self._logger.warning('Skill "%s" does not seem to have training data for the lang "%s"' % (module, self.lang))
 
     try:
       data = getattr(postprocessors, self.name)(data, { 'language': self.lang })
