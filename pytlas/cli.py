@@ -5,7 +5,7 @@ from .agent import Agent
 from .version import __version__
 
 class CustomFormatter(ColoredFormatter):
-  """Custom formatter used to highlight every words wrapped by quotes.
+  """Custom formatter used to highlight every words wrapped in quotes.
   """
 
   def __init__(self):
@@ -32,11 +32,8 @@ class Prompt(cmd.Cmd):
     super(Prompt, self).__init__()
 
     self._agent = agent
-
-    # Attach handlers
     self._agent.on_ask = self.ask
     self._agent.on_answer = self.answer
-    self._agent.on_done = self.done
   
   def ask(self, slot, text, choices):
     print (text)
@@ -44,22 +41,34 @@ class Prompt(cmd.Cmd):
   def answer(self, text, cards):
     print (text)
 
-  def done(self):
-    pass
-
   def do_exit(self, msg):
     return True
 
   def default(self, msg):
     self._agent.parse(msg)
 
-def install_logs(verbosity=logging.WARNING):
-  """Installs a custom formatter to color output logs.
+def main():
+  parser = argparse.ArgumentParser(description='An open-source 🤖 assistant library built for people and made to be super easy to setup and understand.')
+  
+  parser.set_defaults(
+    lang='en',
+    skills='skills',
+    cache=None,
+    verbose=False,
+    debug=False,
+    reload=False,
+  )
 
-  Args:
-    verbose (bool): Verbose output
+  parser.add_argument('training_file', type=str, nargs='?', help='If given, the interpreter will be fit with this file instead of skill data')
+  parser.add_argument('--version', action='version', version='%(prog)s v' + __version__)
+  parser.add_argument('-s', '--skills', type=str, help='Specifies the directory containing pytlas skills (default to skills/')
+  parser.add_argument('-c', '--cache', type=str, help='Path to the directory where engine cache will be outputted')
+  parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+  parser.add_argument('-l', '--lang', type=str, help='Lang of the interpreter to use')
+  parser.add_argument('--debug', action='store_true', help='Debug mode')
+  parser.add_argument('-r', '--reload', action='store_true', help='Reload on skill files change')
 
-  """
+  args = parser.parse_args(sys.argv[1:])
 
   log = logging.getLogger()
   formatter = CustomFormatter()
@@ -68,55 +77,19 @@ def install_logs(verbosity=logging.WARNING):
   stream.setFormatter(formatter)
 
   log.addHandler(stream)
-  log.setLevel(verbosity)
+  log.setLevel(logging.DEBUG if args.debug else logging.INFO if args.verbose else logging.WARNING)
 
-def create_parser():
-  """Creates the parser that pytlas CLI internaly use.
-
-  This is useful if you want to give the same options in your own program.
-
-  Returns:
-    ArgumentParser: Parser to use
-
-  """
-  parser = argparse.ArgumentParser()
-  parser.set_defaults(
-    lang='en',
-    skills_dir='skills',
-    cache_dir=None,
-    verbose=False,
-    debug=False,
-    reload=False,
-  )
-
-  parser.add_argument('-s', '--skills_dir', help='Specifies the directory containing python skills')
-  parser.add_argument('-c', '--cache_dir', help='Path to the training cache directory')
-  parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
-  parser.add_argument('-l', '--lang', help='Lang of the interpreter to use')
-  parser.add_argument('--debug', action='store_true', help='Debug mode')
-  parser.add_argument('-r', '--reload', action='store_true', help='Reload on skill files change')
-
-  return parser
-
-def main():
-  args = create_parser().parse_args(sys.argv[1:])
-
-  verbosity = logging.WARNING
-
-  if args.verbose:
-    verbosity = logging.INFO
-  
-  if args.debug:
-    verbosity = logging.DEBUG
-
-  install_logs(verbosity)
-  import_skills(args.skills_dir, args.reload)
+  import_skills(args.skills, args.reload)
 
   try:
     from .interpreters.snips import SnipsInterpreter
     
-    interpreter = SnipsInterpreter(args.lang, args.cache_dir)
-    interpreter.fit_from_skill_data()
+    interpreter = SnipsInterpreter(args.lang, args.cache)
+
+    if args.training_file:
+      interpreter.fit_from_file(args.training_file)
+    else:
+      interpreter.fit_from_skill_data()
 
     Prompt(Agent(interpreter)).cmdloop()
   except ImportError:

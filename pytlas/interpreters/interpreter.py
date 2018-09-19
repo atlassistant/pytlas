@@ -83,6 +83,8 @@ class Interpreter:
 
     """
 
+    self._logger.info('Training interpreter with file "%s"' % path)
+
     with open(path) as f:
       self.fit(json.load(f))
 
