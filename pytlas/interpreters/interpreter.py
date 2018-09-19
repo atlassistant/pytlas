@@ -69,7 +69,7 @@ class Interpreter:
         self._logger.warning('Skill "%s" does not seem to have training data for the lang "%s"' % (module, self.lang))
 
     try:
-      data = getattr(postprocessors, self.name)(data, { 'language': self.lang })
+      data = getattr(postprocessors, self.name)(data, language=self.lang)
     except AttributeError:
       return self._logger.critical('No post-processors found on pychatl for this interpreter!')
 

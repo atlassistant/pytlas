@@ -14,7 +14,7 @@ def en_data(): return """
 ~[los angeles]
   la
 
-@[date](type=snips/datetime)
+@[date](snips:type=snips/datetime)
   tomorrow
   today
   this evening
