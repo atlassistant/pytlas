@@ -25,7 +25,7 @@ class CustomFormatter(ColoredFormatter):
     return self._pattern.sub(r'%s\1%s' % (escape_codes['cyan'], escape_codes['reset']), msg) + escape_codes['reset']
 
 class Prompt(cmd.Cmd):
-  intro = 'pytlas prompt v%s' % __version__
+  intro = 'pytlas prompt v%s (type exit to leave)' % __version__
   prompt = '> '
 
   def __init__(self, agent):
