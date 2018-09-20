@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-with open('README.rst', encoding='utf8') as f:
+with open('README.rst', encoding='utf-8') as f:
   readme = f.read()
 
 with open('pytlas/version.py') as f:

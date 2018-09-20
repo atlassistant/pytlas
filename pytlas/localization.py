@@ -21,7 +21,7 @@ def register(lang, path_or_data, package=None):
   else:
     abspath = get_absolute_path_to_package_file(path_or_data, package)
 
-    with open (abspath) as f:
+    with open (abspath, encoding='utf-8') as f:
       data = json.load(f)
 
   if package not in module_translations:

@@ -85,7 +85,7 @@ class Interpreter:
 
     self._logger.info('Training interpreter with file "%s"' % path)
 
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
       self.fit(json.load(f))
 
   def parse_slot(self, intent, slot, msg):

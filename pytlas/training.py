@@ -20,7 +20,7 @@ def register(lang, path_or_data, package=None):
   abspath = get_absolute_path_to_package_file(path_or_data, package)
   
   if os.path.isfile(abspath):
-    with open(abspath) as f:
+    with open(abspath, encoding='utf-8') as f:
       data = f.read()
   else:
     data = path_or_data
