@@ -1,3 +1,5 @@
+from dateutil.parser import parse as parseDate
+
 class SlotValue:
   """Represents a single slot value.
 
@@ -5,9 +7,20 @@ class SlotValue:
 
   """
   
-  def __init__(self, raw_value, **kwargs):
+  def __init__(self, raw_value, **meta):
     self.value = raw_value
-    self.meta = kwargs
+    self.meta = meta
+
+  @property
+  def value_as_date(self):
+    """Retrieve the value casted to a datetime.
+
+    Returns:
+      datetime: The slot value as a datetime object
+
+    """
+
+    return parseDate(self.value)
 
   def __str__(self):
     return self.value

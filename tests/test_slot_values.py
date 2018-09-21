@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 from pytlas.interpreters import SlotValue, SlotValues
 
 class SlotValuesTests(unittest.TestCase):
@@ -7,6 +8,15 @@ class SlotValuesTests(unittest.TestCase):
     v = SlotValue('kitchen')
 
     self.assertEqual('kitchen', v.value)
+
+  def test_slot_value_as_date(self):
+    v = SlotValue('2018-09-22 00:00:00 +02:00')
+    date = v.value_as_date
+
+    self.assertIsInstance(date, datetime)
+    self.assertEqual(2018, date.year)
+    self.assertEqual(9, date.month)
+    self.assertEqual(22, date.day)
 
   def test_slot_value_meta(self):
     v = SlotValue('kitchen', entity='rooms')

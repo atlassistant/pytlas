@@ -23,6 +23,7 @@ setup(
     'colorlog==2.2.0',
     'watchgod==0.2',
     'pychatl==1.2.0',
+    'python-dateutil==2.7.3',
   ],
   extras_require={
     'snips': [

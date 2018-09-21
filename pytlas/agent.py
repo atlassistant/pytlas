@@ -76,7 +76,7 @@ class Agent:
   """
 
   def __init__(self, interpreter, handlers=None, 
-    on_ask=None, on_answer=None, on_done=None, **kwargs):
+    on_ask=None, on_answer=None, on_done=None, **meta):
     """Initialize an agent.
 
     Args:
@@ -85,7 +85,7 @@ class Agent:
       on_ask (func): Handler called when a skill needs more user input
       on_answer (func): Handler called called when a skill wants to give an answer to the user
       on_done (func): Called when a skill has ended its work
-      kwargs (dict): Every other properties will be made available through the self.meta property
+      meta (dict): Every other properties will be made available through the self.meta property
 
     """
 
@@ -104,7 +104,7 @@ class Agent:
     self._asked_slot = None
     self._choices = None
     
-    self.meta = kwargs
+    self.meta = meta
 
     self._machine = None
     self.build()
@@ -178,7 +178,7 @@ class Agent:
 
     return True
 
-  def parse(self, msg, **kwargs):
+  def parse(self, msg, **meta):
     """Parse a raw message.
 
     The interpreter will be used to determine which intent(s) has been formulated
@@ -189,7 +189,7 @@ class Agent:
 
     Args:
       msg (str): Raw message to parse
-      kwargs (dict): Optional metadata to add to the request
+      meta (dict): Optional metadata to add to the request
 
     """
 
@@ -199,7 +199,7 @@ class Agent:
 
     # Add meta to each parsed intents
     for intent in intents:
-      intent.meta.update(kwargs)
+      intent.meta.update(meta)
 
     cancel_intent = next((i for i in intents if i.name == STATE_CANCEL), None)
 
@@ -223,7 +223,7 @@ class Agent:
 
         # Update slots and meta
         self._request.intent.update_slots(**{ self._asked_slot: values })
-        self._request.intent.meta.update(kwargs)
+        self._request.intent.meta.update(meta)
 
         self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, ['"%s"' % v for v in values]))
         
