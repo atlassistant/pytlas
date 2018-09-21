@@ -1,6 +1,6 @@
 import logging, argparse, sys, re, cmd
 from colorlog import ColoredFormatter, escape_codes
-from .importers import import_skills
+from .importers import import_skills, restrict_load_languages
 from .agent import Agent
 from .version import __version__
 
@@ -79,6 +79,7 @@ def main():
   log.addHandler(stream)
   log.setLevel(logging.DEBUG if args.debug else logging.INFO if args.verbose else logging.WARNING)
 
+  restrict_load_languages([args.lang])
   import_skills(args.skills, args.reload)
 
   try:

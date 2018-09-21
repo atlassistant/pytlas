@@ -2,6 +2,41 @@ import importlib, os, logging, sys, threading
 from types import ModuleType
 from watchgod import watch
 
+"""A list of allowed language resources to be loaded.
+"""
+LOAD_LANGUAGES = None
+
+def restrict_load_languages(languages):
+  """Set allowed language ressources to be loaded.
+
+  Args:
+    languages (list): List of language codes to allow
+
+  """
+
+  global LOAD_LANGUAGES
+
+  LOAD_LANGUAGES = languages
+
+def should_load_resources(language_code):
+  """Determines if resources for the given language should be loaded. It will help
+  keep only necessary stuff and avoid allocating space for unneeded resources.
+
+  Args:
+    language_code (str): Language to check
+
+  Returns:
+    bool: True if it should be loaded, false otherwise
+
+  """
+
+  global LOAD_LANGUAGES
+
+  if LOAD_LANGUAGES == None:
+    LOAD_LANGUAGES = list(filter(None, os.environ.get('PYTLAS_LOAD_LANGUAGES', '').split(',')))
+
+  return not LOAD_LANGUAGES or language_code in LOAD_LANGUAGES
+
 def _reload(module):
   """Recursively reloads a module. It only works for simple scenario but it may be suitable for pytlas ;).
 

@@ -1,5 +1,6 @@
 import logging, os
 from .utils import get_caller_package_name, get_absolute_path_to_package_file
+from .importers import should_load_resources
 from pychatl import parse
 
 # Training data per module / lang
@@ -16,6 +17,9 @@ def register(lang, path_or_data, package=None):
   """
 
   package = package or get_caller_package_name()
+
+  if not should_load_resources(lang):
+    return logging.debug('Skipped "%s" training data for language "%s"' % (package, lang))
 
   abspath = get_absolute_path_to_package_file(path_or_data, package)
   

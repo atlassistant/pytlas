@@ -1,5 +1,6 @@
 import json, logging, os
 from .utils import get_caller_package_name, get_absolute_path_to_package_file
+from .importers import should_load_resources
 
 # Represents translations by module/lang
 module_translations = {}
@@ -13,8 +14,11 @@ def register(lang, path_or_data, package=None):
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
 
   """
-
+  
   package = package or get_caller_package_name()
+
+  if not should_load_resources(lang):
+    return logging.debug('Skipped "%s" translations for language "%s"' % (package, lang))
   
   if isinstance(path_or_data, dict):
     data = path_or_data
