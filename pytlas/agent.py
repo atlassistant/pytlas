@@ -171,6 +171,9 @@ class Agent:
 
     self._logger.info(msg)
 
+  def _is_current_request(self, request):
+    return self._request and self._request.id == request.id
+
   def _is_valid(self, data, required_keys=[]):
     if not all(elem in data and data[elem] != None for elem in required_keys):
       self._logger.warning('One of required keys are not present or its value is equal to None in the data, required keys were %s' % required_keys)

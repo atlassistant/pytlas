@@ -73,10 +73,10 @@ class SnipsTests(unittest.TestCase):
     slot = intent.slot('date').first()
     date_value = slot.value
 
-    self.assertEqual('2018-09-03 00:00:00 +02:00', date_value)
+    self.assertTrue(date_value.startswith('2018-09-03 00:00:00'))
     self.assertEqual('TimeInterval', slot.meta.get('value', {}).get('kind'))
-    self.assertEqual('2018-09-03 00:00:00 +02:00', slot.meta.get('value', {}).get('from'))
-    self.assertEqual('2018-09-06 00:00:00 +02:00', slot.meta.get('value', {}).get('to'))
+    self.assertTrue(slot.meta.get('value', {}).get('from', '').startswith('2018-09-03 00:00:00'))
+    self.assertTrue(slot.meta.get('value', {}).get('to', '').startswith('2018-09-06 00:00:00'))
 
   @snips_available
   def test_parse_slot_date_range(self):
@@ -89,10 +89,10 @@ class SnipsTests(unittest.TestCase):
 
     slot = slots[0]
 
-    self.assertEqual('2018-09-03 00:00:00 +02:00', slot.value)
+    self.assertTrue(slot.value.startswith('2018-09-03 00:00:00'))
     self.assertEqual('TimeInterval', slot.meta.get('value', {}).get('kind'))
-    self.assertEqual('2018-09-03 00:00:00 +02:00', slot.meta.get('value', {}).get('from'))
-    self.assertEqual('2018-09-06 00:00:00 +02:00', slot.meta.get('value', {}).get('to'))
+    self.assertTrue(slot.meta.get('value', {}).get('from', '').startswith('2018-09-03 00:00:00'))
+    self.assertTrue(slot.meta.get('value', {}).get('to', '').startswith('2018-09-06 00:00:00'))
 
   @snips_available
   def test_parse_slot(self):
