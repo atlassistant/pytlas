@@ -55,6 +55,46 @@ class SnipsTests(unittest.TestCase):
     self.assertTrue('london' in location_values)
 
   @snips_available
+  def test_parse_intent_date_range(self):
+    interp = SnipsInterpreter('en')
+    interp.fit_from_file('./training.json')
+
+    intents = interp.parse('will it rain between from the third of september 2018 to the fifth of september 2018')
+
+    self.assertEqual(1, len(intents))
+
+    intent = intents[0]
+
+    self.assertEqual('get_forecast', intent.name)
+
+    self.assertEqual(1, len(intent.slots))
+    self.assertEqual(1, len(intent.slot('date')))
+
+    slot = intent.slot('date').first()
+    date_value = slot.value
+
+    self.assertEqual('2018-09-03 00:00:00 +02:00', date_value)
+    self.assertEqual('TimeInterval', slot.meta.get('value', {}).get('kind'))
+    self.assertEqual('2018-09-03 00:00:00 +02:00', slot.meta.get('value', {}).get('from'))
+    self.assertEqual('2018-09-06 00:00:00 +02:00', slot.meta.get('value', {}).get('to'))
+
+  @snips_available
+  def test_parse_slot_date_range(self):
+    interp = SnipsInterpreter('en')
+    interp.fit_from_file('./training.json')
+
+    slots = interp.parse_slot('get_forecast', 'date', 'from the third of september 2018 to the fifth of september 2018')
+
+    self.assertEqual(1, len(slots))
+
+    slot = slots[0]
+
+    self.assertEqual('2018-09-03 00:00:00 +02:00', slot.value)
+    self.assertEqual('TimeInterval', slot.meta.get('value', {}).get('kind'))
+    self.assertEqual('2018-09-03 00:00:00 +02:00', slot.meta.get('value', {}).get('from'))
+    self.assertEqual('2018-09-06 00:00:00 +02:00', slot.meta.get('value', {}).get('to'))
+
+  @snips_available
   def test_parse_slot(self):
     interp = SnipsInterpreter('en')
     interp.fit_from_file('./training.json')

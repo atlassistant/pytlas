@@ -8,6 +8,21 @@ from snips_nlu.builtin_entities import BuiltinEntityParser, is_builtin_entity
 from fuzzywuzzy import process
 import snips_nlu.default_configs as snips_confs
 
+def get_entity_value(data):
+  """Try to retrieve a flat value from a parsed snips entity.
+
+  This is usefull for range where the `value` is not defined but `from` is.
+
+  Args:
+    data (dict): Entity data
+
+  Returns:
+    any: Flat value
+
+  """
+
+  return data.get('value', data.get('from'))
+
 class SnipsInterpreter(Interpreter):
   """Wraps the snips-nlu stuff to provide valuable informations to an agent.
   """
@@ -115,7 +130,7 @@ class SnipsInterpreter(Interpreter):
     for slot in parsed['slots']:
       name = slot['slotName']
       parsed_slot = slot['value']
-      value = SlotValue(parsed_slot.get('value'), **slot)
+      value = SlotValue(get_entity_value(parsed_slot), **slot)
 
       if name in slots:
         slots[name].append(value)
@@ -138,7 +153,13 @@ class SnipsInterpreter(Interpreter):
         parsed = self._entity_parser.parse(msg)
 
         if parsed:
-          return [SlotValue(parsed[0]['entity'].get('value'), **parsed[0])]
+          # Here we got to move some keys to keep it consistent with the intent parsed slots
+          slot_data = parsed[0]
+          slot_data['rawValue'] = slot_data['value']
+          slot_data['value'] = slot_data['entity']
+          slot_data['entity'] = slot_data['entity_kind']
+
+          return [SlotValue(get_entity_value(slot_data['value']), **slot_data)]
         else:
           # If the parsing has failed, the user should reiterate
           return []
