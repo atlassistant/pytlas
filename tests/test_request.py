@@ -24,8 +24,9 @@ class RequestTests(unittest.TestCase):
   def test_datetime_localizations(self):
     interp = Interpreter('test', 'fr')
     agt = Agent(interp)
+
     r = Request(agt, None)
-    d= datetime(2018, 9, 25, 8, 30)
+    d = datetime(2018, 9, 25, 8, 30)
 
     self.assertEqual('25 sept. 2018 à 08:30:00', r._d(d))
     self.assertEqual('25 sept. 2018', r._d(d, date_only=True))

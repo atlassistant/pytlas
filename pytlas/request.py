@@ -2,6 +2,8 @@ import uuid, logging
 from datetime import datetime
 from babel.dates import format_date, format_datetime, format_time
 
+AGENT_SILENTED_METHODS = ['ask', 'answer', 'done']
+
 class AgentProxy:
   """Returns an agent proxy to silent down some methods (ask, answer and done) for skills
   that has been canceled. This is easier that running in subprocess and work well.
@@ -14,13 +16,12 @@ class AgentProxy:
   def __init__(self, request, agent):
     self._request = request
     self._agent = agent
-    self._silent_methods = ['ask', 'answer', 'done']
 
   def empty_func(self, *args, **kwargs):
     pass
 
   def __getattr__(self, attr):
-    if self._agent._is_current_request(self._request) or attr not in self._silent_methods:
+    if self._agent._is_current_request(self._request) or attr not in AGENT_SILENTED_METHODS:
       return getattr(self._agent, attr)
 
     logging.debug('Silented "%s" call from the stub' % attr)
