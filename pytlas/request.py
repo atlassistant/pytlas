@@ -1,4 +1,6 @@
 import uuid, logging
+from datetime import datetime
+from babel.dates import format_date, format_datetime, format_time
 
 class AgentProxy:
   """Returns an agent proxy to silent down some methods (ask, answer and done) for skills
@@ -34,6 +36,24 @@ class Request:
     self.agent = AgentProxy(self, agent)
 
     self._module_translations = module_translations
+
+  def _d(self, date, date_only=False, time_only=False, **options):
+    """Helper to localize given date using the agent current language.
+
+    Args:
+      date (datetime): Date to format accordingly to the user language
+      date_only (bool): Only format the date part
+      time_only (bool): Only format the time part
+      options (dict): Additional options such as `format` to given to Babel
+
+    Returns:
+      str: Localized string representing the date
+
+    """
+
+    func = format_date if date_only else format_time if time_only else format_datetime
+
+    return func(date, locale=self.agent._interpreter.lang, **options)
 
   def _(self, text):
     """Gets the translated value of the given text.

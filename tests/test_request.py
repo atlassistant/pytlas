@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime
 from pytlas.agent import Agent
 from pytlas.interpreters import Interpreter
 from pytlas.request import Request, AgentProxy
@@ -19,6 +20,17 @@ class RequestTests(unittest.TestCase):
 
     self.assertEqual('un texte', r._('a text'))
     self.assertEqual('not found', r._('not found'))
+
+  def test_datetime_localizations(self):
+    interp = Interpreter('test', 'fr')
+    agt = Agent(interp)
+    r = Request(agt, None)
+    d= datetime(2018, 9, 25, 8, 30)
+
+    self.assertEqual('25 sept. 2018 à 08:30:00', r._d(d))
+    self.assertEqual('25 sept. 2018', r._d(d, date_only=True))
+    self.assertEqual('08:30:00', r._d(d, time_only=True))
+    self.assertEqual('mardi 25 septembre 2018', r._d(d, format='full', date_only=True))
 
   def test_agent_proxy(self):
     interp = Interpreter('test', 'en')

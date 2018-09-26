@@ -24,6 +24,7 @@ setup(
     'watchgod==0.2',
     'pychatl==1.2.0',
     'python-dateutil==2.7.3',
+    'Babel==2.6.0',
   ],
   extras_require={
     'snips': [
