@@ -90,6 +90,9 @@ def import_skills(directory, auto_reload=False):
 
   logging.debug('Importing skills from "%s"' % directory)
 
+  if not os.path.isdir(directory):
+    return logging.info('Directory "%s" does not exist, no skills will be loaded 🤔' % directory)
+
   sys.path.append(directory)
 
   for skill_folder in os.listdir(directory):

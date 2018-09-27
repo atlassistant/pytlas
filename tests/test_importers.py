@@ -1,5 +1,5 @@
 import unittest, os
-from pytlas.importers import should_load_resources, restrict_load_languages
+from pytlas.importers import should_load_resources, restrict_load_languages, import_skills
 
 class ImportersTests(unittest.TestCase):
 
@@ -13,3 +13,6 @@ class ImportersTests(unittest.TestCase):
     self.assertTrue(should_load_resources('it'))
 
     restrict_load_languages([]) # Reset it for other tests
+
+  def test_import_skills_in_empty_directory(self):
+    import_skills('/does/not/exists')
