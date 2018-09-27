@@ -1,4 +1,4 @@
-import logging, argparse, sys, re, cmd
+import logging, argparse, sys, re, cmd, os
 from colorlog import ColoredFormatter, escape_codes
 from .importers import import_skills, restrict_load_languages
 from .agent import Agent
@@ -108,6 +108,6 @@ def main():
     else:
       interpreter.fit_from_skill_data()
 
-    Prompt(Agent(interpreter)).cmdloop()
+    Prompt(Agent(interpreter, **os.environ)).cmdloop()
   except ImportError:
     logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 
