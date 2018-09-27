@@ -24,6 +24,24 @@ class CustomFormatter(ColoredFormatter):
 
     return self._pattern.sub(r'%s\1%s' % (escape_codes['cyan'], escape_codes['reset']), msg) + escape_codes['reset']
 
+def install_logs(verbose, debug=False):
+  """Install a custom colored formatter in the root logger.
+
+  Args:
+    verbose (bool): Verbose output?
+    debug (bool): Debug output?
+
+  """
+
+  log = logging.getLogger()
+  formatter = CustomFormatter()
+  stream = logging.StreamHandler()
+  stream.setLevel(logging.DEBUG)
+  stream.setFormatter(formatter)
+
+  log.addHandler(stream)
+  log.setLevel(logging.DEBUG if debug else logging.INFO if verbose else logging.WARNING)
+
 class Prompt(cmd.Cmd):
   intro = 'pytlas prompt v%s (type exit to leave)' % __version__
   prompt = '> '
@@ -36,7 +54,12 @@ class Prompt(cmd.Cmd):
     self._agent.on_answer = self.answer
   
   def ask(self, slot, text, choices):
-    print (text)
+    p_text = text
+
+    if choices:
+      p_text += ' (%s)' % ', '.join(choices)
+    
+    print (p_text)
 
   def answer(self, text, cards):
     print (text)
@@ -70,14 +93,7 @@ def main():
 
   args = parser.parse_args(sys.argv[1:])
 
-  log = logging.getLogger()
-  formatter = CustomFormatter()
-  stream = logging.StreamHandler()
-  stream.setLevel(logging.DEBUG)
-  stream.setFormatter(formatter)
-
-  log.addHandler(stream)
-  log.setLevel(logging.DEBUG if args.debug else logging.INFO if args.verbose else logging.WARNING)
+  install_logs(args.verbose, args.debug)
 
   restrict_load_languages([args.lang])
   import_skills(args.skills, args.reload)
