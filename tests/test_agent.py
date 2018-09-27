@@ -135,9 +135,6 @@ class AgentTests(unittest.TestCase):
     interp.parse = MagicMock(return_value=[
       Intent('lights_on'),
     ])
-    interp.parse_slot = MagicMock(return_value=[
-      SlotValue('living room'),
-    ])
 
     agt = Agent(interp, handlers, on_ask=ask)
     agt.parse('turn the lights on')
