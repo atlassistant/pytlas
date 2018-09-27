@@ -47,24 +47,24 @@ def keep_one(value):
 
   return value
 
-def find_matches(choices, values):
-  """Find elements that fuzzy match the available choices.
+def find_match(choices, value):
+  """Find element that fuzzy match the available choices.
 
   Args:
     choices (list): Available choices
-    values (list): List of SlotValue we should compare with available choices
+    value (str): Raw value to fuzzy match
 
   Returns:
-    generator: matched SlotValue updated with matched value if any
+    str: matched text in given choices
 
   """
 
-  for value in values:
-    match = process.extractOne(value.value, choices, score_cutoff=60)
+  match = process.extractOne(value, choices, score_cutoff=60)
 
-    if match:
-      value.value = match[0] # Update the inner value with the matched one
-      yield value
+  if match:
+    return match[0] # Update the inner value with the matched one
+  
+  return None
 
 class Agent:
   """Manages a conversation with a client.
@@ -219,16 +219,20 @@ class Agent:
       self.go(STATE_CANCEL, intent=cancel_intent) # Go to the cancel intent right now!
     else:
       if self.state == STATE_ASK: # pylint: disable=E1101
-        values = self._interpreter.parse_slot(self._request.intent.name, self._asked_slot, msg)
-        
+
+        # If choices are limited, try to extract a match
         if self._choices:
-          values = list(find_matches(self._choices, values))
+          msg = find_match(self._choices, msg)
 
-        # Update slots and meta
-        self._request.intent.update_slots(**{ self._asked_slot: values })
-        self._request.intent.meta.update(meta)
+        # Here msg will be None if choices could not be matched, so nothing should be done anymore
+        if msg:
+          values = self._interpreter.parse_slot(self._request.intent.name, self._asked_slot, msg)
 
-        self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, ['"%s"' % v for v in values]))
+          # Update slots and meta
+          self._request.intent.update_slots(**{ self._asked_slot: values })
+          self._request.intent.meta.update(meta)
+
+          self._logger.info('Updated slot "%s" with values %s' % (self._asked_slot, ['"%s"' % v for v in values]))
         
         self.go(self._request.intent.name, intent=self._request.intent)
       elif self.state == STATE_ASLEEP: # pylint: disable=E1101

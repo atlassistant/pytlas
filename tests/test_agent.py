@@ -122,7 +122,7 @@ class AgentTests(unittest.TestCase):
       if not rooms:
         return r.agent.ask('rooms', 'Choose a room in one of those', choices)
 
-      assertion_success = len(rooms) == 2 and all([r.value in choices for r in rooms])
+      assertion_success = rooms.first().value == 'living room'
 
       return r.agent.done()
     
@@ -136,8 +136,7 @@ class AgentTests(unittest.TestCase):
       Intent('lights_on'),
     ])
     interp.parse_slot = MagicMock(return_value=[
-      SlotValue('kitch'),
-      SlotValue('living one'),
+      SlotValue('living room'),
     ])
 
     agt = Agent(interp, handlers, on_ask=ask)
@@ -147,7 +146,7 @@ class AgentTests(unittest.TestCase):
     self.assertEqual(STATE_ASK, agt.state)
     self.assertEqual(choices, agt._choices)
 
-    agt.parse('would not be took into account in those tests')
+    agt.parse('in the living room')
 
     self.assertTrue(assertion_success)
 

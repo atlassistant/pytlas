@@ -1,21 +1,15 @@
 import unittest
 from pytlas.interpreters import SlotValue
-from pytlas.agent import STATE_PREFIX, STATE_SUFFIX, find_matches, is_builtin, keep_one
+from pytlas.agent import STATE_PREFIX, STATE_SUFFIX, find_match, is_builtin, keep_one
 
 class AgentUtilsTests(unittest.TestCase):
 
-  def test_find_matches(self):
+  def test_find_match(self):
     choices = ['kitchen', 'bedroom', 'living room']
-    values = [SlotValue('kitch'), SlotValue('bedoorm'), SlotValue('nothing here')]
 
-    matched = list(find_matches(choices, values))
-
-    self.assertEqual(2, len(matched))
-
-    matched_values = [m.value for m in matched]
-
-    self.assertTrue('kitchen' in matched_values)
-    self.assertTrue('bedroom' in matched_values)
+    self.assertEqual('kitchen', find_match(choices, 'kitch'))
+    self.assertEqual('bedroom', find_match(choices, 'bedoorm'))
+    self.assertIsNone(find_match(choices, 'nothing here'))
 
   def test_is_builtin(self):
     self.assertTrue(is_builtin(STATE_PREFIX + 'something' + STATE_SUFFIX))
