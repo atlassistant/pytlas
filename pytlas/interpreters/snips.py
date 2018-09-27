@@ -153,11 +153,16 @@ class SnipsInterpreter(Interpreter):
         parsed = self._entity_parser.parse(msg)
 
         if parsed:
-          # Here we got to move some keys to keep it consistent with the intent parsed slots
+          # Here we move some keys to keep the returned meta consistent with the parse above
+          # We are checking if `rawValue` is already present because snips-nlu seems to keep
+          # a cache so to avoid mutating the same dict twice, we check again this added key.
+
           slot_data = parsed[0]
-          slot_data['rawValue'] = slot_data['value']
-          slot_data['value'] = slot_data['entity']
-          slot_data['entity'] = slot_data['entity_kind']
+
+          if 'rawValue' not in slot_data:
+            slot_data['rawValue'] = slot_data['value']
+            slot_data['value'] = slot_data['entity']
+            slot_data['entity'] = slot_data['entity_kind']
 
           return [SlotValue(get_entity_value(slot_data['value']), **slot_data)]
         else:
