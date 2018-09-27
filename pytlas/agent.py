@@ -61,10 +61,7 @@ def find_match(choices, value):
 
   match = process.extractOne(value, choices, score_cutoff=60)
 
-  if match:
-    return match[0] # Update the inner value with the matched one
-  
-  return None
+  return match[0] if match else None
 
 class Agent:
   """Manages a conversation with a client.
