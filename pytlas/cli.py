@@ -80,6 +80,7 @@ def main():
     verbose=False,
     debug=False,
     reload=False,
+    dry=False,
   )
 
   parser.add_argument('training_file', type=str, nargs='?', help='If given, the interpreter will be fit with this file instead of skill data')
@@ -89,6 +90,7 @@ def main():
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
   parser.add_argument('-l', '--lang', type=str, help='Lang of the interpreter to use')
   parser.add_argument('--debug', action='store_true', help='Debug mode')
+  parser.add_argument('--dry', action='store_true', help='Dry run, will not load the interactive prompt')
   parser.add_argument('-r', '--reload', action='store_true', help='Reload on skill files change')
 
   args = parser.parse_args(sys.argv[1:])
@@ -108,6 +110,7 @@ def main():
     else:
       interpreter.fit_from_skill_data()
 
-    Prompt(Agent(interpreter, **os.environ)).cmdloop()
+    if not args.dry:
+      Prompt(Agent(interpreter, **os.environ)).cmdloop()
   except ImportError:
     logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 
