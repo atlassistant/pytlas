@@ -20,3 +20,6 @@ class Card:
     self.subhead = subhead
     self.header_link = header_link
     self.media = media
+
+  def __str__(self):
+    return '%s (%s) - %s' % (self.header, self.subhead, self.text)

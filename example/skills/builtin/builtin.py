@@ -7,6 +7,14 @@ def en_data(): return """
   abandon the command
 """
 
+@training('fr')
+def fr_data(): return """
+%[__cancel__]
+  annule
+  annuler
+  abandonne la commande
+"""
+
 @intent('__fallback__')
 def fallback(r):
   r.agent.answer('Searching for "%s" ...' % r.intent.slot('text').first().value)

@@ -35,6 +35,7 @@ class Request:
     self.intent = intent
     self.id = uuid.uuid4().hex
     self.agent = AgentProxy(self, agent)
+    self.lang = agent._interpreter.lang
 
     self._module_translations = module_translations
 
@@ -54,7 +55,7 @@ class Request:
 
     func = format_date if date_only else format_time if time_only else format_datetime
 
-    return func(date, locale=self.agent._interpreter.lang, **options)
+    return func(date, locale=self.lang, **options)
 
   def _(self, text):
     """Gets the translated value of the given text.

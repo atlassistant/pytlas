@@ -46,23 +46,36 @@ class Prompt(cmd.Cmd):
   intro = 'pytlas prompt v%s (type exit to leave)' % __version__
   prompt = '> '
 
-  def __init__(self, agent):
+  def __init__(self, agent, parse_message=None):
     super(Prompt, self).__init__()
 
     self._agent = agent
     self._agent.on_ask = self.ask
     self._agent.on_answer = self.answer
+    self._agent.on_done = self.done
+    self._exit_on_done = False
+
+    if parse_message:
+      self._exit_on_done = True
+      self._agent.parse(parse_message)
   
+  def done(self):
+    if self._exit_on_done and not self._agent._request:
+      sys.exit()
+
   def ask(self, slot, text, choices):
-    p_text = text
+    print (text)
 
     if choices:
-      p_text += ' (%s)' % ', '.join(choices)
-    
-    print (p_text)
+      for choice in choices:
+        print ('\t-' + choice)
 
   def answer(self, text, cards):
     print (text)
+
+    if cards:
+      for card in cards:
+        print (card)
 
   def do_exit(self, msg):
     return True
@@ -81,6 +94,7 @@ def main():
     debug=False,
     reload=False,
     dry=False,
+    parse=None,
   )
 
   parser.add_argument('training_file', type=str, nargs='?', help='If given, the interpreter will be fit with this file instead of skill data')
@@ -89,6 +103,7 @@ def main():
   parser.add_argument('-c', '--cache', type=str, help='Path to the directory where engine cache will be outputted')
   parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
   parser.add_argument('-l', '--lang', type=str, help='Lang of the interpreter to use')
+  parser.add_argument('--parse', type=str, help='Parse the given message immediately and exits when the skill is done')
   parser.add_argument('--debug', action='store_true', help='Debug mode')
   parser.add_argument('--dry', action='store_true', help='Dry run, will not load the interactive prompt')
   parser.add_argument('-r', '--reload', action='store_true', help='Reload on skill files change')
@@ -111,6 +126,6 @@ def main():
       interpreter.fit_from_skill_data()
 
     if not args.dry:
-      Prompt(Agent(interpreter, **os.environ)).cmdloop()
+      Prompt(Agent(interpreter, **os.environ), args.parse).cmdloop()
   except ImportError:
     logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 

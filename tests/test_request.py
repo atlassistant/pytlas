@@ -7,14 +7,23 @@ from pytlas.request import Request, AgentProxy
 class RequestTests(unittest.TestCase):
 
   def test_id(self):
-    
-    r = Request(None, None)
+    interp = Interpreter('test', 'fr')
+    agt = Agent(interp)
+    r = Request(agt, None)
 
     self.assertIsNotNone(r.id)
 
-  def test_translations(self):
+  def test_lang(self):
+    interp = Interpreter('test', 'fr')
+    agt = Agent(interp)
+    r = Request(agt, None)
 
-    r = Request(None, None, {
+    self.assertEqual('fr', r.lang)
+
+  def test_translations(self):
+    interp = Interpreter('test', 'fr')
+    agt = Agent(interp)
+    r = Request(agt, None, {
       'a text': 'un texte',
     })
 
