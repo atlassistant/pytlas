@@ -31,6 +31,9 @@ setup(
     'snips': [
       'snips-nlu==0.16.5',
     ],
+    'test': [
+      'nose==1.3.7',
+    ],
   },
   entry_points={
     'console_scripts': [

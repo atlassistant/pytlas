@@ -1,7 +1,9 @@
-import unittest, datetime
+import unittest, datetime, os
+from functools import wraps
 from unittest.mock import patch, mock_open
 
 snips_imported = True
+training_filepath = os.path.join(os.path.dirname(__file__), 'training.json')
 
 try:
   from pytlas.interpreters.snips import SnipsInterpreter
@@ -11,7 +13,8 @@ except ImportError:
 def snips_available(func):
   """Check if snips is imported before executing the test
   """
-
+  
+  @wraps(func)
   def new(*args, **kwargs):
     if not snips_imported:
       return args[0].skipTest('snips could not be imported')
@@ -19,7 +22,6 @@ def snips_available(func):
     return func(*args, **kwargs)
 
   return new
-    
 
 class SnipsTests(unittest.TestCase):
 
@@ -33,7 +35,7 @@ class SnipsTests(unittest.TestCase):
   @snips_available
   def test_parse(self):
     interp = SnipsInterpreter('en')
-    interp.fit_from_file('./training.json')
+    interp.fit_from_file(training_filepath)
 
     self.assertTrue(interp.is_ready)
     self.assertEqual(3, len(interp.intents))
@@ -57,7 +59,7 @@ class SnipsTests(unittest.TestCase):
   @snips_available
   def test_parse_intent_date_range(self):
     interp = SnipsInterpreter('en')
-    interp.fit_from_file('./training.json')
+    interp.fit_from_file(training_filepath)
 
     intents = interp.parse('will it rain between from the third of september 2018 to the fifth of september 2018')
 
@@ -81,7 +83,7 @@ class SnipsTests(unittest.TestCase):
   @snips_available
   def test_parse_slot_date_range(self):
     interp = SnipsInterpreter('en')
-    interp.fit_from_file('./training.json')
+    interp.fit_from_file(training_filepath)
 
     slots = interp.parse_slot('get_forecast', 'date', 'from the third of september 2018 to the fifth of september 2018')
 
@@ -97,7 +99,7 @@ class SnipsTests(unittest.TestCase):
   @snips_available
   def test_parse_slot(self):
     interp = SnipsInterpreter('en')
-    interp.fit_from_file('./training.json')
+    interp.fit_from_file(training_filepath)
 
     slots = interp.parse_slot('get_forecast', 'date', 'on today')
 
@@ -113,7 +115,7 @@ class SnipsTests(unittest.TestCase):
   @snips_available
   def test_parse_slot_with_synonym(self):
     interp = SnipsInterpreter('en')
-    interp.fit_from_file('./training.json')
+    interp.fit_from_file(training_filepath)
 
     slots = [s.value for s in interp.parse_slot('lights_on', 'room', 'kitchen and cellar')]
     self.assertEqual(2, len(slots))

@@ -2,7 +2,7 @@ language: python
 python:
   - "3.6"
 install:
-  - pip install -e ."[snips]"
+  - pip install -e ."[snips,test]"
   - snips-nlu download en
 script:
-  - cd tests && python -m unittest -v
+  - python -m nose --with-doctest -v

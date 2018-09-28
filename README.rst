@@ -186,7 +186,12 @@ Have a look at the `example/skills` folder to see how it works.
 Testing
 -------
 
+You should install test's dependencies first with the command:
+
 .. code-block:: bash
 
-  $ cd tests/
-  $ python -m unittest -v
+  $ pip install -e .[snips,test]
+
+.. code-block:: bash
+
+  $ python -m nose --with-doctest -v
