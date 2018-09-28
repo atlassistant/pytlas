@@ -3,8 +3,7 @@ from datetime import datetime
 from dateutil.parser import parse as dateParse 
 import requests
 
-# These entity will be shared among training data since it's not language specific
-
+# This entity will be shared among training data since it's not language specific
 locations = """
 @[location]
   los angeles
@@ -51,8 +50,9 @@ def fr_data(): return """
   quel temps va t-il faire à @[location] @[date]
   dis moi s'il va ~[weather_conditions] @[date] à @[location]
   donne moi la météo de @[date] à @[location]
-  quel sera la météo sur @[location] @[date]
+  quelle sera la météo sur @[location] @[date]
   est-ce qu'il va ~[weather_conditions] à @[location] @[date]
+  quel temps annoncent t'il pour @[date] à @[location]
 
 ~[weather_conditions]
   faire beau
@@ -76,7 +76,7 @@ def fr_translations(): return {
   'Checking weather for %s on %s': "Je recherche la météo sur %s pour le %s",
   'You must provide an OPENWEATHER_APPID': "Vous devez fournir la clé OPENWEATHER_APPID",
   'Here what I found for %s!': "Voici ce que j'ai trouvé pour %s",
-  'No results found': "Aucun résultat trouvé",
+  'No results found for %s': "Aucun résultat trouvé pour %s",
 }
 
 # Maps between openweather icon keys and emojis
@@ -118,7 +118,7 @@ def on_forecast(req):
   if len(forecasts) > 0:
     req.agent.answer(req._('Here what I found for %s!') % city, cards=[create_forecast_card(req, d, units) for d in forecasts])
   else:
-    req.agent.answer(req._('No results found'))
+    req.agent.answer(req._('No results found for %s') % city)
 
   return req.agent.done()
 
