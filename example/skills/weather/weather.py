@@ -73,13 +73,13 @@ def fr_data(): return """
 @translations('fr')
 def fr_translations(): return {
   'For where?': 'Pour quel emplacement ?',
-  'For when?': 'Pour quelle date ?',
   'Checking weather for %s on %s': "Je recherche la météo sur %s pour le %s",
-  'You must provide an OpenWeather API key!': "Vous devez fournir une clé d'API OpenWeather !",
+  'You must provide an OPENWEATHER_APPID': "Vous devez fournir la clé OPENWEATHER_APPID",
   'Here what I found for %s!': "Voici ce que j'ai trouvé pour %s",
   'No results found': "Aucun résultat trouvé",
 }
 
+# Maps between openweather icon keys and emojis
 emojis_map = {
   '01': '☀️',
   '02': '⛅',
@@ -92,6 +92,7 @@ emojis_map = {
   '50': '🌫️',
 }
 
+# Maps between openweather units and associated symbol
 units_map = {
   'metric': '°C',
   'imperial': '°F',
@@ -103,14 +104,14 @@ def on_forecast(req):
   units = req.agent.meta.get('OPENWEATHER_UNITS', 'metric')
 
   if not appid:
-    req.agent.answer(req._('You must provide an OpenWeather API key!'))
+    req.agent.answer(req._('You must provide an OPENWEATHER_APPID'))
     return req.agent.done()
 
   city = req.intent.slot('location').first().value
   date = req.intent.slot('date').first().value_as_date or datetime.utcnow()
 
   if not city:
-    return req.agent.ask('location', 'For where?')
+    return req.agent.ask('location', req._('For where?'))
 
   forecasts = fetch_forecasts(city, date, appid, req.lang, units)
 
@@ -123,7 +124,7 @@ def on_forecast(req):
 
 def create_forecast_card(req, data, unit):
   w = data['weather'][0]
-  temps = '{min}{unit} - {max}{unit}'.format(unit=units_map.get(unit), min=int(data['main']['temp_min']), max=int(data['main']['temp_min']))
+  temps = '{min}{unit} - {max}{unit}'.format(unit=units_map.get(unit), min=int(data['main']['temp_min']), max=int(data['main']['temp_max']))
 
   return Card('%s %s' % (emojis_map.get(w['icon'][:-1]), w['description'].capitalize()), temps, req._d(data['date']))
 
