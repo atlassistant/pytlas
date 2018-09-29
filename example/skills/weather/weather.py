@@ -1,7 +1,7 @@
 from pytlas import intent, training, translations, Card
 from datetime import datetime
 from dateutil.parser import parse as dateParse 
-import requests
+import requests, pytz
 
 # This entity will be shared among training data since it's not language specific
 locations = """
@@ -108,12 +108,22 @@ def on_forecast(req):
     return req.agent.done()
 
   city = req.intent.slot('location').first().value
-  date = req.intent.slot('date').first().value_as_date or datetime.utcnow()
+  date_slot = req.intent.slot('date').first()
+  date = date_slot.value_as_date or datetime.utcnow()
 
   if not city:
     return req.agent.ask('location', req._('For where?'))
 
-  forecasts = fetch_forecasts(city, date, appid, req.lang, units)
+  # Here we try to determine the grain of the given date slot
+  # to give better targeted results to the user
+  date_meta = date_slot.meta.get('value', {})
+  date_from = date_meta.get('from')
+  date_to = date_meta.get('to')
+
+  if date_from and date_to:
+    date = (dateParse(date_from), dateParse(date_to))
+
+  forecasts = fetch_forecasts_for(city, date, date_meta.get('grain'), appid, req.lang, units)
 
   if len(forecasts) > 0:
     req.agent.answer(req._('Here what I found for %s!') % city, cards=[create_forecast_card(req, d, units) for d in forecasts])
@@ -128,14 +138,36 @@ def create_forecast_card(req, data, unit):
 
   return Card('%s %s' % (emojis_map.get(w['icon'][:-1]), w['description'].capitalize()), temps, req._d(data['date']))
 
-def fetch_forecasts(city, date, appid, lang, units):
-  r = requests.get('https://api.openweathermap.org/data/2.5/forecast?q=%s&units=%s&lang=%s&appid=%s' 
-    % (city, units, lang, appid))
+def fetch_forecasts_for(city, date, grain, appid, lang, units):
+  payload = {
+    'q': city,
+    'units': units,
+    'lang': lang,
+    'appid': appid,
+  }
+  
+  r = requests.get('https://api.openweathermap.org/data/2.5/forecast', params=payload)
 
-  def concerned_date(data):
-    parsed_date = dateParse(data.get('dt_txt'))
-    data['date'] = parsed_date # Keep it!
+  if not r.ok:
+    return []
 
-    return parsed_date.date() == date.date()
+  result = []
 
-  return list(filter(concerned_date, r.json().get('list', [])))
+  for data in r.json().get('list', []):
+    # TODO check timezones
+
+    parsed_date = dateParse(data.get('dt_txt')).replace(tzinfo=pytz.UTC)
+    data['date'] = parsed_date # Keep it in the data dict for the card
+
+    if isinstance(date, tuple):
+      if parsed_date >= date[0] and parsed_date <= date[1]:
+        result.append(data)
+    else:
+      # Returns the first one superior, that's the best we can do
+      if grain == 'Hour' and parsed_date >= date:
+        return [data]
+      
+      if parsed_date.date() == date.date():
+        result.append(data)
+
+  return result

@@ -1,4 +1,4 @@
 Coming next
 ===
 
-*To be determined*
+- [ ] unit test refactoring! (with `sure` and `nose`)
