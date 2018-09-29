@@ -12,7 +12,6 @@ locations = """
   tokyo
   london
   tel aviv
-  paris
   new york
   saint-étienne du rouvray
 """
@@ -53,6 +52,7 @@ def fr_data(): return """
   quelle sera la météo sur @[location] @[date]
   est-ce qu'il va ~[weather_conditions] à @[location] @[date]
   quel temps annoncent t'il pour @[date] à @[location]
+  donne moi la météo sur @[location] pour @[date]
 
 ~[weather_conditions]
   faire beau
