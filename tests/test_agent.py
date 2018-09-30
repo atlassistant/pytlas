@@ -24,6 +24,21 @@ class AgentTests(unittest.TestCase):
     handlers['lights_on'].assert_called_once()
     handlers['lights_off'].assert_not_called()
 
+  def test_parse_intent(self):
+    interp = Interpreter('test', 'en')
+    interp.intents = ['greet', 'something_else']
+    handler = MagicMock()
+    agt = Agent(interp, { 'greet': handler })
+
+    agt.parse_intent(Intent('greet'))
+
+    handler.assert_called_once()
+    handler.reset_mock()
+    agt.done() # returns to the done state this the mock did not call r.agent.done ;)
+
+    agt.parse_intent('greet')
+    handler.assert_called_once()
+
   def test_multiple_intents(self):
 
     lights_on_request = None

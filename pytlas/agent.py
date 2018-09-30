@@ -178,6 +178,22 @@ class Agent:
 
     return True
 
+  def parse_intent(self, intent):
+    """Queue the given intent and process it if the agent is asleep.
+    
+    Args:
+      intent (str, Intent): Intent to process as soon as possible
+
+    """
+
+    if isinstance(intent, str):
+      intent = Intent(intent)
+
+    self._intents_queue.append(intent)
+
+    if self.state == STATE_ASLEEP: # pylint: disable=E1101
+      self._process_next_intent()
+
   def parse(self, msg, **meta):
     """Parse a raw message.
 
