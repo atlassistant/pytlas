@@ -134,9 +134,12 @@ def on_forecast(req):
 
 def create_forecast_card(req, data, unit):
   w = data['weather'][0]
+
+  icon = emojis_map.get(w['icon'][:-1])
+  desc = w['description'].capitalize()
   temps = '{min}{unit} - {max}{unit}'.format(unit=units_map.get(unit), min=int(data['main']['temp_min']), max=int(data['main']['temp_max']))
 
-  return Card('%s %s' % (emojis_map.get(w['icon'][:-1]), w['description'].capitalize()), temps, req._d(data['date']))
+  return Card('%s %s' % (icon, desc), temps, req._d(data['date']))
 
 def fetch_forecasts_for(city, date, grain, appid, lang, units):
   payload = {

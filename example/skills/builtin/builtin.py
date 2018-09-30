@@ -6,6 +6,13 @@ def en_data(): return """
 %[__cancel__]
   cancel
   abandon the command
+
+%[greet]
+  hey
+  hello
+  hey there
+  good morning
+  good evening
 """
 
 @training('fr')
@@ -14,6 +21,12 @@ def fr_data(): return """
   annule
   annuler
   abandonne la commande
+
+%[greet]
+  hey
+  salut
+  bonjour
+  coucou
 """
 
 @translations('fr')
@@ -23,7 +36,27 @@ def fr_translations(): return {
   'Would you like me to search for "%s"?': 'Voulez-vous que je recherche "%s" ?',
   'No results found': 'Aucun résultat trouvé',
   'Here it is': 'Et voilà',
+  'Command aborted': 'Commande annulée',
+  'Hello! What can I do for you?': "Salut ! Qu'est ce que je peux faire pour toi ?",
+  'Hi! How can I help you?': "Hey ! Comment puis-je t'aider ?",
+  'Hey! What are you looking for?': "Bonjour ! Que souhaites tu faire ?",
 }
+
+@intent('greet')
+def greet(req):
+  req.agent.answer([
+    req._('Hello! What can I do for you?'),
+    req._('Hi! How can I help you?'),
+    req._('Hey! What are you looking for?'),
+  ])
+
+  return req.agent.done()
+
+@intent('__cancel__')
+def cancel(req):
+  req.agent.answer(req._('Command aborted'))
+
+  return req.agent.done()
 
 @intent('__fallback__')
 def fallback(r):
@@ -57,5 +90,6 @@ def remove_html_tags(raw_html):
 def create_result_card(request, data):
   title = remove_html_tags(data.get('title'))
   desc = remove_html_tags(data.get('desc'))
+  link = data.get('url')
 
-  return Card(title, desc)
+  return Card(title, desc, header_link=link)
