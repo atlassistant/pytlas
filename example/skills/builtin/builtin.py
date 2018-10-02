@@ -46,9 +46,9 @@ def fr_translations(): return {
 @intent('greet')
 def greet(req):
   req.agent.answer([
-    req._('Hello! What can I do for you?'),
-    req._('Hi! How can I help you?'),
-    req._('Hey! What are you looking for?'),
+    req._('Hello 🖐️! What can I do for you?'),
+    req._('Hi 🖐️! How can I help you?'),
+    req._('Hey 👋! What are you looking for?'),
   ])
 
   return req.agent.done()
