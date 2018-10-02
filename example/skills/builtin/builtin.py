@@ -27,6 +27,7 @@ def fr_data(): return """
   salut
   bonjour
   coucou
+  bonsoir
 """
 
 @translations('fr')
@@ -37,9 +38,9 @@ def fr_translations(): return {
   'No results found': 'Aucun résultat trouvé',
   'Here it is': 'Et voilà',
   'Command aborted': 'Commande annulée',
-  'Hello! What can I do for you?': "Salut ! Qu'est ce que je peux faire pour toi ?",
-  'Hi! How can I help you?': "Hey ! Comment puis-je t'aider ?",
-  'Hey! What are you looking for?': "Bonjour ! Que souhaites tu faire ?",
+  'Hello 🖐️! What can I do for you?': "Salut 🖐️ ! Qu'est ce que je peux faire pour toi ?",
+  'Hi 🖐️! How can I help you?': "Hey 🖐️ ! Comment puis-je t'aider ?",
+  'Hey 👋! What are you looking for?': "Bonjour 👋 ! Que souhaites tu faire ?",
 }
 
 @intent('greet')
