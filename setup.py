@@ -33,6 +33,7 @@ setup(
     ],
     'test': [
       'nose==1.3.7',
+      'sure==1.4.11',
     ],
   },
   entry_points={
