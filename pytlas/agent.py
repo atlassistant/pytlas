@@ -29,7 +29,7 @@ def is_builtin(state):
 
   """
 
-  return state.startswith(STATE_PREFIX) and state.endswith(STATE_SUFFIX)
+  return state.startswith(STATE_PREFIX) and state.endswith(STATE_SUFFIX) if state else False
 
 def keep_one(value):
   """Keeps only one element if value is a list.
