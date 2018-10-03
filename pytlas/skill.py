@@ -1,5 +1,5 @@
 import logging
-from .utils import get_caller_package_name
+from pytlas.utils import get_caller_package_name
 
 handlers = {}
 

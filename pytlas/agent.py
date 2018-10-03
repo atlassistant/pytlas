@@ -1,10 +1,10 @@
 import logging, random
-from .request import Request
-from .utils import get_package_name_from_module
-from .localization import module_translations
-from .interpreters.intent import Intent
-from .interpreters.slot import SlotValue
-from .skill import handlers as skill_handlers
+from pytlas.request import Request
+from pytlas.utils import get_package_name_from_module
+from pytlas.localization import module_translations
+from pytlas.interpreters.intent import Intent
+from pytlas.interpreters.slot import SlotValue
+from pytlas.skill import handlers as skill_handlers
 from transitions import Machine, MachineError
 from fuzzywuzzy import process
 

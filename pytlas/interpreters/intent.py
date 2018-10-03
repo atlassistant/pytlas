@@ -1,4 +1,4 @@
-from .slot import SlotValues
+from pytlas.interpreters.slot import SlotValues
 
 class Intent:
   """Represents a single intent with multiple slot values attached to it.

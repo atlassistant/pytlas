@@ -1,8 +1,8 @@
 import logging, argparse, sys, re, cmd, os
 from colorlog import ColoredFormatter, escape_codes
-from .importers import import_skills, restrict_load_languages
-from .agent import Agent
-from .version import __version__
+from pytlas.importers import import_skills, restrict_load_languages
+from pytlas.agent import Agent
+from pytlas.version import __version__
 
 class CustomFormatter(ColoredFormatter):
   """Custom formatter used to highlight every words wrapped in quotes.

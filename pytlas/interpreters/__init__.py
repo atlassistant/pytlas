@@ -1,3 +1,3 @@
-from .interpreter import Interpreter
-from .intent import Intent
-from .slot import SlotValue, SlotValues
+from pytlas.interpreters.interpreter import Interpreter
+from pytlas.interpreters.intent import Intent
+from pytlas.interpreters.slot import SlotValue, SlotValues

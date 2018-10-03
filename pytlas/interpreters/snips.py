@@ -1,8 +1,8 @@
 import os, shutil
-from .interpreter import Interpreter, compute_checksum
-from .intent import Intent
-from .slot import SlotValue
-from ..utils import read_file
+from pytlas.interpreters.interpreter import Interpreter, compute_checksum
+from pytlas.interpreters.intent import Intent
+from pytlas.interpreters.slot import SlotValue
+from pytlas.utils import read_file
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.builtin_entities import BuiltinEntityParser, is_builtin_entity
 from fuzzywuzzy import process
@@ -18,6 +18,12 @@ def get_entity_value(data):
 
   Returns:
     any: Flat value
+
+  >>> get_entity_value({ 'value': 'a value', 'from': '2018-09-05' })
+  'a value'
+
+  >>> get_entity_value({ 'from': '2018-09-05' })
+  '2018-09-05'
 
   """
 

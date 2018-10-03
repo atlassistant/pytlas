@@ -10,7 +10,7 @@ pytlas |travis| |pypi| |license|
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
-An open-source 🤖 assistant library built for people and made to be super easy to setup and understand.
+An open-source 🤖💬 assistant library built for people and made to be super easy to setup and understand.
 
 I first started to develop `atlas <https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.
 
@@ -186,12 +186,7 @@ Have a look at the `example/skills` folder to see how it works.
 Testing
 -------
 
-You should install test's dependencies first with the command:
-
 .. code-block:: bash
 
   $ pip install -e .[snips,test]
-
-.. code-block:: bash
-
   $ python -m nose --with-doctest -v

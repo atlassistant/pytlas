@@ -1,6 +1,6 @@
 import logging, hashlib, os, json
-from .slot import SlotValue
-from ..training import module_trainings
+from pytlas.interpreters.slot import SlotValue
+from pytlas.training import module_trainings
 from pychatl.utils import deep_update
 import pychatl.postprocess as postprocessors
 

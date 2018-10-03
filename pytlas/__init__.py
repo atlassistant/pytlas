@@ -1,6 +1,6 @@
-from .version import __version__
-from .agent import Agent
-from .card import Card
-from .skill import intent, register as register_intent
-from .localization import translations, register as register_translations
-from .training import training, register as register_training
+from pytlas.version import __version__
+from pytlas.agent import Agent
+from pytlas.card import Card
+from pytlas.skill import intent, register as register_intent
+from pytlas.localization import translations, register as register_translations
+from pytlas.training import training, register as register_training

@@ -34,13 +34,14 @@ def fr_data(): return """
 def fr_translations(): return {
   'Yes': 'Oui',
   'No': 'Non',
+  'An error occured': 'Une erreur est survenue',
   'Would you like me to search for "%s"?': 'Voulez-vous que je recherche "%s" ?',
   'No results found': 'Aucun résultat trouvé',
   'Here it is': 'Et voilà',
   'Command aborted': 'Commande annulée',
   'Hello 🖐️! What can I do for you?': "Salut 🖐️ ! Qu'est ce que je peux faire pour toi ?",
   'Hi 🖐️! How can I help you?': "Hey 🖐️ ! Comment puis-je t'aider ?",
-  'Hey 👋! What are you looking for?': "Bonjour 👋 ! Que souhaites tu faire ?",
+  'Hey 🖐️! What are you looking for?': "Bonjour 👋 ! Que souhaites tu faire ?",
 }
 
 @intent('greet')
@@ -48,7 +49,7 @@ def greet(req):
   req.agent.answer([
     req._('Hello 🖐️! What can I do for you?'),
     req._('Hi 🖐️! How can I help you?'),
-    req._('Hey 👋! What are you looking for?'),
+    req._('Hey 🖐️! What are you looking for?'),
   ])
 
   return req.agent.done()
@@ -77,9 +78,14 @@ def fallback(r):
       })
 
     if res.ok:
-      r.agent.answer(r._('Here it is'), cards=[create_result_card(r, d) for d in res.json()['data']['result']['items']])
+      results = res.json()['data']['result']['items']
+
+      if len(results) > 0:
+        r.agent.answer(r._('Here it is'), cards=[create_result_card(r, d) for d in results])
+      else:
+        r.agent.answer(r._('No results found'))
     else:
-      r.agent.answer(r._('No results found'))
+      r.agent.answer(r._('An error occured'))
 
   return r.agent.done()
 

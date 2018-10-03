@@ -1,6 +1,6 @@
 import logging, os
-from .utils import get_caller_package_name, get_absolute_path_to_package_file
-from .importers import should_load_resources
+from pytlas.utils import get_caller_package_name, get_absolute_path_to_package_file
+from pytlas.importers import should_load_resources
 from pychatl import parse
 
 # Training data per module / lang
