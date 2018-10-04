@@ -4,8 +4,8 @@ class Intent:
   """Represents a single intent with multiple slot values attached to it.
   """
   
-  def __init__(self, name, **slots):
-    self.name = name
+  def __init__(self, intent_name, **slots):
+    self.name = intent_name
     self.slots = {}
     self.meta = {}
     self.update_slots(**slots)

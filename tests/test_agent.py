@@ -1,9 +1,63 @@
+from sure import expect
 import unittest, logging
 from unittest.mock import MagicMock
 from pytlas import Agent
 from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.card import Card
 from pytlas.interpreters import Interpreter, Intent, SlotValue
+
+def wrapMockCall(mock_handler):
+  """Wraps the magic mock given in a pytlas handler which call the agent.done method
+  after calling the mock_handler with the raw Request object.
+  
+  """
+
+  def handler(request):
+    mock_handler(request)
+
+    return request.agent.done()
+
+  return handler
+
+class TestParseIntent:
+
+  def setup(self):
+    self.greet_handler = MagicMock()
+    self.forecast_handler = MagicMock()
+    self.fallback_handler = MagicMock()
+    self.cancel_handler = MagicMock()
+
+    self.handlers = {
+      'greet': wrapMockCall(self.greet_handler),
+      'get_forecast': wrapMockCall(self.forecast_handler),
+      STATE_CANCEL: wrapMockCall(self.cancel_handler),
+      STATE_FALLBACK: wrapMockCall(self.fallback_handler),
+    }
+    self.interpreter = Interpreter('test', 'en')
+    self.interpreter.intents = list(self.handlers.keys())
+    self.agent = Agent(self.interpreter, handlers=self.handlers)
+
+  def test_it_should_parse_string_as_intent(self):
+    self.agent.parse_intent('greet')
+
+    self.greet_handler.assert_called_once()
+
+  def test_it_should_parse_string_and_kwargs_as_intent_with_slot_values(self):
+    self.agent.parse_intent('greet', name='Julien')
+
+    self.greet_handler.assert_called_once()
+    
+    arg = self.greet_handler.call_args[0][0].intent
+
+    expect(arg).to.be.an(Intent)
+    expect(arg.name).to.equal('greet')
+    expect(arg.slots).to.have.length_of(1)
+    expect(arg.slot('name').first().value).to.equal('Julien')
+
+  def test_it_should_trigger_intent(self):
+    self.agent.parse_intent(Intent('greet'))
+
+    self.greet_handler.assert_called_once()
 
 class AgentTests(unittest.TestCase):
 
@@ -23,21 +77,6 @@ class AgentTests(unittest.TestCase):
 
     handlers['lights_on'].assert_called_once()
     handlers['lights_off'].assert_not_called()
-
-  def test_parse_intent(self):
-    interp = Interpreter('test', 'en')
-    interp.intents = ['greet', 'something_else']
-    handler = MagicMock()
-    agt = Agent(interp, { 'greet': handler })
-
-    agt.parse_intent(Intent('greet'))
-
-    handler.assert_called_once()
-    handler.reset_mock()
-    agt.done() # returns to the done state this the mock did not call r.agent.done ;)
-
-    agt.parse_intent('greet')
-    handler.assert_called_once()
 
   def test_multiple_intents(self):
 

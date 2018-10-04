@@ -1,18 +1,20 @@
-import unittest, os
+from sure import expect
 from pytlas.importers import should_load_resources, restrict_load_languages, import_skills
 
-class ImportersTests(unittest.TestCase):
+class TestImporters:
 
-  def test_should_load_resources(self):
+  def setup(self):
     restrict_load_languages([])
-    self.assertTrue(should_load_resources('fr'))
 
+  def test_it_should_allow_load_resources_when_empty(self):
+    expect(should_load_resources('fr')).to.be.true
+
+  def test_it_should_allow_load_resources(self):
     restrict_load_languages(['en', 'it'])
-    self.assertFalse(should_load_resources('fr'))
-    self.assertTrue(should_load_resources('en'))
-    self.assertTrue(should_load_resources('it'))
 
-    restrict_load_languages([]) # Reset it for other tests
+    expect(should_load_resources('en')).to.be.true
+    expect(should_load_resources('it')).to.be.true
+    expect(should_load_resources('fr')).to.be.false
 
-  def test_import_skills_in_empty_directory(self):
+  def test_it_should_not_raise_error_when_skills_folder_does_not_exist(self):
     import_skills('/does/not/exists')
