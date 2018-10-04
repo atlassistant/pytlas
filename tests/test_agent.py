@@ -22,6 +22,10 @@ def wrapMockCall(mock_handler):
 class TestParseIntent:
 
   def setup(self):
+    self.on_answer = MagicMock()
+    self.on_ask = MagicMock()
+    self.on_done = MagicMock()
+
     self.greet_handler = MagicMock()
     self.forecast_handler = MagicMock()
     self.fallback_handler = MagicMock()
@@ -35,7 +39,11 @@ class TestParseIntent:
     }
     self.interpreter = Interpreter('test', 'en')
     self.interpreter.intents = list(self.handlers.keys())
-    self.agent = Agent(self.interpreter, handlers=self.handlers)
+    self.agent = Agent(self.interpreter, 
+      handlers=self.handlers, 
+      on_answer=self.on_answer,
+      on_ask=self.on_ask,
+      on_done=self.on_done)
 
   def test_it_should_parse_string_as_intent(self):
     self.agent.parse_intent('greet')
