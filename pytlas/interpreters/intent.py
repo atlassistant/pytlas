@@ -4,11 +4,11 @@ class Intent:
   """Represents a single intent with multiple slot values attached to it.
   """
   
-  def __init__(self, name, **kwargs):
+  def __init__(self, name, **slots):
     self.name = name
     self.slots = {}
     self.meta = {}
-    self.update_slots(**kwargs)
+    self.update_slots(**slots)
 
   def slot(self, slot_name):
     """Retrieve slot values for the given slot name.

@@ -20,7 +20,10 @@ class SlotValue:
 
     """
 
-    return parseDate(self.value) if self.value else None
+    try:
+      return parseDate(self.value) if self.value else None
+    except:
+      return None
 
   def __str__(self):
     return self.value

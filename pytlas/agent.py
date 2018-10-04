@@ -178,16 +178,17 @@ class Agent:
 
     return True
 
-  def parse_intent(self, intent):
+  def parse_intent(self, intent, **slots):
     """Queue the given intent and process it if the agent is asleep.
     
     Args:
       intent (str, Intent): Intent to process as soon as possible
+      slots (dict): When intent is an str, parses those data as slot values
 
     """
 
     if isinstance(intent, str):
-      intent = Intent(intent)
+      intent = Intent(intent, **slots)
 
     self._intents_queue.append(intent)
 

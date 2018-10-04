@@ -1,78 +1,55 @@
-import unittest
-from datetime import datetime
+from sure import expect
 from pytlas.interpreters import SlotValue, SlotValues
 
-class SlotValuesTests(unittest.TestCase):
-  
-  def test_slot_value(self):
-    v = SlotValue('kitchen')
+class TestSlotValues:
 
-    self.assertEqual('kitchen', v.value)
-
-  def test_slot_value_as_date(self):
-    v = SlotValue('2018-09-22 00:00:00 +02:00')
-    date = v.value_as_date
-
-    self.assertIsInstance(date, datetime)
-    self.assertEqual(2018, date.year)
-    self.assertEqual(9, date.month)
-    self.assertEqual(22, date.day)
-
-  def test_slot_value_meta(self):
-    v = SlotValue('kitchen', entity='rooms')
-
-    self.assertEqual('rooms', v.meta['entity'])
-
-  def test_slots_values_convert_to_slot_value(self):
-
+  def test_it_should_convert_raw_values_to_slot_value(self):
     v = SlotValues(['kitchen', 'bedroom'])
 
-    self.assertIsInstance(v[0], SlotValue)
-    self.assertEqual(v[0].value, 'kitchen')
+    expect(v).to.have.length_of(2)
+    expect(v[0]).to.be.a(SlotValue)
+    expect(v[0].value).to.equal('kitchen')
 
-  def test_slots_values_without_iterable(self):
+    expect(v[1]).to.be.a(SlotValue)
+    expect(v[1].value).to.equal('bedroom')
 
+  def test_it_should_convert_raw_value_to_list(self):
     v = SlotValues('kitchen')
-    
-    self.assertIsInstance(v[0], SlotValue)
-    self.assertEqual(v[0].value, 'kitchen')
 
-  def test_slot_values_empty(self):
+    expect(v).to.have.length_of(1)
+    expect(v[0]).to.be.a(SlotValue)
+    expect(v[0].value).to.equal('kitchen')
 
+  def test_it_should_be_empty(self):
     v = SlotValues()
 
-    self.assertTrue(v.is_empty())
+    expect(v.is_empty()).to.be.true
 
-    v1 = SlotValue('kitchen')
-    v2 = SlotValue('bedroom')
+  def test_it_should_not_be_empty(self):
+    v = SlotValues('kitchen')
 
-    v.append(v1)
-    v.append(v2)
+    expect(v.is_empty()).to.be.false
 
-    self.assertFalse(v.is_empty())
+  def test_it_should_give_the_first_value_when_there_is_one(self):
+    v = SlotValues(['kitchen', 'bedroom']).first()
 
-  def test_slot_values_first(self):
+    expect(v).to.be.a(SlotValue)
+    expect(v.value).to.equal('kitchen')
 
-    v = SlotValues()
+  def test_it_should_give_an_empty_first_value_when_there_is_no_value(self):
+    v = SlotValues().first()
 
-    self.assertIsNotNone(v.first())
-    self.assertEqual(None, v.first().value)
+    expect(v).to.be.a(SlotValue)
+    expect(v.value).to.be.none
 
-    v.append(SlotValue('kitchen'))
-    v.append(SlotValue('bedroom'))
-    v.append(SlotValue('living room'))
+  def test_it_should_give_the_last_value_when_there_is_one(self):
+    v = SlotValues(['kitchen', 'bedroom']).last()
 
-    self.assertEqual('kitchen', v.first().value)
+    expect(v).to.be.a(SlotValue)
+    expect(v.value).to.equal('bedroom')
 
-  def test_slot_values_last(self):
+  def test_it_should_give_an_empty_last_value_when_there_is_no_value(self):
+    v = SlotValues().last()
 
-    v = SlotValues()
-
-    self.assertIsNotNone(v.last())
-    self.assertEqual(None, v.last().value)
-
-    v.append(SlotValue('kitchen'))
-    v.append(SlotValue('bedroom'))
-    v.append(SlotValue('living room'))
-
-    self.assertEqual('living room', v.last().value)
+    expect(v).to.be.a(SlotValue)
+    expect(v.value).to.be.none
