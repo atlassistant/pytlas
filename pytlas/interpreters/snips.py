@@ -50,7 +50,7 @@ def extract_synonyms_from_dataset(data):
       v = d.get('value')
       result[entity_name][v] = v
 
-      for synonym in d.get('synonyms'):
+      for synonym in d.get('synonyms', []):
         result[entity_name][synonym] = v
 
   return result
@@ -134,8 +134,10 @@ class SnipsInterpreter(Interpreter):
         with open(cached_checksum_path, mode='w') as f:
           f.write(checksum)
 
-      self._entities_synonyms = extract_synonyms_from_dataset(data)
       self._configure()
+    
+    # Everything was ok, we can now extract synonyms from the dataset
+    self._entities_synonyms = extract_synonyms_from_dataset(data)
 
   @property
   def is_ready(self):
