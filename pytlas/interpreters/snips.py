@@ -4,7 +4,7 @@ from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
 from pytlas.utils import read_file
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
-from snips_nlu.builtin_entities import BuiltinEntityParser, is_builtin_entity
+from snips_nlu.entity_parser.builtin_entity_parser import BuiltinEntityParser, is_builtin_entity
 from fuzzywuzzy import process
 import snips_nlu.default_configs as snips_confs
 
@@ -29,6 +29,32 @@ def get_entity_value(data):
 
   return data.get('value', data.get('from'))
 
+def extract_synonyms_from_dataset(data):
+  """Extract and flatten synonyms from the dataset. Needed since snips-nlu v0.17.0 which
+  does not include entities utterances anymore.
+
+  Args:
+    data (dict): Training dataset
+
+  Returns:
+    dict: Flattened synonyms
+
+  """
+
+  result = {}
+
+  for (entity_name, entity) in data.get('entities').items():
+    result[entity_name] = {}
+
+    for d in entity.get('data', []):
+      v = d.get('value')
+      result[entity_name][v] = v
+
+      for synonym in d.get('synonyms'):
+        result[entity_name][synonym] = v
+
+  return result
+
 class SnipsInterpreter(Interpreter):
   """Wraps the snips-nlu stuff to provide valuable informations to an agent.
   """
@@ -45,9 +71,10 @@ class SnipsInterpreter(Interpreter):
     super(SnipsInterpreter, self).__init__('snips', lang, cache_directory)
 
     self._engine = None
-    self._entity_parser = BuiltinEntityParser(self.lang)
+    self._entity_parser = BuiltinEntityParser.build(language=self.lang)
     self._slot_mappings = {}
     self._entities = {}
+    self._entities_synonyms = {}
 
   def _configure(self):
     self._slot_mappings = self._engine._dataset_metadata.get('slot_name_mappings', {})
@@ -67,7 +94,7 @@ class SnipsInterpreter(Interpreter):
 
     if data_lang != self.lang:
       self._logger.warning('Training language "%s" and interpreter language "%s" do not match, things could go badly' % (data_lang, self.lang))
-
+    
     self._logger.info('Fitting using "snips v%s"' % __version__)
 
     checksum = compute_checksum(data)
@@ -107,6 +134,7 @@ class SnipsInterpreter(Interpreter):
         with open(cached_checksum_path, mode='w') as f:
           f.write(checksum)
 
+      self._entities_synonyms = extract_synonyms_from_dataset(data)
       self._configure()
 
   @property
@@ -179,8 +207,8 @@ class SnipsInterpreter(Interpreter):
 
         # Not automatically extensible, try to fuzzy match it
         if entity and entity['automatically_extensible'] == False:
-            choices = set([k.lower() for k in entity['utterances'].keys()])
-            results = [entity['utterances'][r[0]] for r in process.extractBests(msg, choices, score_cutoff=60)]
+            choices = set([k.lower() for k in self._entities_synonyms[entity_label].keys()])
+            results = [self._entities_synonyms[entity_label][r[0]] for r in process.extractBests(msg, choices, score_cutoff=60)]
                         
             return [SlotValue(r) for r in results]
 

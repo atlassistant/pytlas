@@ -118,6 +118,7 @@ class SnipsTests(unittest.TestCase):
     interp.fit_from_file(training_filepath)
 
     slots = [s.value for s in interp.parse_slot('lights_on', 'room', 'kitchen and cellar')]
+
     self.assertEqual(2, len(slots))
     self.assertTrue('kitchen' in slots)
     self.assertTrue('basement' in slots)

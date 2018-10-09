@@ -1,4 +1,4 @@
-import unittest
+from sure import expect
 from unittest.mock import patch, mock_open
 from pytlas.localization import translations, register, module_translations
 
@@ -8,25 +8,26 @@ def some_translations(): return {
   'bye': 'au revoir',
 }
 
-class LocalizationTests(unittest.TestCase):
+class TestLocalization:
 
-  def test_decorator(self):
-    self.assertTrue('amodule' in module_translations)
-    self.assertTrue('fr' in module_translations['amodule'])
-    self.assertEqual('bonjour', module_translations['amodule']['fr']['hi'])
-    self.assertEqual('au revoir', module_translations['amodule']['fr']['bye'])
+  def test_it_should_be_imported_with_the_decorator(self):
+    expect(module_translations).to.have.key('amodule')
+    expect(module_translations['amodule']).to.have.key('fr')
+    expect(module_translations['amodule']['fr']['hi']).to.equal('bonjour')
+    expect(module_translations['amodule']['fr']['bye']).to.equal('au revoir')
 
-  def test_register(self):
+  def test_it_should_be_imported_with_the_register_function_with_dict(self):
     register ('en', {
       'hi': 'hello',
       'bye': 'see ya!',
     }, 'amodule')
 
-    self.assertTrue('amodule' in module_translations)
-    self.assertTrue('en' in module_translations['amodule'])
-    self.assertEqual('hello', module_translations['amodule']['en']['hi'])
-    self.assertEqual('see ya!', module_translations['amodule']['en']['bye'])
+    expect(module_translations).to.have.key('amodule')
+    expect(module_translations['amodule']).to.have.key('en')
+    expect(module_translations['amodule']['en']['hi']).to.equal('hello')
+    expect(module_translations['amodule']['en']['bye']).to.equal('see ya!')
 
+  def test_it_should_be_imported_with_the_register_function_with_filepath(self):
     with patch('builtins.open') as mock:
       mock_open(mock, """
 {
@@ -38,7 +39,7 @@ class LocalizationTests(unittest.TestCase):
       with patch('pytlas.utils.get_module_path', return_value='/home/pytlas/amodule') as mock_module_path:
         register('it', './a_path', 'amodule')
 
-        self.assertTrue('amodule' in module_translations)
-        self.assertTrue('it' in module_translations['amodule'])
-        self.assertEqual('buongiorno', module_translations['amodule']['it']['hi'])
-        self.assertEqual('arrivederci', module_translations['amodule']['it']['bye'])
+        expect(module_translations).to.have.key('amodule')
+        expect(module_translations['amodule']).to.have.key('it')
+        expect(module_translations['amodule']['it']['hi']).to.equal('buongiorno')
+        expect(module_translations['amodule']['it']['bye']).to.equal('arrivederci')
