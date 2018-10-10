@@ -5,7 +5,8 @@ from pytlas.interpreters.slot import SlotValue
 from pytlas.utils import read_file
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.constants import ENTITIES, AUTOMATICALLY_EXTENSIBLE, RESOLVED_VALUE, \
-  ENTITY_KIND, ENTITY, RES_VALUE, RES_RAW_VALUE
+  ENTITY_KIND, ENTITY, RES_VALUE, RES_RAW_VALUE, RES_INTENT, RES_INTENT_NAME, RES_SLOTS, \
+  RES_SLOT_NAME
 from snips_nlu.entity_parser.builtin_entity_parser import is_builtin_entity
 import snips_nlu.default_configs as snips_confs
 
@@ -129,14 +130,14 @@ class SnipsInterpreter(Interpreter):
 
     parsed = self._engine.parse(msg)
 
-    if parsed['intent'] == None:
+    if parsed[RES_INTENT] == None:
       return []
 
     slots = {}
 
-    for slot in parsed['slots']:
-      name = slot['slotName']
-      parsed_slot = slot['value']
+    for slot in parsed[RES_SLOTS]:
+      name = slot[RES_SLOT_NAME]
+      parsed_slot = slot[RES_VALUE]
       value = SlotValue(get_entity_value(parsed_slot), **slot)
 
       if name in slots:
@@ -145,7 +146,7 @@ class SnipsInterpreter(Interpreter):
         slots[name] = [value]
 
     return [
-      Intent(parsed['intent']['intentName'], **slots),
+      Intent(parsed[RES_INTENT][RES_INTENT_NAME], **slots),
     ]
 
   def parse_slot(self, intent, slot, msg):
