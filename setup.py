@@ -29,7 +29,7 @@ setup(
   ],
   extras_require={
     'snips': [
-      'snips-nlu==0.17.0',
+      'snips-nlu==0.17.1',
     ],
     'test': [
       'nose==1.3.7',

@@ -178,7 +178,7 @@ class Agent:
 
     return True
 
-  def parse_intent(self, intent, **slots):
+  def queue_intent(self, intent, **slots):
     """Queue the given intent and process it if the agent is asleep.
     
     Args:

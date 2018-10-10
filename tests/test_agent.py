@@ -46,12 +46,12 @@ class TestParseIntent:
       on_done=self.on_done)
 
   def test_it_should_parse_string_as_intent(self):
-    self.agent.parse_intent('greet')
+    self.agent.queue_intent('greet')
 
     self.greet_handler.assert_called_once()
 
   def test_it_should_parse_string_and_kwargs_as_intent_with_slot_values(self):
-    self.agent.parse_intent('greet', name='Julien')
+    self.agent.queue_intent('greet', name='Julien')
 
     self.greet_handler.assert_called_once()
     
@@ -63,7 +63,7 @@ class TestParseIntent:
     expect(arg.slot('name').first().value).to.equal('Julien')
 
   def test_it_should_trigger_intent(self):
-    self.agent.parse_intent(Intent('greet'))
+    self.agent.queue_intent(Intent('greet'))
 
     self.greet_handler.assert_called_once()
 
