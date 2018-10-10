@@ -43,7 +43,7 @@ class TestRequest:
     expect(r._d(d, time_only=True)).to.equal('08:30:00')
     expect(r._d(d, format='full', date_only=True)).to.equal('mardi 25 septembre 2018')
 
-  def test_it_should_not_called_agent_methods_if_not_the_current_request(self):
+  def test_it_should_not_call_agent_methods_if_not_the_current_request(self):
     r = Request(self.agent, None)
 
     expect(r.agent).to.be.an(AgentProxy)
@@ -56,7 +56,7 @@ class TestRequest:
     expect(r.agent.answer).to.equal(r.agent.empty_func)
     expect(r.agent.meta).to.equal(self.agent.meta)
 
-  def test_it_should_called_agent_methods_if_the_current_request(self):
+  def test_it_should_call_agent_methods_if_the_current_request(self):
     r = Request(self.agent, None)
 
     expect(r.agent.ask).to_not.equal(self.agent.ask)

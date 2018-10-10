@@ -1,124 +1,115 @@
-import unittest, datetime, os
-from functools import wraps
-from unittest.mock import patch, mock_open
-
-snips_imported = True
-training_filepath = os.path.join(os.path.dirname(__file__), 'training.json')
+import datetime, os
+from sure import expect
+from pytlas.interpreters import Intent, SlotValue, SlotValues
 
 try:
   from pytlas.interpreters.snips import SnipsInterpreter
-except ImportError:
-  snips_imported = False
-
-def snips_available(func):
-  """Check if snips is imported before executing the test
-  """
   
-  @wraps(func)
-  def new(*args, **kwargs):
-    if not snips_imported:
-      return args[0].skipTest('snips could not be imported')
+  # Train the interpreter once to speed up tests
+  interpreter = SnipsInterpreter('en')
+  interpreter.fit_from_file(os.path.join(os.path.dirname(__file__), 'training.json'))
 
-    return func(*args, **kwargs)
+  class TestSnipsInterpreter:
 
-  return new
+    def test_it_should_returns_empty_results_when_not_fitted(self):
+      i = SnipsInterpreter('en')
 
-class SnipsTests(unittest.TestCase):
+      expect(i.is_ready).to.be.false
+      expect(i.parse('a message')).to.be.empty
+      expect(i.parse_slot('get_forecast', 'date', 'tomorrow')).to.be.empty
 
-  @snips_available
-  def test_not_fitted(self):
-    interp = SnipsInterpreter('en')
+    def test_it_should_contains_intents_defined_in_the_dataset(self):
+      expect(interpreter.is_ready).to.be.true
+      expect(interpreter.intents).to.equal(['lights_on', 'lights_off', 'get_forecast'])
 
-    self.assertFalse(interp.is_ready)
-    self.assertEqual([], interp.parse('a message'))
+    def test_it_should_parse_an_intent_with_slots_correctly(self):
+      intents = interpreter.parse('will it rain in Paris and London today')
 
-  @snips_available
-  def test_parse(self):
-    interp = SnipsInterpreter('en')
-    interp.fit_from_file(training_filepath)
+      expect(intents).to.be.a(list)
+      expect(intents).to.have.length_of(1)
 
-    self.assertTrue(interp.is_ready)
-    self.assertEqual(3, len(interp.intents))
+      intent = intents[0]
+      expect(intent.name).to.equal('get_forecast')
+      expect(intent).to.be.an(Intent)
+      expect(intent.slots).to.be.a(dict)
+      expect(intent.slots).to.have.length_of(2)
 
-    intents = interp.parse('will it rain in Paris and London today')
+      date = intent.slot('date')
+      expect(date).to.be.a(SlotValues)
+      expect(date).to.have.length_of(1)
+      expect(date.first().value).to.contain(datetime.datetime.now().date().isoformat())
 
-    self.assertEqual(1, len(intents))
+      location = intent.slot('location')
+      expect(location).to.be.a(SlotValues)
+      expect(location).to.have.length_of(2)
 
-    intent = intents[0]
+      locations = [i.value for i in location]
+      expect(locations).to.contain('paris')
+      expect(locations).to.contain('london')
 
-    self.assertEqual(2, len(intent.slots))
-    self.assertEqual(1, len(intent.slot('date')))
-    self.assertTrue(datetime.datetime.now().date().isoformat() in intent.slot('date').first().value)
-    self.assertEqual(2, len(intent.slot('location')))
+    def test_it_should_parse_intent_with_date_range_correctly(self):
+      intents = interpreter.parse('will it rain between from the third of september 2018 to the fifth of september 2018')
 
-    location_values = [i.value for i in intent.slot('location')]
+      expect(intents).to.have.length_of(1)
 
-    self.assertTrue('paris' in location_values)
-    self.assertTrue('london' in location_values)
+      intent = intents[0]
+      expect(intent.name).to.equal('get_forecast')
+      expect(intent.slots).to.have.length_of(1)
+      expect(intent.slot('date')).to.have.length_of(1)
 
-  @snips_available
-  def test_parse_intent_date_range(self):
-    interp = SnipsInterpreter('en')
-    interp.fit_from_file(training_filepath)
+      slot = intent.slot('date').first()
+      date_value = slot.value
 
-    intents = interp.parse('will it rain between from the third of september 2018 to the fifth of september 2018')
+      expect(date_value.startswith('2018-09-03 00:00:00')).to.be.true
+      expect(slot.meta['value']['kind']).to.equal('TimeInterval')
+      expect(slot.meta['value']['from'].startswith('2018-09-03 00:00:00')).to.be.true
+      expect(slot.meta['value']['to'].startswith('2018-09-06 00:00:00')).to.be.true
+    
+    def test_it_should_parse_builtin_slot_correctly(self):
+      slots = interpreter.parse_slot('get_forecast', 'date', 'today')
 
-    self.assertEqual(1, len(intents))
+      expect(slots).to.have.length_of(1)
 
-    intent = intents[0]
+      slot = slots[0]
 
-    self.assertEqual('get_forecast', intent.name)
+      expect(slot.value).to.contain(datetime.datetime.now().date().isoformat())
+      expect(slot.meta['value']['kind']).to.equal('InstantTime')
 
-    self.assertEqual(1, len(intent.slots))
-    self.assertEqual(1, len(intent.slot('date')))
+    def test_it_should_parse_builtin_slot_range_correctly(self):
+      slots = interpreter.parse_slot('get_forecast', 'date', 'from the third of september 2018 to the fifth of september 2018')
 
-    slot = intent.slot('date').first()
-    date_value = slot.value
+      expect(slots).to.have.length_of(1)
 
-    self.assertTrue(date_value.startswith('2018-09-03 00:00:00'))
-    self.assertEqual('TimeInterval', slot.meta.get('value', {}).get('kind'))
-    self.assertTrue(slot.meta.get('value', {}).get('from', '').startswith('2018-09-03 00:00:00'))
-    self.assertTrue(slot.meta.get('value', {}).get('to', '').startswith('2018-09-06 00:00:00'))
+      slot = slots[0]
 
-  @snips_available
-  def test_parse_slot_date_range(self):
-    interp = SnipsInterpreter('en')
-    interp.fit_from_file(training_filepath)
+      expect(slot.value.startswith('2018-09-03 00:00:00')).to.be.true
+      expect(slot.meta['value']['kind']).to.equal('TimeInterval')
+      expect(slot.meta['value']['from'].startswith('2018-09-03 00:00:00')).to.be.true
+      expect(slot.meta['value']['to'].startswith('2018-09-06 00:00:00')).to.be.true
 
-    slots = interp.parse_slot('get_forecast', 'date', 'from the third of september 2018 to the fifth of september 2018')
+    def test_it_should_parse_custom_extensible_slot_correctly(self):
+      slots = interpreter.parse_slot('get_forecast', 'location', 'Strasbourg')
 
-    self.assertEqual(1, len(slots))
+      expect(slots).to.have.length_of(1)
+      expect(slots[0].value).to.equal('Strasbourg')
 
-    slot = slots[0]
+    def test_it_should_parse_custom_slot_correctly(self):
+      slots = [s.value for s in interpreter.parse_slot('lights_on', 'room', 'kitchen and bedroom')]
 
-    self.assertTrue(slot.value.startswith('2018-09-03 00:00:00'))
-    self.assertEqual('TimeInterval', slot.meta.get('value', {}).get('kind'))
-    self.assertTrue(slot.meta.get('value', {}).get('from', '').startswith('2018-09-03 00:00:00'))
-    self.assertTrue(slot.meta.get('value', {}).get('to', '').startswith('2018-09-06 00:00:00'))
+      expect(slots).to.have.length_of(2)
+      expect(slots).to.equal(['kitchen', 'bedroom'])
 
-  @snips_available
-  def test_parse_slot(self):
-    interp = SnipsInterpreter('en')
-    interp.fit_from_file(training_filepath)
+    def test_it_should_parse_custom_slot_with_synonyms_correctly(self):
+      slots = [s.value for s in interpreter.parse_slot('lights_on', 'room', 'kitchen and cellar please')]
 
-    slots = interp.parse_slot('get_forecast', 'date', 'on today')
+      expect(slots).to.have.length_of(2)
+      expect(slots).to.equal(['kitchen', 'basement'])
 
-    self.assertEqual(1, len(slots))
-    self.assertTrue(datetime.datetime.now().date().isoformat() in slots[0].value)
+    def test_it_should_parse_unknown_slot_correctly(self):
+      slots = interpreter.parse_slot('get_forecast', 'something', 'given value expected')
 
-    slots = [s.value for s in interp.parse_slot('lights_on', 'room', 'kitchen and bedroom')]
+      expect(slots).to.have.length_of(1)
+      expect(slots[0].value).to.equal('given value expected')
 
-    self.assertEqual(2, len(slots))
-    self.assertTrue('kitchen' in slots)
-    self.assertTrue('bedroom' in slots)
-
-  @snips_available
-  def test_parse_slot_with_synonym(self):
-    interp = SnipsInterpreter('en')
-    interp.fit_from_file(training_filepath)
-
-    slots = [s.value for s in interp.parse_slot('lights_on', 'room', 'kitchen and cellar')]
-
-    self.assertEqual(2, len(slots))
-    self.assertTrue('kitchen' in slots)
-    self.assertTrue('basement' in slots)
+except ImportError:
+  print ('snips_nlu could not be imported, tests will be skipped')
