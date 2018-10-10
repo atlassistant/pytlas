@@ -1,61 +1,65 @@
-import unittest
+from sure import expect
 from datetime import datetime
 from pytlas.agent import Agent
 from pytlas.interpreters import Interpreter
 from pytlas.request import Request, AgentProxy
 
-class RequestTests(unittest.TestCase):
+class TestRequest:
 
-  def test_id(self):
-    interp = Interpreter('test', 'fr')
-    agt = Agent(interp)
-    r = Request(agt, None)
+  def setup(self):
+    self.interpreter = Interpreter('test', 'fr')
+    self.agent = Agent(self.interpreter)
 
-    self.assertIsNotNone(r.id)
+  def teardown(self):
+    pass
 
-  def test_lang(self):
-    interp = Interpreter('test', 'fr')
-    agt = Agent(interp)
-    r = Request(agt, None)
+  def test_it_should_have_a_unique_id(self):
+    r = Request(self.agent, None)
+    r2 = Request(self.agent, None)
 
-    self.assertEqual('fr', r.lang)
+    expect(r.id).to_not.be.none
+    expect(r2.id).to_not.be.none
+    expect(r.id).to_not.equal(r2.id)
 
-  def test_translations(self):
-    interp = Interpreter('test', 'fr')
-    agt = Agent(interp)
-    r = Request(agt, None, {
+  def test_it_should_have_the_same_language_as_the_interpreter(self):
+    r = Request(self.agent, None)
+
+    expect(r.lang).to.equal(self.interpreter.lang)
+
+  def test_it_should_be_able_to_translate_text_in_the_interpreter_language(self):
+    r = Request(self.agent, None, {
       'a text': 'un texte',
     })
 
-    self.assertEqual('un texte', r._('a text'))
-    self.assertEqual('not found', r._('not found'))
+    expect(r._('a text')).to.equal('un texte')
+    expect(r._('not found')).to.equal('not found')
 
-  def test_datetime_localizations(self):
-    interp = Interpreter('test', 'fr')
-    agt = Agent(interp)
-
-    r = Request(agt, None)
+  def test_it_should_be_able_to_format_a_date_according_to_the_language(self):
+    r = Request(self.agent, None)
     d = datetime(2018, 9, 25, 8, 30)
 
-    self.assertEqual('25 sept. 2018 à 08:30:00', r._d(d))
-    self.assertEqual('25 sept. 2018', r._d(d, date_only=True))
-    self.assertEqual('08:30:00', r._d(d, time_only=True))
-    self.assertEqual('mardi 25 septembre 2018', r._d(d, format='full', date_only=True))
+    expect(r._d(d)).to.equal('25 sept. 2018 à 08:30:00')
+    expect(r._d(d, date_only=True)).to.equal('25 sept. 2018')
+    expect(r._d(d, time_only=True)).to.equal('08:30:00')
+    expect(r._d(d, format='full', date_only=True)).to.equal('mardi 25 septembre 2018')
 
-  def test_agent_proxy(self):
-    interp = Interpreter('test', 'en')
-    agt = Agent(interp)
+  def test_it_should_not_called_agent_methods_if_not_the_current_request(self):
+    r = Request(self.agent, None)
 
-    r = Request(agt, None)
+    expect(r.agent).to.be.an(AgentProxy)
+    expect(r.agent.ask).to_not.equal(self.agent.ask)
 
-    self.assertIsInstance(r.agent, AgentProxy)
-    self.assertNotEqual(r.agent.ask, agt.ask)
+    self.agent._request = Request(self.agent, None)
+    expect(r.agent.ask).to_not.equal(self.agent.ask)
+    expect(r.agent.ask).to.equal(r.agent.empty_func)
+    expect(r.agent.done).to.equal(r.agent.empty_func)
+    expect(r.agent.answer).to.equal(r.agent.empty_func)
+    expect(r.agent.meta).to.equal(self.agent.meta)
 
-    agt._request = r
-    self.assertEqual(r.agent.ask, agt.ask)
+  def test_it_should_called_agent_methods_if_the_current_request(self):
+    r = Request(self.agent, None)
 
-    agt._request = Request(agt, None)
-    self.assertEqual(r.agent.ask, r.agent.empty_func) # Check redirect to empty func
-    self.assertEqual(r.agent.done, r.agent.empty_func)
-    self.assertEqual(r.agent.answer, r.agent.empty_func)
-    self.assertEqual(r.agent.meta, agt.meta)
+    expect(r.agent.ask).to_not.equal(self.agent.ask)
+
+    self.agent._request = r
+    expect(r.agent.ask).to.equal(self.agent.ask)

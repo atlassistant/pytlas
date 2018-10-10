@@ -1,4 +1,4 @@
-import unittest
+from sure import expect
 from unittest.mock import patch, mock_open
 from pytlas.training import register, training, module_trainings
 
@@ -12,15 +12,15 @@ def en_data(): return """
   london
 """
 
-class TrainingTests(unittest.TestCase):
+class TestTraining:
 
-  def test_decorator(self):
-    self.assertTrue('amodule' in module_trainings)
-    self.assertTrue('en' in module_trainings['amodule'])
-    self.assertEqual(1, len(module_trainings['amodule']['en']['intents']))
-    self.assertEqual(1, len(module_trainings['amodule']['en']['entities']))
+  def test_it_should_be_imported_with_the_decorator(self):
+    expect(module_trainings).to.have.key('amodule')
+    expect(module_trainings['amodule']).to.have.key('en')
+    expect(module_trainings['amodule']['en']['intents']).to.have.length_of(1)
+    expect(module_trainings['amodule']['en']['entities']).to.have.length_of(1)
 
-  def test_register(self):
+  def test_it_should_be_imported_with_the_register_function_with_dict(self):
     register ('fr', """
 %[some_intent]
   with training data
@@ -32,11 +32,12 @@ class TrainingTests(unittest.TestCase):
   with some value
 """, 'amodule')
 
-    self.assertTrue('amodule' in module_trainings)
-    self.assertTrue('fr' in module_trainings['amodule'])
-    self.assertEqual(2, len(module_trainings['amodule']['fr']['intents']))
-    self.assertEqual(1, len(module_trainings['amodule']['fr']['entities']))
+    expect(module_trainings).to.have.key('amodule')
+    expect(module_trainings['amodule']).to.have.key('fr')
+    expect(module_trainings['amodule']['fr']['intents']).to.have.length_of(2)
+    expect(module_trainings['amodule']['fr']['entities']).to.have.length_of(1)
 
+  def test_it_should_be_imported_with_the_register_function_with_filepath(self):
     with patch('builtins.open') as mock:
       mock_open(mock, """
 %[some_intent]
@@ -53,7 +54,7 @@ class TrainingTests(unittest.TestCase):
         with patch('os.path.isfile', return_value=True):
           register('it', './a_path', 'amodule')
 
-          self.assertTrue('amodule' in module_trainings)
-          self.assertTrue('it' in module_trainings['amodule'])
-          self.assertEqual(2, len(module_trainings['amodule']['it']['intents']))
-          self.assertEqual(1, len(module_trainings['amodule']['it']['entities']))
+          expect(module_trainings).to.have.key('amodule')
+          expect(module_trainings['amodule']).to.have.key('it')
+          expect(module_trainings['amodule']['it']['intents']).to.have.length_of(2)
+          expect(module_trainings['amodule']['it']['entities']).to.have.length_of(1)
