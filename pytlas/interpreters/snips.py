@@ -4,8 +4,9 @@ from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
 from pytlas.utils import read_file
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
-from snips_nlu.entity_parser.builtin_entity_parser import BuiltinEntityParser, is_builtin_entity
-from fuzzywuzzy import process
+from snips_nlu.constants import ENTITIES, AUTOMATICALLY_EXTENSIBLE, RESOLVED_VALUE, \
+  ENTITY_KIND, ENTITY, RES_VALUE, RES_RAW_VALUE
+from snips_nlu.entity_parser.builtin_entity_parser import is_builtin_entity
 import snips_nlu.default_configs as snips_confs
 
 def get_entity_value(data):
@@ -19,41 +20,16 @@ def get_entity_value(data):
   Returns:
     any: Flat value
 
-  >>> get_entity_value({ 'value': 'a value', 'from': '2018-09-05' })
-  'a value'
+  Example:
+    >>> get_entity_value({ 'value': 'a value', 'from': '2018-09-05' })
+    'a value'
 
-  >>> get_entity_value({ 'from': '2018-09-05' })
-  '2018-09-05'
-
-  """
-
-  return data.get('value', data.get('from'))
-
-def extract_synonyms_from_dataset(data):
-  """Extract and flatten synonyms from the dataset. Needed since snips-nlu v0.17.0 which
-  does not include entities utterances anymore.
-
-  Args:
-    data (dict): Training dataset
-
-  Returns:
-    dict: Flattened synonyms
+    >>> get_entity_value({ 'from': '2018-09-05' })
+    '2018-09-05'
 
   """
 
-  result = {}
-
-  for (entity_name, entity) in data.get('entities').items():
-    result[entity_name] = {}
-
-    for d in entity.get('data', []):
-      v = d.get('value')
-      result[entity_name][v] = v
-
-      for synonym in d.get('synonyms', []):
-        result[entity_name][synonym] = v
-
-  return result
+  return data.get(RES_VALUE, data.get('from'))
 
 class SnipsInterpreter(Interpreter):
   """Wraps the snips-nlu stuff to provide valuable informations to an agent.
@@ -71,14 +47,12 @@ class SnipsInterpreter(Interpreter):
     super(SnipsInterpreter, self).__init__('snips', lang, cache_directory)
 
     self._engine = None
-    self._entity_parser = BuiltinEntityParser.build(language=self.lang)
     self._slot_mappings = {}
     self._entities = {}
-    self._entities_synonyms = {}
 
   def _configure(self):
     self._slot_mappings = self._engine._dataset_metadata.get('slot_name_mappings', {})
-    self._entities = self._engine._dataset_metadata.get('entities', {})
+    self._entities = self._engine._dataset_metadata.get(ENTITIES, {})
 
     self.intents = list(self._slot_mappings.keys())
 
@@ -135,9 +109,6 @@ class SnipsInterpreter(Interpreter):
           f.write(checksum)
 
       self._configure()
-    
-    # Everything was ok, we can now extract synonyms from the dataset
-    self._entities_synonyms = extract_synonyms_from_dataset(data)
 
   @property
   def is_ready(self):
@@ -183,35 +154,43 @@ class SnipsInterpreter(Interpreter):
 
     entity_label = self._slot_mappings.get(intent, {}).get(slot)
 
-    if entity_label:
-      # If it's a builtin entity, try to parse it
-      if is_builtin_entity(entity_label):
-        parsed = self._entity_parser.parse(msg)
+    # No label, just returns the given value
+    if not entity_label:
+      return [SlotValue(msg)]
+      
+    result = []
 
-        if parsed:
-          # Here we move some keys to keep the returned meta consistent with the parse above
-          # We are checking if `rawValue` is already present because snips-nlu seems to keep
-          # a cache so to avoid mutating the same dict twice, we check again this added key.
+    # If it's a builtin entity, try to parse it
+    if is_builtin_entity(entity_label):
+      parsed = self._engine.builtin_entity_parser.parse(msg, [entity_label])
 
-          slot_data = parsed[0]
+      for slot_data in parsed:
+        # Here we move some keys to keep the returned meta consistent with the parse above
+        # We are checking if `rawValue` is already present because snips-nlu seems to keep
+        # a cache so to avoid mutating the same dict twice, we check again this added key.
 
-          if 'rawValue' not in slot_data:
-            slot_data['rawValue'] = slot_data['value']
-            slot_data['value'] = slot_data['entity']
-            slot_data['entity'] = slot_data['entity_kind']
+        if RES_RAW_VALUE not in slot_data:
+          slot_data[RES_RAW_VALUE] = slot_data[RES_VALUE]
+          slot_data[RES_VALUE] = slot_data[ENTITY]
+          slot_data[ENTITY] = slot_data[ENTITY_KIND]
 
-          return [SlotValue(get_entity_value(slot_data['value']), **slot_data)]
-        else:
-          # If the parsing has failed, the user should reiterate
-          return []
-      else:
-        entity = self._entities.get(entity_label)
+        result.append(SlotValue(get_entity_value(slot_data[RES_VALUE]), **slot_data))
+    else:
+      parsed = self._engine.custom_entity_parser.parse(msg, [entity_label])
 
-        # Not automatically extensible, try to fuzzy match it
-        if entity and entity['automatically_extensible'] == False:
-            choices = set([k.lower() for k in self._entities_synonyms[entity_label].keys()])
-            results = [self._entities_synonyms[entity_label][r[0]] for r in process.extractBests(msg, choices, score_cutoff=60)]
-                        
-            return [SlotValue(r) for r in results]
+      # The custom parser did not found a match and it's extensible? Just returns the value
+      if not parsed and self._entities.get(entity_label, {})[AUTOMATICALLY_EXTENSIBLE] == True:
+        return [SlotValue(msg)]
 
-    return super(SnipsInterpreter, self).parse_slot(intent, slot, msg)
+      for slot_data in parsed:
+        if RES_RAW_VALUE not in slot_data:
+          slot_data[RES_RAW_VALUE] = slot_data[RES_VALUE]
+          slot_data[RES_VALUE] = {
+            'kind': 'Custom',
+            RES_VALUE: slot_data[RESOLVED_VALUE],
+          }
+          slot_data[ENTITY] = slot_data[ENTITY_KIND]
+
+        result.append(SlotValue(get_entity_value(slot_data[RES_VALUE]), **slot_data))
+
+    return result
