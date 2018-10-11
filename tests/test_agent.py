@@ -214,6 +214,8 @@ class TestAgent:
 
     self.agent.parse('will it be sunny')
 
+    initial_request_id = last_request.id
+
     self.on_ask.assert_called_once_with('date', 'When?', None)
     self.on_done.assert_called_once()
     self.on_answer.assert_not_called()
@@ -221,6 +223,7 @@ class TestAgent:
 
     self.agent.parse('tomorrow')
 
+    expect(last_request.intent.slot('date').first().value).to.equal('tomorrow')
     self.on_ask.assert_any_call('city', 'Where?', None)
     expect(self.on_done.call_count).to.equal(2)
     self.on_answer.assert_not_called()
@@ -228,10 +231,12 @@ class TestAgent:
 
     self.agent.parse('rouen')
 
+    expect(last_request.intent.slot('city').first().value).to.equal('rouen')
     self.on_answer.assert_called_once()
     expect(self.on_answer.call_args[0][0]).to.equal('Looking in rouen for tomorrow')
     expect(self.agent.state).to.equal(STATE_ASLEEP)
     expect(self.on_done.call_count).to.equal(3)
+    expect(last_request.id).to.equal(initial_request_id)
 
   def test_it_should_match_on_choices_when_asking_with_choices(self):
     self.interpreter.parse = MagicMock(return_value=[Intent('lights_on')])
