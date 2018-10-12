@@ -5,4 +5,4 @@ install:
   - pip install -e ."[snips,test]"
   - snips-nlu download en
 script:
-  - python -m nose --with-doctest -v
+  - python -m nose --with-doctest --with-coverage --cover-package=pytlas
