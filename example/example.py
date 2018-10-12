@@ -1,7 +1,7 @@
 # pytlas is fairly easy to understand.
 # It will take raw user inputs, parse them and call appropriate handlers with
-# parsed slots. It will also manage the conversation states so skills can ask
-# for user inputs if they need to.
+# parsed slots values. It will also manage the conversation states so skills can 
+# ask for user inputs if they need to.
 
 from pytlas import Agent, intent, training
 from pytlas.interpreters.snips import SnipsInterpreter
@@ -38,9 +38,9 @@ def en_data(): return """
 # Here we are registering a function (with the intent decorator) as an handler 
 # for the intent 'lights_on'.
 #
-# So when a user input will be parsed as a 'lights_on' intent, this handler will
-# be called with a special `Request` object which contains the agent (which triggered
-# this handler) and the intent with its slots.
+# So when a user input will be parsed as a 'lights_on' intent by the interpreter, 
+# this handler will be called with a special `Request` object which contains the 
+# agent (which triggered this handler) and the intent with its slots.
 
 @intent('lights_on')
 def on_intent_lights_on(request):
@@ -62,9 +62,6 @@ if __name__ == '__main__':
   # The last piece is the `Interpreter`. This is the part responsible for human
   # language parsing. It parses raw human sentences into something more useful for
   # the program.
-  #
-  # Each interpreter as its own training format so here we are loading the snips 
-  # interpreter with needed files from this directory.
 
   interpreter = SnipsInterpreter('en')
 
@@ -73,20 +70,21 @@ if __name__ == '__main__':
 
   interpreter.fit_from_skill_data()
   
-  # The `Agent` exposes some handlers used to communicate with the outside world.
+  # The `Agent` exposes some handlers used to communicate with the outside world:
+  # on_answer, on_ask and on_done
 
   agent = Agent(interpreter, 
-    on_answer=lambda text, cards: print (text),
-    on_ask=lambda slot, text, choices: print (text)
+    on_answer=lambda text, cards, **meta: print (text),
+    on_ask=lambda slot, text, choices, **meta: print (text)
   )
 
   # With this next line, this is what happenned:
   #
   # - The message is parsed by the `SnipsInterpreter`
-  # - A 'lights_on' intents is retrieved and contains 'kitchen' as the 'room' slot value
-  # - Since the `Agent` is asleep, it will transition to the 'lights_on' state
+  # - A 'lights_on' intents is retrieved and contains 'kitchen' and 'bedroom' as the 'room' slot values
+  # - Since the `Agent` is asleep, it will transition to the 'lights_on' state immediately
   # - Transitioning to this state call the appropriate handler (at the beginning of this file)
   # - 'Turning lights on in kitchen, bedroom' is printed to the terminal by the `on_answer` delegate defined above
   # - `done` is called by the skill so the agent transitions back to the 'asleep' state
 
-  agent.parse('turn the lights on in kitchen and in bedroom please')
+  agent.parse('turn the lights on in kitchen and bedroom please')

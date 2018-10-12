@@ -63,14 +63,14 @@ class Prompt(cmd.Cmd):
     if self._exit_on_done and not self._agent._request:
       sys.exit()
 
-  def ask(self, slot, text, choices):
+  def ask(self, slot, text, choices, **meta):
     print (text)
 
     if choices:
       for choice in choices:
         print ('\t-' + choice)
 
-  def answer(self, text, cards):
+  def answer(self, text, cards, **meta):
     print (text)
 
     if cards:

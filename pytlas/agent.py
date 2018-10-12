@@ -297,7 +297,7 @@ class Agent:
     self._choices = choices
 
     if self.on_ask:
-      self.on_ask(slot, text, choices)
+      self.on_ask(slot, text, choices, **event.kwargs.get('meta'))
 
   def _process_next_intent(self):
     if len(self._intents_queue) > 0:
@@ -319,27 +319,29 @@ class Agent:
     except (MachineError, AttributeError) as err:
       self._logger.error('Could not trigger "%s": %s' % (state, err))
 
-  def ask(self, slot, text, choices=None):
+  def ask(self, slot, text, choices=None, **meta):
     """Ask something to the user.
 
     Args:
       slot (str): Name of the slot asked for
       text (str, list): Text to show to the user
       choices (list): List of available choices
+      meta (dict): Any additional data to pass to the handler
 
     """
 
     if self.on_done:
       self.on_done()
 
-    self.go(STATE_ASK, slot=slot, text=text, choices=choices)
+    self.go(STATE_ASK, slot=slot, text=text, choices=choices, meta=meta)
 
-  def answer(self, text, cards=None):
+  def answer(self, text, cards=None, **meta):
     """Answer something to the user.
 
     Args:
       text (str, list): Text to show to the user
       cards (list, Card): List of Card to show if any
+      meta (dict): Any additional data to pass to the handler
 
     """
 
@@ -347,7 +349,7 @@ class Agent:
       cards = [cards]
 
     if self.on_answer:
-      self.on_answer(keep_one(text), cards)
+      self.on_answer(keep_one(text), cards, **meta)
 
   def done(self):
     """Done should be called by skills when they are done with their stuff. It enables

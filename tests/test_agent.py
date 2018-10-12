@@ -47,6 +47,20 @@ def on_greet(r):
 
   return r.agent.done()
 
+def on_with_meta(r):
+  """with_meta handler which call agent.ask and agent.answer with meta:
+  
+  When asking for the name slot, it will include special_meta='something'
+  When answering, it will include trigger_listening=True
+  """
+
+  if not r.intent.slot('name'):
+    return r.agent.ask('name', 'Whom?', special_meta='something')
+
+  r.agent.answer('Hello %s' % r.intent.slot('name').first().value, trigger_listening=True)
+
+  return r.agent.done()
+
 def on_lights_on(r):
   """lights_on handler which call agent.answer with 'Turning lights on in <room slot value>'.
   """
@@ -99,6 +113,7 @@ class TestAgent:
       'get_forecast': on_get_forecast,
       'lights_on': on_lights_on,
       'block': on_block,
+      'with_meta': on_with_meta,
       STATE_CANCEL: on_cancel,
       STATE_FALLBACK: on_fallback,
     }
@@ -264,6 +279,20 @@ class TestAgent:
 
     self.on_answer.assert_called_once_with('Cancelled', None)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
+
+  def test_it_should_pass_ask_meta_to_the_handler(self):
+    self.interpreter.parse = MagicMock(return_value=[Intent('with_meta')])
+
+    self.agent.parse('trigger with_meta handler')
+
+    self.on_ask.assert_called_once_with('name', 'Whom?', None, special_meta='something')
+
+  def test_it_should_pass_answer_meta_to_the_handler(self):
+    self.interpreter.parse = MagicMock(return_value=[Intent('with_meta', name='Julien')])
+
+    self.agent.parse('trigger with_meta handler')
+
+    self.on_answer.assert_called_once_with('Hello Julien', None, trigger_listening=True)
 
   def test_it_should_call_the_fallback_intent_when_no_matching_intent_could_be_found(self):
     self.agent.parse('should go in fallback')

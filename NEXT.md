@@ -1,5 +1,5 @@
 Coming next
 ===
 
-- [x] unit test refactoring! (with `sure` and `nose`)
-- [ ] meta in `agent.ask` and `agent.answer` to enable more presentation options when a client accept custom properties
+- [ ] Remote training of the interpreter for when you have large training data and you are deploying pytlas on a small device
+- [ ] Skills manager
