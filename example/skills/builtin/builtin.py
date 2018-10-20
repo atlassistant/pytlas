@@ -9,6 +9,7 @@ def en_data(): return """
 
 %[greet]
   hey
+  hi
   hello
   hey there
   good morning
