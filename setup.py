@@ -21,7 +21,6 @@ setup(
     'transitions==0.6.4',
     'fuzzywuzzy==0.16.0',
     'colorlog==2.2.0',
-    'watchgod==0.2',
     'pychatl==1.2.2',
     'python-dateutil==2.7.3',
     'Babel==2.6.0',
@@ -35,6 +34,9 @@ setup(
       'nose==1.3.7',
       'sure==1.4.11',
       'coverage==4.5.1',
+    ],
+    'watch': [
+      'watchgod==0.2',
     ],
   },
   entry_points={

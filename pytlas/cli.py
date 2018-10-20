@@ -92,7 +92,7 @@ def main():
     cache=None,
     verbose=False,
     debug=False,
-    reload=False,
+    watch=False,
     dry=False,
     parse=None,
   )
@@ -106,14 +106,14 @@ def main():
   parser.add_argument('--parse', type=str, help='Parse the given message immediately and exits when the skill is done')
   parser.add_argument('--debug', action='store_true', help='Debug mode')
   parser.add_argument('--dry', action='store_true', help='Dry run, will not load the interactive prompt')
-  parser.add_argument('-r', '--reload', action='store_true', help='Reload on skill files change')
+  parser.add_argument('--watch', action='store_true', help='Reload on skill files change')
 
   args = parser.parse_args(sys.argv[1:])
 
   install_logs(args.verbose, args.debug)
 
   restrict_load_languages([args.lang])
-  import_skills(args.skills, args.reload)
+  import_skills(args.skills, args.watch)
 
   try:
     from .interpreters.snips import SnipsInterpreter

@@ -1,6 +1,5 @@
 import importlib, os, logging, sys, threading
 from types import ModuleType
-from watchgod import watch
 
 """A list of allowed language resources to be loaded.
 """
@@ -53,31 +52,48 @@ def _reload(module):
     if isinstance(attr, ModuleType):
       _reload(attr)
 
+def import_or_reload(module_name):
+  """Import or reload the given module name.
+
+  Args:
+    module_name (str): Module name
+
+  """
+
+  module = sys.modules.get(module_name)
+
+  if module:
+    logging.info('Reloading module "%s"' % module_name)
+
+    try:
+      _reload(module)
+    except:
+      logging.warning('Reloading failed for "%s"' % module_name)
+  else:
+    logging.info('Importing module "%s"' % module_name)
+
+    try:
+      importlib.import_module(module_name)
+    except ImportError:
+      logging.error ('Could not import module "%s"' % module_name)
+
 def _watch(directory):
+  try:
+    from watchgod import watch
+  except ImportError:
+    logging.error('Could not watch for file changes, is "watchgod" installed?')
+    return
+
   logging.info('Watching for file changes in "%s"' % directory)
 
   for changes in watch(directory):
     for change in changes:
       file_path = change[1]
       module_name = os.path.split(os.path.relpath(file_path, directory))[0]
-      module = sys.modules.get(module_name)
 
       logging.debug('Changes in file "%s" cause "%s" module (re)load' % (file_path, module_name))
-      
-      if module:
-        logging.info('Reloading module "%s"' % module_name)
 
-        try:
-          _reload(module)
-        except:
-          logging.warning('Reloading failed for "%s"' % module_name)
-      else:
-        logging.info('Importing module "%s"' % module_name)
-
-        try:
-          importlib.import_module(module_name)
-        except ImportError:
-          logging.error ('Could not import skill "%s"' % module_name)
+      import_or_reload(module_name)
 
 def import_skills(directory, auto_reload=False):
   """Import skills inside the givne directory.
@@ -96,11 +112,7 @@ def import_skills(directory, auto_reload=False):
   sys.path.append(directory)
 
   for skill_folder in os.listdir(directory):
-    try:
-      importlib.import_module(skill_folder)
-      logging.debug ('Imported skill "%s"' % skill_folder)
-    except ImportError:
-      logging.error ('Could not import skill "%s"' % skill_folder)
+    import_or_reload(skill_folder)
 
   if auto_reload:
     threading.Thread(target=_watch, args=(directory,), daemon=True).start()
