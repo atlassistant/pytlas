@@ -130,14 +130,14 @@ class TestAgent:
 
     expect(last_request.intent.name).to.equal('greet')
     self.on_answer.assert_called_once_with('Hello you!', None)
-    self.on_done.assert_called_once_with(False)
+    self.on_done.assert_called_once_with(True)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
   def test_it_should_queue_string_and_kwargs_as_intent_with_slot_values(self):
     self.agent.queue_intent('greet', name='Julien')
 
     self.on_answer.assert_called_once()
-    self.on_done.assert_called_once_with(False)
+    self.on_done.assert_called_once_with(True)
     
     expect(last_request.intent.name).to.equal('greet')
     expect(last_request.intent.slots).to.have.length_of(1)
@@ -149,7 +149,7 @@ class TestAgent:
 
     expect(last_request.intent.name).to.equal('greet')
     self.on_answer.assert_called_once_with('Hello you!', None)
-    self.on_done.assert_called_once_with(False)
+    self.on_done.assert_called_once_with(True)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
   def test_it_should_handle_simple_intent(self):
@@ -186,7 +186,7 @@ class TestAgent:
     self.agent.parse('hello, can you turn the lights on in kitchen')
 
     self.on_answer.assert_called_once_with('Hello you!', None)
-    self.on_done.assert_called_once_with(False)
+    self.on_done.assert_called_once_with(True)
 
     greet_id = last_request.id
 
