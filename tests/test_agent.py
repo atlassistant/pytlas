@@ -45,7 +45,7 @@ def on_greet(r):
 
   r.agent.answer('Hello you!')
 
-  return r.agent.done()
+  return r.agent.done(True)
 
 def on_with_meta(r):
   """with_meta handler which call agent.ask and agent.answer with meta:
@@ -130,14 +130,14 @@ class TestAgent:
 
     expect(last_request.intent.name).to.equal('greet')
     self.on_answer.assert_called_once_with('Hello you!', None)
-    self.on_done.assert_called_once()
+    self.on_done.assert_called_once_with(False)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
   def test_it_should_queue_string_and_kwargs_as_intent_with_slot_values(self):
     self.agent.queue_intent('greet', name='Julien')
 
     self.on_answer.assert_called_once()
-    self.on_done.assert_called_once()
+    self.on_done.assert_called_once_with(False)
     
     expect(last_request.intent.name).to.equal('greet')
     expect(last_request.intent.slots).to.have.length_of(1)
@@ -149,7 +149,7 @@ class TestAgent:
 
     expect(last_request.intent.name).to.equal('greet')
     self.on_answer.assert_called_once_with('Hello you!', None)
-    self.on_done.assert_called_once()
+    self.on_done.assert_called_once_with(False)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
   def test_it_should_handle_simple_intent(self):
@@ -158,7 +158,7 @@ class TestAgent:
     self.agent.parse('hello')
 
     self.on_answer.assert_called_once_with('Hello you!', None)
-    self.on_done.assert_called_once()
+    self.on_done.assert_called_once_with(True)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
   def test_it_should_have_cards(self):
@@ -186,7 +186,7 @@ class TestAgent:
     self.agent.parse('hello, can you turn the lights on in kitchen')
 
     self.on_answer.assert_called_once_with('Hello you!', None)
-    self.on_done.assert_called_once()
+    self.on_done.assert_called_once_with(False)
 
     greet_id = last_request.id
 
@@ -221,7 +221,7 @@ class TestAgent:
 
     self.agent.parse('an intent without a handler')
 
-    self.on_done.assert_called_once()
+    self.on_done.assert_called_once_with(False)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
   def test_it_should_be_in_the_ask_state_when_a_skill_ask_for_slot(self):
@@ -232,7 +232,7 @@ class TestAgent:
     initial_request_id = last_request.id
 
     self.on_ask.assert_called_once_with('date', 'When?', None)
-    self.on_done.assert_called_once()
+    self.on_done.assert_called_once_with(True)
     self.on_answer.assert_not_called()
     expect(self.agent.state).to.equal(STATE_ASK)
 
@@ -298,7 +298,7 @@ class TestAgent:
     self.agent.parse('should go in fallback')
 
     self.on_answer.assert_called_once_with('Searching for should go in fallback', None)
-    self.on_done.assert_called_once()
+    self.on_done.assert_called_once_with(False)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
     expect(last_request.intent.name).to.equal(STATE_FALLBACK)
     expect(last_request.intent.slots).to.have.length_of(1)

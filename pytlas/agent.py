@@ -81,7 +81,7 @@ class Agent:
       handlers (dict): Dictionary of intent: handler to use. If no one is provided, all handlers registered will be used instead.
       on_ask (func): Handler called when a skill needs more user input
       on_answer (func): Handler called called when a skill wants to give an answer to the user
-      on_done (func): Called when a skill has ended its work
+      on_done (func): Called when a skill has ended its work, it will received a bool representing if it needs further user inputs
       meta (dict): Every other properties will be made available through the self.meta property
 
     """
@@ -331,7 +331,7 @@ class Agent:
     """
 
     if self.on_done:
-      self.on_done()
+      self.on_done(True)
 
     self.go(STATE_ASK, slot=slot, text=text, choices=choices, meta=meta)
 
@@ -351,13 +351,13 @@ class Agent:
     if self.on_answer:
       self.on_answer(keep_one(text), cards, **meta)
 
-  def done(self):
+  def done(self, require_input=False):
     """Done should be called by skills when they are done with their stuff. It enables
     threaded scenarii. When asking something to the user, you should not call this method!
 
     """
 
-    self.go(STATE_ASLEEP)
+    self.go(STATE_ASLEEP, require_input=require_input)
 
   def end_conversation(self, event=None):
     """Ends a conversation, means nothing would come from the skill anymore and
@@ -374,6 +374,6 @@ class Agent:
     self._choices = None
 
     if self.on_done:
-      self.on_done()
+      self.on_done(event.kwargs.get('require_input') if event else False)
       
     self._process_next_intent()

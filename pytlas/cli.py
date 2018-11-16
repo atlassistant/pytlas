@@ -59,7 +59,7 @@ class Prompt(cmd.Cmd):
       self._exit_on_done = True
       self._agent.parse(parse_message)
   
-  def done(self):
+  def done(self, require_input):
     if self._exit_on_done and not self._agent._request:
       sys.exit()
 

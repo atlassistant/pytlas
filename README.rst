@@ -190,4 +190,4 @@ Testing
 .. code-block:: bash
 
   $ pip install -e .[snips,test]
-  $ python -m nose --with-doctest -v
+  $ python -m nose --with-doctest -v --with-coverage --cover-package=pytlas
