@@ -21,7 +21,7 @@ def get_entity_value(data):
   Returns:
     any: Flat value
 
-  Example:
+  Examples:
     >>> get_entity_value({ 'value': 'a value', 'from': '2018-09-05' })
     'a value'
 

@@ -24,7 +24,11 @@ setup(
     'pychatl==1.2.2',
     'python-dateutil==2.7.3',
     'Babel==2.6.0',
-    'requests==2.20.0', # requests is included because the remote training will need it
+    # requests is included because the remote training will need it
+    'requests==2.20.0',
+    # Those lines are required for markdown display and raw_text generation
+    'Markdown==3.0.1',
+    'beautifulsoup4==4.6.3',
   ],
   extras_require={
     'snips': [

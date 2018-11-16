@@ -7,6 +7,8 @@ from pytlas.interpreters.slot import SlotValue
 from pytlas.skill import handlers as skill_handlers
 from transitions import Machine, MachineError
 from fuzzywuzzy import process
+from markdown import markdown
+from bs4 import BeautifulSoup
 
 # Silent the transitions logger
 logging.getLogger('transitions').setLevel(logging.WARNING)
@@ -47,6 +49,32 @@ def keep_one(value):
 
   return value
 
+def strip_format(value):
+  """Removes any markdown format from the source to returns a raw string.
+
+  Args:
+    value (str): Input value which may contains format characters
+  
+  Returns:
+    str: Raw value without format characters
+  
+  Examples:
+    >>> strip_format('contains **bold** text here')
+    'contains bold text here'
+
+    >>> strip_format('nothing fancy here')
+    'nothing fancy here'
+
+  """
+
+  html = markdown(value)
+
+  # If nothing has changed, don't rely on BeautifulSoup since this is not needed
+  if html == value:
+    return value
+
+  return BeautifulSoup(html, 'html.parser').get_text()
+
 def find_match(choices, value):
   """Find element that fuzzy match the available choices.
 
@@ -75,6 +103,13 @@ class Agent:
   def __init__(self, interpreter, handlers=None, 
     on_ask=None, on_answer=None, on_done=None, **meta):
     """Initialize an agent.
+
+    When skills ask or answer something to the client, they can send markdown formatted text
+    to enable rich text display. This markdown will not be processed by pytlas and should be handled
+    by clients on their side.
+
+    But as a convenience, a special meta will be added to `on_answer` and `on_ask` which is called
+    `raw_text` and contains the text without any formatting.
 
     Args:
       interpreter (Interpreter): Interpreter used to convert human language to intents
@@ -297,7 +332,7 @@ class Agent:
     self._choices = choices
 
     if self.on_ask:
-      self.on_ask(slot, text, choices, **event.kwargs.get('meta'))
+      self.on_ask(slot, text, choices, raw_text=strip_format(text), **event.kwargs.get('meta'))
 
   def _process_next_intent(self):
     if len(self._intents_queue) > 0:
@@ -349,7 +384,8 @@ class Agent:
       cards = [cards]
 
     if self.on_answer:
-      self.on_answer(keep_one(text), cards, **meta)
+      t = keep_one(text)
+      self.on_answer(t, cards, raw_text=strip_format(t), **meta)
 
   def done(self, require_input=False):
     """Done should be called by skills when they are done with their stuff. It enables

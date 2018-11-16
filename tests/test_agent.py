@@ -57,7 +57,7 @@ def on_with_meta(r):
   if not r.intent.slot('name'):
     return r.agent.ask('name', 'Whom?', special_meta='something')
 
-  r.agent.answer('Hello %s' % r.intent.slot('name').first().value, trigger_listening=True)
+  r.agent.answer('Hello **%s**' % r.intent.slot('name').first().value, trigger_listening=True)
 
   return r.agent.done()
 
@@ -129,7 +129,7 @@ class TestAgent:
     self.agent.queue_intent('greet')
 
     expect(last_request.intent.name).to.equal('greet')
-    self.on_answer.assert_called_once_with('Hello you!', None)
+    self.on_answer.assert_called_once_with('Hello you!', None, raw_text='Hello you!')
     self.on_done.assert_called_once_with(True)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
@@ -148,7 +148,7 @@ class TestAgent:
     self.agent.queue_intent(Intent('greet'))
 
     expect(last_request.intent.name).to.equal('greet')
-    self.on_answer.assert_called_once_with('Hello you!', None)
+    self.on_answer.assert_called_once_with('Hello you!', None, raw_text='Hello you!')
     self.on_done.assert_called_once_with(True)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
@@ -157,7 +157,7 @@ class TestAgent:
 
     self.agent.parse('hello')
 
-    self.on_answer.assert_called_once_with('Hello you!', None)
+    self.on_answer.assert_called_once_with('Hello you!', None, raw_text='Hello you!')
     self.on_done.assert_called_once_with(True)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
@@ -185,7 +185,7 @@ class TestAgent:
 
     self.agent.parse('hello, can you turn the lights on in kitchen')
 
-    self.on_answer.assert_called_once_with('Hello you!', None)
+    self.on_answer.assert_called_once_with('Hello you!', None, raw_text='Hello you!')
     self.on_done.assert_called_once_with(True)
 
     greet_id = last_request.id
@@ -195,7 +195,7 @@ class TestAgent:
     # Since the block intent does not call it to test it more easily, call the agent.done now to process the next intent
     self.agent.done()
 
-    self.on_answer.assert_called_with('Turning lights on in kitchen', None)
+    self.on_answer.assert_called_with('Turning lights on in kitchen', None, raw_text='Turning lights on in kitchen')
 
     expect(self.on_done.call_count).to.equal(3)
     expect(last_request.id).to_not.equal(greet_id)
@@ -231,7 +231,7 @@ class TestAgent:
 
     initial_request_id = last_request.id
 
-    self.on_ask.assert_called_once_with('date', 'When?', None)
+    self.on_ask.assert_called_once_with('date', 'When?', None, raw_text='When?')
     self.on_done.assert_called_once_with(True)
     self.on_answer.assert_not_called()
     expect(self.agent.state).to.equal(STATE_ASK)
@@ -239,7 +239,7 @@ class TestAgent:
     self.agent.parse('tomorrow')
 
     expect(last_request.intent.slot('date').first().value).to.equal('tomorrow')
-    self.on_ask.assert_any_call('city', 'Where?', None)
+    self.on_ask.assert_any_call('city', 'Where?', None, raw_text='Where?')
     expect(self.on_done.call_count).to.equal(2)
     self.on_answer.assert_not_called()
     expect(self.agent.state).to.equal(STATE_ASK)
@@ -258,12 +258,12 @@ class TestAgent:
 
     self.agent.parse('turn the lights on')
 
-    self.on_ask.assert_called_once_with('room', 'Which ones?', ['kitchen', 'living room', 'bedroom'])
+    self.on_ask.assert_called_once_with('room', 'Which ones?', ['kitchen', 'living room', 'bedroom'], raw_text='Which ones?')
     expect(self.agent.state).to.equal(STATE_ASK)
 
     self.agent.parse('in the living room')
 
-    self.on_answer.assert_called_with('Turning lights on in living room', None)
+    self.on_answer.assert_called_with('Turning lights on in living room', None, raw_text='Turning lights on in living room')
     expect(self.on_done.call_count).to.equal(2)
 
   def test_it_should_cancel_intent_when_cancel_is_caught(self):
@@ -277,7 +277,7 @@ class TestAgent:
 
     self.agent.parse('cancel')
 
-    self.on_answer.assert_called_once_with('Cancelled', None)
+    self.on_answer.assert_called_once_with('Cancelled', None, raw_text='Cancelled')
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
   def test_it_should_pass_ask_meta_to_the_handler(self):
@@ -285,19 +285,19 @@ class TestAgent:
 
     self.agent.parse('trigger with_meta handler')
 
-    self.on_ask.assert_called_once_with('name', 'Whom?', None, special_meta='something')
+    self.on_ask.assert_called_once_with('name', 'Whom?', None, raw_text='Whom?', special_meta='something')
 
   def test_it_should_pass_answer_meta_to_the_handler(self):
     self.interpreter.parse = MagicMock(return_value=[Intent('with_meta', name='Julien')])
 
     self.agent.parse('trigger with_meta handler')
 
-    self.on_answer.assert_called_once_with('Hello Julien', None, trigger_listening=True)
+    self.on_answer.assert_called_once_with('Hello **Julien**', None, raw_text='Hello Julien', trigger_listening=True)
 
   def test_it_should_call_the_fallback_intent_when_no_matching_intent_could_be_found(self):
     self.agent.parse('should go in fallback')
 
-    self.on_answer.assert_called_once_with('Searching for should go in fallback', None)
+    self.on_answer.assert_called_once_with('Searching for should go in fallback', None, raw_text='Searching for should go in fallback')
     self.on_done.assert_called_once_with(False)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
     expect(last_request.intent.name).to.equal(STATE_FALLBACK)
