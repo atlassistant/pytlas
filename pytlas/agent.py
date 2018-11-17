@@ -1,14 +1,11 @@
-import logging, random
+import logging
 from pytlas.request import Request
-from pytlas.utils import get_package_name_from_module
+from pytlas.utils import get_package_name_from_module, keep_one, strip_format, find_match
 from pytlas.localization import module_translations
 from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
 from pytlas.skill import handlers as skill_handlers
 from transitions import Machine, MachineError
-from fuzzywuzzy import process
-from markdown import markdown
-from bs4 import BeautifulSoup
 
 # Silent the transitions logger
 logging.getLogger('transitions').setLevel(logging.WARNING)
@@ -32,64 +29,6 @@ def is_builtin(state):
   """
 
   return state.startswith(STATE_PREFIX) and state.endswith(STATE_SUFFIX) if state else False
-
-def keep_one(value):
-  """Keeps only one element if value is a list.
-
-  Args:
-    value (str, list): Value to check
-
-  Returns:
-    str: Random value in the given list if it's a list, else the given value
-
-  """
-
-  if type(value) is list:
-    return random.choice(value)
-
-  return value
-
-def strip_format(value):
-  """Removes any markdown format from the source to returns a raw string.
-
-  Args:
-    value (str): Input value which may contains format characters
-  
-  Returns:
-    str: Raw value without format characters
-  
-  Examples:
-    >>> strip_format('contains **bold** text here')
-    'contains bold text here'
-
-    >>> strip_format('nothing fancy here')
-    'nothing fancy here'
-
-  """
-
-  html = markdown(value)
-
-  # If nothing has changed, don't rely on BeautifulSoup since this is not needed
-  if html == value:
-    return value
-
-  return BeautifulSoup(html, 'html.parser').get_text()
-
-def find_match(choices, value):
-  """Find element that fuzzy match the available choices.
-
-  Args:
-    choices (list): Available choices
-    value (str): Raw value to fuzzy match
-
-  Returns:
-    str: matched text in given choices
-
-  """
-
-  match = process.extractOne(value, choices, score_cutoff=60)
-
-  return match[0] if match else None
 
 class Agent:
   """Manages a conversation with a client.
