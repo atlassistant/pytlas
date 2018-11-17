@@ -102,7 +102,7 @@ def keep_one(value):
 
   """
 
-  if type(value) is list:
+  if isinstance(value, list):
     return random.choice(value)
 
   return value

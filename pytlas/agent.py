@@ -319,7 +319,7 @@ class Agent:
 
     """
 
-    if cards and type(cards) is not list:
+    if cards and not isinstance(cards, list):
       cards = [cards]
 
     if self.on_answer:

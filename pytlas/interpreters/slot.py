@@ -37,11 +37,11 @@ class SlotValues(list):
 
   def __init__(self, iterable=[]):
     # Force iterable
-    if type(iterable) is not list:
+    if not isinstance(iterable, list):
       iterable = [iterable]
 
     # Convert every item to SlotValue
-    super(SlotValues, self).__init__([v if type(v) is SlotValue else SlotValue(v) for v in iterable])
+    super(SlotValues, self).__init__([v if isinstance(v, SlotValue) else SlotValue(v) for v in iterable])
 
   def is_empty(self):
     """Returns true if it does not have any value.
