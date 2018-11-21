@@ -24,13 +24,13 @@ class Card:
     """
     
     self.header = header
-    self.raw_header = strip_format(header) if header else None
+    self.raw_header = strip_format(header)
 
     self.text = text
-    self.raw_text = strip_format(text) if text else None
+    self.raw_text = strip_format(text)
 
     self.subhead = subhead
-    self.raw_subhead = strip_format(subhead) if subhead else None
+    self.raw_subhead = strip_format(subhead)
 
     self.header_link = header_link
     self.media = media

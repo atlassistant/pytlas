@@ -57,6 +57,17 @@ def on_intent_lights_on(request):
 
   return request.agent.done()
 
+class Client:
+  """This client is used as a model for an agent. It will receive lifecycle events
+  raised by the agent.
+  """
+
+  def on_answer(self, text, cards, **meta):
+    print (text)
+
+  def on_ask(self, slot, text, choices, **meta):
+    print (text)
+
 if __name__ == '__main__':
   
   # The last piece is the `Interpreter`. This is the part responsible for human
@@ -70,13 +81,9 @@ if __name__ == '__main__':
 
   interpreter.fit_from_skill_data()
   
-  # The `Agent` exposes some handlers used to communicate with the outside world:
-  # on_answer, on_ask and on_done
+  # The `Agent` uses the model given to call appropriate lifecycle hooks.
 
-  agent = Agent(interpreter, 
-    on_answer=lambda text, cards, **meta: print (text),
-    on_ask=lambda slot, text, choices, **meta: print (text)
-  )
+  agent = Agent(interpreter, model=Client())
 
   # With this next line, this is what happenned:
   #
@@ -84,7 +91,7 @@ if __name__ == '__main__':
   # - A 'lights_on' intents is retrieved and contains 'kitchen' and 'bedroom' as the 'room' slot values
   # - Since the `Agent` is asleep, it will transition to the 'lights_on' state immediately
   # - Transitioning to this state call the appropriate handler (at the beginning of this file)
-  # - 'Turning lights on in kitchen, bedroom' is printed to the terminal by the `on_answer` delegate defined above
+  # - 'Turning lights on in kitchen, bedroom' is printed to the terminal by the `Client.on_answer` defined above
   # - `done` is called by the skill so the agent transitions back to the 'asleep' state
 
   agent.parse('turn the lights on in kitchen and bedroom please')

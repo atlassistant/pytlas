@@ -39,8 +39,7 @@ class Agent:
 
   """
 
-  def __init__(self, interpreter, handlers=None, 
-    on_ask=None, on_answer=None, on_done=None, **meta):
+  def __init__(self, interpreter, model=None, handlers=None, **meta):
     """Initialize an agent.
 
     When skills ask or answer something to the client, they can send markdown formatted text
@@ -52,10 +51,8 @@ class Agent:
 
     Args:
       interpreter (Interpreter): Interpreter used to convert human language to intents
+      model (object): Model which will receive events raised by this agent instance
       handlers (dict): Dictionary of intent: handler to use. If no one is provided, all handlers registered will be used instead.
-      on_ask (func): Handler called when a skill needs more user input
-      on_answer (func): Handler called called when a skill wants to give an answer to the user
-      on_done (func): Called when a skill has ended its work, it will received a bool representing if it needs further user inputs
       meta (dict): Every other properties will be made available through the self.meta property
 
     """
@@ -63,10 +60,10 @@ class Agent:
     self._logger = logging.getLogger(self.__class__.__name__.lower())
     self._interpreter = interpreter
 
-    # Register handlers
-    self.on_ask = on_ask
-    self.on_answer = on_answer
-    self.on_done = on_done
+    self._on_ask = None
+    self._on_answer = None
+    self._on_done = None
+    self._on_thinking = None
 
     self._handlers = handlers or skill_handlers
 
@@ -75,6 +72,7 @@ class Agent:
     self._asked_slot = None
     self._choices = None
     
+    self.model = model
     self.meta = meta
 
     self._machine = None
@@ -132,6 +130,40 @@ class Agent:
         [STATE_ASLEEP, STATE_ASK],
         intent,
         after=self._on_intent)
+
+  @property
+  def model(self):
+    """Retrieve the model associated with this agent instance.
+
+    Returns:
+      object: The model
+
+    """
+
+    return self._model
+
+  @model.setter
+  def model(self, model):
+    """Sets the model associated with this instance. It will pull handlers
+    from the model attributes:
+
+      - on_ask: Called when asking for user inputs
+      - on_answer: Called when showing something to the user
+      - on_thinking: Called when a skill has started working
+      - on_done: Called when a skill has done its work
+
+    Args:
+      model (object): Object which will receive events
+
+    """
+
+    self._model = model
+
+    if self._model:
+      self._on_ask = getattr(self._model, 'on_ask', None)
+      self._on_answer = getattr(self._model, 'on_answer', None)
+      self._on_done = getattr(self._model, 'on_done', None)
+      self._on_thinking = getattr(self._model, 'on_thinking', None)
 
   def _log_transition(self, e):
     dest = e.transition.dest
@@ -248,6 +280,10 @@ class Agent:
       
       try:
         self._logger.debug('Calling handler "%s"' % handler)
+
+        if self._on_thinking:
+          self._on_thinking()
+
         handler(self._request)
       except Exception as err:
         self._logger.error(err)
@@ -270,8 +306,8 @@ class Agent:
     self._asked_slot = slot
     self._choices = choices
 
-    if self.on_ask:
-      self.on_ask(slot, text, choices, raw_text=strip_format(text), **event.kwargs.get('meta'))
+    if self._on_ask:
+      self._on_ask(slot, text, choices, raw_text=strip_format(text), **event.kwargs.get('meta'))
 
   def _process_next_intent(self):
     if len(self._intents_queue) > 0:
@@ -304,8 +340,8 @@ class Agent:
 
     """
 
-    if self.on_done:
-      self.on_done(True)
+    if self._on_done:
+      self._on_done(True)
 
     self.go(STATE_ASK, slot=slot, text=text, choices=choices, meta=meta)
 
@@ -322,9 +358,9 @@ class Agent:
     if cards and not isinstance(cards, list):
       cards = [cards]
 
-    if self.on_answer:
+    if self._on_answer:
       t = keep_one(text)
-      self.on_answer(t, cards, raw_text=strip_format(t), **meta)
+      self._on_answer(t, cards, raw_text=strip_format(t), **meta)
 
   def done(self, require_input=False):
     """Done should be called by skills when they are done with their stuff. It enables
@@ -348,7 +384,7 @@ class Agent:
     self._asked_slot = None
     self._choices = None
 
-    if self.on_done:
-      self.on_done(event.kwargs.get('require_input') if event else False)
+    if self._on_done:
+      self._on_done(event.kwargs.get('require_input') if event else False)
       
     self._process_next_intent()

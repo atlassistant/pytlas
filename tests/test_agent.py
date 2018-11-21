@@ -107,6 +107,7 @@ class TestAgent:
     self.on_answer = MagicMock()
     self.on_ask = MagicMock()
     self.on_done = MagicMock()
+    self.on_thinking = MagicMock()
 
     self.handlers = {
       'greet': on_greet,
@@ -119,11 +120,7 @@ class TestAgent:
     }
     self.interpreter = Interpreter('test', 'en')
     self.interpreter.intents = list(self.handlers.keys()) + ['intent_without_handler']
-    self.agent = Agent(self.interpreter, 
-      handlers=self.handlers, 
-      on_answer=self.on_answer,
-      on_ask=self.on_ask,
-      on_done=self.on_done)
+    self.agent = Agent(self.interpreter, model=self, handlers=self.handlers)
 
   def test_it_should_queue_string_as_intent(self):
     self.agent.queue_intent('greet')
@@ -150,6 +147,7 @@ class TestAgent:
     expect(last_request.intent.name).to.equal('greet')
     self.on_answer.assert_called_once_with('Hello you!', None, raw_text='Hello you!')
     self.on_done.assert_called_once_with(True)
+    self.on_thinking.assert_called_once()
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 
   def test_it_should_handle_simple_intent(self):
@@ -187,6 +185,7 @@ class TestAgent:
 
     self.on_answer.assert_called_once_with('Hello you!', None, raw_text='Hello you!')
     self.on_done.assert_called_once_with(True)
+    expect(self.on_thinking.call_count).to.equal(2) # One for greet, the other for block
 
     greet_id = last_request.id
 
@@ -198,6 +197,7 @@ class TestAgent:
     self.on_answer.assert_called_with('Turning lights on in kitchen', None, raw_text='Turning lights on in kitchen')
 
     expect(self.on_done.call_count).to.equal(3)
+    expect(self.on_thinking.call_count).to.equal(3)
     expect(last_request.id).to_not.equal(greet_id)
     expect(self.agent.state).to.equal(STATE_ASLEEP)
 

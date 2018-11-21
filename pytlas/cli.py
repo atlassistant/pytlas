@@ -50,27 +50,25 @@ class Prompt(cmd.Cmd):
     super(Prompt, self).__init__()
 
     self._agent = agent
-    self._agent.on_ask = self.ask
-    self._agent.on_answer = self.answer
-    self._agent.on_done = self.done
+    self._agent.model = self
     self._exit_on_done = False
 
     if parse_message:
       self._exit_on_done = True
       self._agent.parse(parse_message)
   
-  def done(self, require_input):
+  def on_done(self, require_input):
     if self._exit_on_done and not self._agent._request:
       sys.exit()
 
-  def ask(self, slot, text, choices, **meta):
+  def on_ask(self, slot, text, choices, **meta):
     print (text)
 
     if choices:
       for choice in choices:
         print ('\t-' + choice)
 
-  def answer(self, text, cards, **meta):
+  def on_answer(self, text, cards, **meta):
     print (text)
 
     if cards:
