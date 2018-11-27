@@ -3,6 +3,7 @@
     "intent_classifier_config": {
       "data_augmentation_config": {
         "add_builtin_entities_examples": true,
+        "max_unknown_words": 0,
         "min_utterances": 20,
         "noise_factor": 5,
         "unknown_word_prob": 0,
@@ -11,7 +12,7 @@
       "featurizer_config": {
         "pvalue_threshold": 0.4,
         "sublinear_tf": false,
-        "use_stemming": true,
+        "use_stemming": false,
         "word_clusters_name": null
       },
       "random_seed": null,

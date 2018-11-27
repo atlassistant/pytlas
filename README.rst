@@ -13,6 +13,8 @@ pytlas |travis| |coveralls| |pypi| |license|
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
+⚠️ **You're reading the develop README.** For the last published version documentation, `please click here <https://github.com/atlassistant/pytlas/tree/43bda4ea9936c414a77aafdc803144dcbaa50672>`_.
+
 An open-source 🤖💬 assistant library built for people and made to be super easy to setup and understand.
 
 I first started to develop `atlas <https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.

@@ -118,13 +118,13 @@
       {
         "args": {
           "entity_labels": [
-            "snips/percentage",
             "snips/amountOfMoney",
-            "snips/ordinal",
+            "snips/number",
             "snips/datetime",
+            "snips/percentage",
             "snips/duration",
-            "snips/temperature",
-            "snips/number"
+            "snips/ordinal",
+            "snips/temperature"
           ],
           "language_code": "en",
           "tagging_scheme_code": 1
@@ -155,7 +155,7 @@
     "tagging_scheme": 1,
     "unit_name": "crf_slot_filler"
   },
-  "crf_model_file": "modelz4bm2ke6.crfsuite",
+  "crf_model_file": "modelp6id1lc0.crfsuite",
   "intent": "get_forecast",
   "language_code": "en",
   "slot_name_mapping": {
