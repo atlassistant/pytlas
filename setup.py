@@ -20,7 +20,7 @@ setup(
   install_requires=[
     'transitions==0.6.4',
     'fuzzywuzzy==0.16.0',
-    'colorlog==2.2.0',
+    'colorlog==3.1.4',
     'pychatl==1.2.3',
     'python-dateutil==2.7.3',
     'Babel==2.6.0',
