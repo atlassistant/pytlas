@@ -52,15 +52,24 @@ class Interpreter:
 
     pass
 
-  def fit_from_skill_data(self):
+  def fit_from_skill_data(self, skills=None):
     """Fit the interpreter with every training data registered in the system.
+
+    Args:
+      skills (list of str): Optional list of skill names from which we should retrieve training data.
+    
     """
 
-    self._logger.info('Merging skill training data from "%d" modules' % len(module_trainings))
+    filtered_module_trainings = module_trainings
+
+    if skills:
+      filtered_module_trainings = { k: v for (k, v) in module_trainings.items() if k in skills }
+
+    self._logger.info('Merging skill training data from "%d" modules' % len(filtered_module_trainings))
 
     data = {}
 
-    for (module, module_data) in module_trainings.items():
+    for (module, module_data) in filtered_module_trainings.items():
       lang_data = module_data.get(self.lang)
 
       if lang_data:
