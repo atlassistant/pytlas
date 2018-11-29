@@ -3,7 +3,7 @@ from pytlas.cli.prompt import Prompt
 from pytlas.cli.utils import install_logs
 from pytlas.cli.config import get, getboolean, write_config, CONFIG_FILENAME, \
   OPT_VERBOSE, OPT_DEBUG, OPT_LANG, OPT_SKILLS, OPT_CACHE, OPT_WATCH, \
-  OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY, OPT_LANG_DEFAULT, OPT_SKILLS_DEFAULT
+  OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY
 from pytlas.importers import restrict_load_languages, import_skills
 from configparser import ConfigParser
 import click, logging, os
@@ -22,7 +22,7 @@ def main():
   """
   
   install_logs(getboolean(OPT_VERBOSE), getboolean(OPT_DEBUG))
-  restrict_load_languages([ get(OPT_LANG, OPT_LANG_DEFAULT) ])
+  restrict_load_languages([ get(OPT_LANG) ])
 
 @main.group(invoke_without_command=True)
 @click.option('--parse', help='Parse the given message immediately and exits when the skill is done')
@@ -34,12 +34,12 @@ def repl():
   """Start a REPL session to interact with your assistant.
   """
 
-  import_skills(get(OPT_SKILLS, OPT_SKILLS_DEFAULT), getboolean(OPT_WATCH))
+  import_skills(get(OPT_SKILLS), getboolean(OPT_WATCH))
 
   try:
     from pytlas.interpreters.snips import SnipsInterpreter
     
-    interpreter = SnipsInterpreter(get(OPT_LANG, OPT_LANG_DEFAULT), get(OPT_CACHE))
+    interpreter = SnipsInterpreter(get(OPT_LANG), get(OPT_CACHE))
 
     training_file = get(OPT_TRAINING_FILE)
 
@@ -65,6 +65,6 @@ def list_skills():
   """List installed skills for this instance.
   """
 
-  import_skills(get(OPT_SKILLS, OPT_SKILLS_DEFAULT))
+  import_skills(get(OPT_SKILLS))
 
   # TODO To be implemented

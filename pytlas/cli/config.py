@@ -18,7 +18,10 @@ CONFIG_FILENAME = 'pytlas.conf'
 
 # Represents default parameters value
 config = ConfigParser()
-config[CONFIG_SECTION] = {}
+config[CONFIG_SECTION] = {
+  OPT_LANG: OPT_LANG_DEFAULT,
+  OPT_SKILLS: OPT_SKILLS_DEFAULT,
+}
 
 def write_config(f):
   """Simple decorator used to write each argument value to the config
