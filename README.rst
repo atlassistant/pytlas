@@ -69,11 +69,11 @@ From the terminal
 
 pytlas include a basic CLI interface to interact with the system.
 
-This line will start the pytlas command prompt with skills located in the `example/skills/` directory. It will load all data and fit the engine before starting the prompt.
+This line will start the pytlas repl with skills located in the `example/skills/` directory. It will load all data and fit the engine before starting the prompt.
 
 .. code-block:: bash
 
-  $ pytlas -s example/skills -v -l en
+  $ pytlas -s example/skills -v -l en repl
 
 From code
 ~~~~~~~~~
