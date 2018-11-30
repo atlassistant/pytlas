@@ -1,16 +1,15 @@
 from pytlas import Agent, __version__
 from pytlas.cli.prompt import Prompt
 from pytlas.cli.utils import install_logs
-from pytlas.cli.config import get, getboolean, write_config, CONFIG_FILENAME, \
-  OPT_VERBOSE, OPT_DEBUG, OPT_LANG, OPT_SKILLS, OPT_CACHE, OPT_WATCH, \
-  OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY
+from pytlas.cli.config import get, getboolean, write_config, log_configuration, \
+  CONFIG_DEFAULT_FILENAME, OPT_VERBOSE, OPT_DEBUG, OPT_LANG, OPT_SKILLS, OPT_CACHE, \
+  OPT_WATCH, OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY
 from pytlas.importers import restrict_load_languages, import_skills
-from configparser import ConfigParser
 import click, logging, os
 
 @click.group()
 @click.version_option(__version__)
-@click.option('--config', default=CONFIG_FILENAME, help='Path to the configuration file')
+@click.option('--config', default=CONFIG_DEFAULT_FILENAME, help='Path to the configuration file')
 @click.option('-v', '--verbose', is_flag=True, help='Verbose output')
 @click.option('--debug', is_flag=True, help='Debug mode')
 @click.option('-l', '--lang', help='Lang of the interpreter to use')
@@ -22,6 +21,8 @@ def main():
   """
   
   install_logs(getboolean(OPT_VERBOSE), getboolean(OPT_DEBUG))
+  log_configuration()
+
   restrict_load_languages([ get(OPT_LANG) ])
 
 @main.group(invoke_without_command=True)

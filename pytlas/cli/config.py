@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from functools import wraps
+import logging, os
 
 OPT_VERBOSE = 'verbose'
 OPT_DEBUG = 'debug'
@@ -14,10 +15,14 @@ OPT_WATCH = 'watch'
 OPT_TRAINING_FILE = 'training_file'
 
 CONFIG_SECTION = 'pytlas'
-CONFIG_FILENAME = 'pytlas.conf'
+CONFIG_DEFAULT_FILENAME = 'pytlas.conf'
+
+config = ConfigParser()
+
+# Needed because when loading the config file, logging has not been configured yet
+config_loaded_from_path = None
 
 # Represents default parameters value
-config = ConfigParser()
 config[CONFIG_SECTION] = {
   OPT_LANG: OPT_LANG_DEFAULT,
   OPT_SKILLS: OPT_SKILLS_DEFAULT,
@@ -34,17 +39,37 @@ def write_config(f):
     # Config is a specific key used to read the config from a file
     conf = kwargs.get('config')
 
-    if conf:
-      config.read(conf)
+    # And read it if it exists
+    if conf and os.path.isfile(conf):
+      global config_loaded_from_path
+      config_loaded_from_path = os.path.abspath(conf)
+      config.read(config_loaded_from_path)
 
     # And then, for each argument, write its value in the config object
     for (k, v) in kwargs.items():
       if v:
         config.set(CONFIG_SECTION, k, str(v))
 
-    f()
+    return f()
   
   return func
+
+def log_configuration():
+  """Logs configuration values using the standard logging library.
+  """
+
+  if config_loaded_from_path:
+    logging.info('Configuration loaded from "%s"' % config_loaded_from_path)
+
+  result = """Configuration:
+
+"""
+
+  for (k, v) in config[CONFIG_SECTION].items():
+    result += ("""\t%s: %s
+""") % (k, v)
+
+  logging.debug(result)
 
 def get(name, default=None):
   """Gets a configuration value.
