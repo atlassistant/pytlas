@@ -3,6 +3,40 @@ from pytlas.utils import get_caller_package_name
 
 handlers = {}
 
+# Contains module metadatas functions. Why functions? Because we want to be able
+# to translate them in the user language.
+module_metas = {}
+
+def register_meta(func, package=None):
+  """Register skill package metadata
+
+  Args:
+    func (func): Function which will be called with a function to translate strings using the package translations at runtime
+    package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+
+  """
+
+  package = package or get_caller_package_name()
+
+  module_metas[package] = func
+
+  logging.info('Registered metadata for skill "%s"' % package)
+
+def meta(package=None):
+  """Decorator used to register skill metadata.
+
+  Args:
+    package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+
+  """
+
+  def new(func):
+    register_meta(func, package or get_caller_package_name())
+
+    return func
+    
+  return new
+
 def register(intent, handler, package=None):
   """Register an intent handler.
 

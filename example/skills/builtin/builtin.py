@@ -1,5 +1,14 @@
-from pytlas import intent, training, translations, Card
+from pytlas import intent, meta, training, translations, Card
 import requests, re
+
+@meta()
+def register(_): return {
+  'name': _('builtin'),
+  'description': _('Handle builtin stuff such as cancel, greet and generic fallback'),
+  'version': '1.0.0',
+  'author': 'Julien LEICHER',
+  'homepage': 'https://github.com/atlassistant',
+}
 
 @training('en')
 def en_data(): return """

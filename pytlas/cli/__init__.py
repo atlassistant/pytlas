@@ -5,6 +5,7 @@ from pytlas.cli.config import get, getboolean, write_config, log_configuration, 
   CONFIG_DEFAULT_FILENAME, OPT_VERBOSE, OPT_DEBUG, OPT_LANG, OPT_SKILLS, OPT_CACHE, \
   OPT_WATCH, OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY
 from pytlas.importers import restrict_load_languages, import_skills
+from pytlas.skills_manager import get_installed_skills
 import click, logging, os
 
 @click.group()
@@ -59,7 +60,7 @@ def skills():
   """Manage skills for this pytlas instance.
   """
 
-  # TODO To be implemented
+  pass
 
 @skills.command('list')
 def list_skills():
@@ -68,4 +69,5 @@ def list_skills():
 
   import_skills(get(OPT_SKILLS))
 
-  # TODO To be implemented
+  for skill_data in get_installed_skills(get(OPT_LANG)):
+    click.echo(skill_data)
