@@ -7,7 +7,7 @@ handlers = {}
 # to translate them in the user language.
 module_metas = {}
 
-def register_meta(func, package=None):
+def register_metadata(func, package=None):
   """Register skill package metadata
 
   Args:
@@ -31,7 +31,7 @@ def meta(package=None):
   """
 
   def new(func):
-    register_meta(func, package or get_caller_package_name())
+    register_metadata(func, package or get_caller_package_name())
 
     return func
     
