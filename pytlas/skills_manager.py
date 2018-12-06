@@ -163,13 +163,26 @@ def install_skills(directory, stdout=None, *names):
         
       logging.error("Could not clone the skill repo, make sure you didn't mispelled it and you have sufficient rights to clone it. \"%s\"" % e)
 
+def update_skills(directory, stdout, *names):
+  """Update given skills.
+
+  Args:
+    directory (str): Skills directory
+    stdout (func): Function to call to output something
+    names (list of str): list of skills to update
+
+  """
+
+  for name in names:
+    print (name)
+
 def uninstall_skills(directory, stdout, *names):
   """Uninstall given skills.
 
   Args:
     directory (str): Skills directory
     stdout (func): Function to call to output something
-    names (list of str): list of skills to install
+    names (list of str): list of skills to uninstall
 
   """
 
