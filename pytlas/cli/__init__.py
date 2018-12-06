@@ -5,7 +5,7 @@ from pytlas.cli.config import get, getboolean, write_config, log_configuration, 
   CONFIG_DEFAULT_FILENAME, OPT_VERBOSE, OPT_DEBUG, OPT_LANG, OPT_SKILLS, OPT_CACHE, \
   OPT_WATCH, OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY
 from pytlas.importers import restrict_load_languages, import_skills
-from pytlas.skills_manager import get_installed_skills
+from pytlas.skills_manager import get_installed_skills, install_skills, uninstall_skills
 import click, logging, os
 
 @click.group()
@@ -71,3 +71,19 @@ def list_skills():
 
   for skill_data in get_installed_skills(get(OPT_LANG)):
     click.echo(skill_data)
+
+@skills.command('add')
+@click.argument('skills', nargs=-1, required=True)
+def add_skills(skills):
+  """Add given skills to your instance.
+  """
+
+  click.echo('Successfully installed skills: ' + ', '.join(install_skills(get(OPT_SKILLS), *skills)))
+
+@skills.command('remove')
+@click.argument('skills', nargs=-1, required=True)
+def remove_skills(skills):
+  """Remove given skills from your instance.
+  """
+
+  uninstall_skills(get(OPT_SKILLS), *skills)
