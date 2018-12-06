@@ -58,6 +58,8 @@ def repl():
 @main.group()
 def skills():
   """Manage skills for this pytlas instance.
+
+  Under the hood, it uses git to clone and update skills so it must be installed and available in your path.
   """
 
   pass
@@ -78,7 +80,7 @@ def add_skills(skills):
   """Add given skills to your instance.
   """
 
-  click.echo('Successfully installed skills: ' + ', '.join(install_skills(get(OPT_SKILLS), *skills)))
+  install_skills(get(OPT_SKILLS), click.echo, *skills)
 
 @skills.command('remove')
 @click.argument('skills', nargs=-1, required=True)
@@ -86,4 +88,4 @@ def remove_skills(skills):
   """Remove given skills from your instance.
   """
 
-  uninstall_skills(get(OPT_SKILLS), *skills)
+  uninstall_skills(get(OPT_SKILLS), click.echo, *skills)

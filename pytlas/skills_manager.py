@@ -1,6 +1,7 @@
 from pytlas.skill import handlers, module_metas
 from pytlas.localization import module_translations
 from pytlas.utils import get_package_name_from_module
+from shutil import rmtree
 import re, logging, os, subprocess
 
 DEFAULT_REPO_URL = os.environ.get('PYTLAS_DEFAULT_REPO_URL', 'https://github.com/')
@@ -10,9 +11,10 @@ class SkillData:
   """
 
   def __init__(self, package, name=None, description='No description provided',
-    version='?.?.?', author='', homepage=''):
+    version='?.?.?', author='', homepage='', media=''):
     self.package = package
     self.name = name or package
+    self.media = media
     self.description = description
     self.version = version
     self.author = author
@@ -20,26 +22,26 @@ class SkillData:
 
   def __str__(self):
     return """{name} - v{version}
-    description: {description}
-    homepage: {homepage}
-    author: {author}
-    package: {package}
+  description: {description}
+  homepage: {homepage}
+  author: {author}
+  package: {package}
 """.format(**self.__dict__)
 
-def skill_parts_from_url(path):
+def skill_parts_from_name(path):
   """Retrieve the skill namespace and repository.
 
   Args:
     path (str): Relative or absolute path of a git repository
 
   Examples:
-    >>> skill_parts_from_url('atlassistant/weather')
+    >>> skill_parts_from_name('atlassistant/weather')
     ('atlassistant', 'weather')
 
-    >>> skill_parts_from_url('https://github.com/atlassistant/weather')
+    >>> skill_parts_from_name('https://github.com/atlassistant/weather')
     ('atlassistant', 'weather')
 
-    >>> skill_parts_from_url('git@github.com:atlassistant/weather.git')
+    >>> skill_parts_from_name('git@github.com:atlassistant/weather.git')
     ('atlassistant', 'weather')
 
   """
@@ -69,24 +71,64 @@ def skill_parts_from_url(path):
   
   return (owner, repo)
 
-def install_skills(directory, *names):
+def to_skill_folder(owner, repo):
+  """Gets the skill folder name from owner and repo.
+
+  Args:
+    owner (str): Owner of the repository
+    repo (str): Repository name
+
+  Returns:
+    str: Skill folder name
+
+  Examples:
+    >>> to_skill_folder('atlassistant', 'weather')
+    'atlassistant__weather'
+
+  """
+
+  return "%s__%s" % (owner, repo)
+
+def install_dependencies_if_needed(directory, stdout=None):
+  """Install skill dependencies if a requirements.txt file is present.
+
+  Args:
+    directory (str): Skill directory
+    stdout (func): Function to call to output something
+
+  """
+
+  if os.path.isfile(os.path.join(directory, 'requirements.txt')):
+    if stdout:
+      stdout('  Installing dependencies')
+
+    logging.info('Installing skill dependencies from "%s"' % directory)
+
+    subprocess.check_output(['pip', 'install', '-r', 'requirements.txt'], 
+      shell=True, 
+      stderr=subprocess.STDOUT,
+      cwd=directory)
+  elif stdout:
+    stdout('  No requirements.txt available, skipping')
+
+def install_skills(directory, stdout=None, *names):
   """Install or update given skills.
 
   Args:
     directory (str): Skills directory
+    stdout (func): Function to call to output something
     names (list of str): list of skills to install
-
-  Returns:
-    list of str: List of successfuly installed skills
 
   """
 
-  installed_skills = []
-
   for name in names:
     url = name
-    owner, repo = skill_parts_from_url(name)
-    dest = os.path.join(directory, '%s_%s' % (owner, repo))
+    owner, repo = skill_parts_from_name(name)
+
+    if stdout:
+      stdout('Processing %s/%s' % (owner, repo))
+
+    dest = os.path.abspath(os.path.join(directory, to_skill_folder(owner, repo)))
 
     if name.startswith(owner):
       url = DEFAULT_REPO_URL + name
@@ -94,31 +136,68 @@ def install_skills(directory, *names):
     logging.info('Will download skill from "%s" to "%s"' % (url, dest))
 
     if os.path.isdir(dest):
+      if stdout:
+        stdout('  Skill folder already exists, updating')
+
       logging.warning('Skill already exists, will update it')
-      installed_skills.append(repo)
+
       continue
 
     try:
-      output = subprocess.check_output(['git', 'clone', url, dest], shell=True, stderr=subprocess.STDOUT)
+      if stdout:
+        stdout('  Cloning skill repository')
 
-      logging.info('Successfully downloaded skill "%s", will process dependencies' % repo)
+      subprocess.check_output(['git', 'clone', url, dest], shell=True, stderr=subprocess.STDOUT)
 
-      installed_skills.append(repo)
+      logging.info('Successfully cloned skill "%s"' % repo)
+
+      install_dependencies_if_needed(dest, stdout)      
+
+      if stdout:
+        stdout('  Installed! ✔️')
+
+      logging.info('Successfully installed "%s"' % repo)
     except subprocess.CalledProcessError as e:
+      if stdout:
+        stdout('  Failed ❌')
+        
       logging.error("Could not clone the skill repo, make sure you didn't mispelled it and you have sufficient rights to clone it. \"%s\"" % e)
 
-  return installed_skills
-
-def uninstall_skills(directory, *names):
+def uninstall_skills(directory, stdout, *names):
   """Uninstall given skills.
 
   Args:
     directory (str): Skills directory
+    stdout (func): Function to call to output something
     names (list of str): list of skills to install
 
   """
 
-  pass
+  for name in names:
+    if stdout:
+      stdout('Processing %s' % name)
+    
+    owner, repo = skill_parts_from_name(name)
+    folder = os.path.abspath(os.path.join(directory, to_skill_folder(owner, repo)))
+
+    if not os.path.isdir(folder):
+      logging.error('Skill "%s" does not seems to be installed in "%s"' % (name, folder))
+      continue
+
+    logging.info('Removing "%s"' % folder)
+
+    try:
+      rmtree(folder)
+
+      if stdout:
+        stdout('  Uninstalled ✔️')
+      
+      logging.info('Uninstalled "%s"' % repo)
+    except Exception as e:
+      if stdout:
+        stdout('  Failed ')
+
+      logging.error('Could not delete the "%s" skill folder: "%s"' % (folder, e))
 
 def get_installed_skills(lang):
   """Retrieve installed and loaded skills.

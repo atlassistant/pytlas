@@ -1,4 +1,5 @@
-import os, shutil
+import os
+from shutil import rmtree
 from pytlas.interpreters.interpreter import Interpreter, compute_checksum
 from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
@@ -102,7 +103,7 @@ class SnipsInterpreter(Interpreter):
       if self.cache_directory:
         self._logger.info('Persisting trained engine to "%s"' % self.cache_directory)
         
-        shutil.rmtree(self.cache_directory, ignore_errors=True)
+        rmtree(self.cache_directory, ignore_errors=True)
 
         self._engine.persist(self.cache_directory)
 
