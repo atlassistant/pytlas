@@ -85,7 +85,7 @@ def add_skills(skills):
 
 @skills.command('update')
 @click.argument('skills', nargs=-1)
-def update_skills(skills):
+def update_skills_command(skills):
   """Update given skills for this instance. If no skills are defined, they will be all updated.
   """
   
