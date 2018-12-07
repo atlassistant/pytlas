@@ -1,0 +1,30 @@
+.. pytlas documentation master file, created by
+   sphinx-quickstart on Fri Dec  7 12:50:34 2018.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+pytlas |travis| |coveralls| |pypi| |license|
+============================================
+
+.. |travis| image:: https://travis-ci.org/atlassistant/pytlas.svg?branch=master
+    :target: https://travis-ci.org/atlassistant/pytlas
+
+.. |coveralls| image:: https://coveralls.io/repos/github/atlassistant/pytlas/badge.svg?branch=master
+    :target: https://coveralls.io/github/atlassistant/pytlas?branch=master
+
+.. |pypi| image:: https://badge.fury.io/py/pytlas.svg
+    :target: https://badge.fury.io/py/pytlas
+
+.. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
+    :target: https://www.gnu.org/licenses/gpl-3.0
+
+pytlas is an open-source 🤖💬 assistant library built for people and made to be super easy to setup and understand.
+
+Its goal is to make easy to map natural language sentences to python function handlers. It also manages a conversation with the help of a finite state machine.
+
+.. toctree::
+  :maxdepth: 2
+  :caption: Contents
+
+  getting_started/index
+

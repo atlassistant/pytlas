@@ -43,6 +43,10 @@ setup(
     'watch': [
       'watchgod==0.2',
     ],
+    'docs': [
+      'sphinx==1.7.5',
+      'sphinx_rtd_theme==0.4.2',
+    ],
   },
   entry_points={
     'console_scripts': [
