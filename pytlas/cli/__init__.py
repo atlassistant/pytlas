@@ -5,8 +5,7 @@ from pytlas.cli.config import get, getboolean, write_config, log_configuration, 
   CONFIG_DEFAULT_FILENAME, OPT_VERBOSE, OPT_DEBUG, OPT_LANG, OPT_SKILLS, OPT_CACHE, \
   OPT_WATCH, OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY
 from pytlas.importers import restrict_load_languages, import_skills
-from pytlas.skills_manager import get_installed_skills, install_skills, \
-  uninstall_skills, update_skills
+from pytlas.pam import get_installed_skills, install_skills, uninstall_skills, update_skills
 import click, logging, os
 
 @click.group()

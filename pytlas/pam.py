@@ -5,28 +5,7 @@ from shutil import rmtree
 import re, logging, os, subprocess
 
 DEFAULT_REPO_URL = os.environ.get('PYTLAS_DEFAULT_REPO_URL', 'https://github.com/')
-
-class SkillData:
-  """Represents a single skill data.
-  """
-
-  def __init__(self, package, name=None, description='No description provided',
-    version='?.?.?', author='', homepage='', media=''):
-    self.package = package
-    self.name = name or package
-    self.media = media
-    self.description = description
-    self.version = version
-    self.author = author
-    self.homepage = homepage
-
-  def __str__(self):
-    return """{name} - v{version}
-  description: {description}
-  homepage: {homepage}
-  author: {author}
-  package: {package}
-""".format(**self.__dict__)
+SKILL_FOLDER_SEPARATOR = '__'
 
 def skill_parts_from_name(path):
   """Retrieve the skill namespace and repository.
@@ -87,7 +66,55 @@ def to_skill_folder(owner, repo):
 
   """
 
-  return "%s__%s" % (owner, repo)
+  return owner + SKILL_FOLDER_SEPARATOR + repo
+
+def from_skill_folder(folder):
+  """Gets the skill package name in the form owner/repo from the given folder.
+
+  Args:
+    folder (str): Folder name
+  
+  Returns:
+    str: Skill package name
+
+  Examples:
+    >>> from_skill_folder('weather')
+    'weather'
+
+    >>> from_skill_folder('atlassistant__weather')
+    'atlassistant/weather'
+
+  """
+
+  parts = folder.split(SKILL_FOLDER_SEPARATOR)
+
+  if len(parts) > 1:
+    return "%s/%s" % (parts[0], parts[1])
+
+  return parts[0]
+
+
+class SkillData:
+  """Represents a single skill data.
+  """
+
+  def __init__(self, package, name=None, description='No description provided',
+    version='?.?.?', author='', homepage='', media=''):
+    self.package = package
+    self.name = name or package
+    self.media = media
+    self.description = description
+    self.version = version
+    self.author = author
+    self.homepage = homepage
+
+  def __str__(self):
+    return """{name} - v{version}
+  description: {description}
+  homepage: {homepage}
+  author: {author}
+  package: {package}
+""".format(**self.__dict__)
 
 def install_dependencies_if_needed(directory, stdout=None):
   """Install skill dependencies if a requirements.txt file is present.
@@ -173,8 +200,40 @@ def update_skills(directory, stdout, *names):
 
   """
 
+  names = names or os.listdir(directory)
+
   for name in names:
-    print (name)
+    if stdout:
+      stdout('Processing %s' % name)
+
+    try:
+      owner, repo = skill_parts_from_name(name)
+      folder_name = to_skill_folder(owner, repo)
+    except:
+      folder_name = name
+      
+    folder = os.path.abspath(os.path.join(directory, folder_name))
+
+    if not os.path.isdir(os.path.join(folder, '.git')):
+      if stdout:
+        stdout('  Not a git repository, could not update it')
+      
+      logging.warning('"%s" is not a git repository, skipping update' % folder)
+
+      continue
+
+    try:
+      subprocess.check_output(['git', 'pull'], shell=True, cwd=folder, stderr=subprocess.STDOUT)
+
+      if stdout:
+        stdout('  Updated ✔️')
+      
+      logging.info('Updated "%s"' % name)
+    except subprocess.CalledProcessError as e:
+      if stdout:
+        stdout('  Failed to update ❌')
+
+      logging.error('Could not pull in "%s": "%s"' % (folder, e))
 
 def uninstall_skills(directory, stdout, *names):
   """Uninstall given skills.
@@ -208,12 +267,13 @@ def uninstall_skills(directory, stdout, *names):
       logging.info('Uninstalled "%s"' % repo)
     except Exception as e:
       if stdout:
-        stdout('  Failed ')
+        stdout('  Failed ❌')
 
       logging.error('Could not delete the "%s" skill folder: "%s"' % (folder, e))
 
 def get_installed_skills(lang):
-  """Retrieve installed and loaded skills.
+  """Retrieve installed and loaded skills. You must call import_skills first if 
+  you want them to show in the results.
 
   Args:
     lang (str): Language code to translate skills name and description
@@ -223,7 +283,7 @@ def get_installed_skills(lang):
 
   """
 
-  unique_pkgs = list(set(get_package_name_from_module(v.__module__) for v in handlers.values()))
+  unique_pkgs = list(set(from_skill_folder(get_package_name_from_module(v.__module__)) for v in handlers.values()))
   skills = []
 
   for pkg in unique_pkgs:
