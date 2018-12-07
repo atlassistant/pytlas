@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-pytlas |travis| |coveralls| |pypi| |license|
-============================================
+pytlas |travis| |coveralls| |pypi| |rtd| |license|
+==================================================
 
 .. |travis| image:: https://travis-ci.org/atlassistant/pytlas.svg?branch=master
     :target: https://travis-ci.org/atlassistant/pytlas
@@ -14,6 +14,10 @@ pytlas |travis| |coveralls| |pypi| |license|
 
 .. |pypi| image:: https://badge.fury.io/py/pytlas.svg
     :target: https://badge.fury.io/py/pytlas
+
+.. |rtd| image:: https://readthedocs.org/projects/pytlas/badge/?version=latest
+    :target: https://pytlas.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
