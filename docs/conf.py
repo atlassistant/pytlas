@@ -15,9 +15,8 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath('..'))
-
-from pytlas.version import __version__
+with open('../pytlas/version.py') as f:
+  __version__ = f.readline().strip()[15:-1]
 
 # -- Project information -----------------------------------------------------
 
