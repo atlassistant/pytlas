@@ -1,6 +1,7 @@
 from pytlas.skill import handlers, module_metas
 from pytlas.localization import module_translations
 from pytlas.utils import get_package_name_from_module
+from pytlas.skill_data import SkillData
 from shutil import rmtree
 import re, logging, os, subprocess
 
@@ -93,29 +94,6 @@ def from_skill_folder(folder):
 
   return parts[0]
 
-
-class SkillData:
-  """Represents a single skill data.
-  """
-
-  def __init__(self, package, name=None, description='No description provided',
-    version='?.?.?', author='', homepage='', media=''):
-    self.package = package
-    self.name = name or package
-    self.media = media
-    self.description = description
-    self.version = version
-    self.author = author
-    self.homepage = homepage
-
-  def __str__(self):
-    return """{name} - v{version}
-  description: {description}
-  homepage: {homepage}
-  author: {author}
-  package: {package}
-""".format(**self.__dict__)
-
 def install_dependencies_if_needed(directory, stdout=None):
   """Install skill dependencies if a requirements.txt file is present.
 
@@ -146,7 +124,12 @@ def install_skills(directory, stdout=None, *names):
     stdout (func): Function to call to output something
     names (list of str): list of skills to install
 
+  Returns:
+    list of str: List of installed or updated skills
+
   """
+
+  installed_skills = []
 
   for name in names:
     url = name
@@ -165,8 +148,10 @@ def install_skills(directory, stdout=None, *names):
     if os.path.isdir(dest):
       if stdout:
         stdout('  Skill folder already exists, updating')
-
+      
       logging.warning('Skill already exists, will update it')
+      
+      installed_skills.extend(update_skills(directory, stdout, name))
 
       continue
 
@@ -178,17 +163,21 @@ def install_skills(directory, stdout=None, *names):
 
       logging.info('Successfully cloned skill "%s"' % repo)
 
-      install_dependencies_if_needed(dest, stdout)      
+      install_dependencies_if_needed(dest, stdout)
 
       if stdout:
         stdout('  Installed! ✔️')
 
       logging.info('Successfully installed "%s"' % repo)
+
+      installed_skills.append(name)
     except subprocess.CalledProcessError as e:
       if stdout:
         stdout('  Failed ❌')
         
       logging.error("Could not clone the skill repo, make sure you didn't mispelled it and you have sufficient rights to clone it. \"%s\"" % e)
+    
+  return installed_skills
 
 def update_skills(directory, stdout, *names):
   """Update given skills.
@@ -198,8 +187,12 @@ def update_skills(directory, stdout, *names):
     stdout (func): Function to call to output something
     names (list of str): list of skills to update
 
+  Returns:
+    list of str: List of updated skills
+
   """
 
+  updated_skills = []
   names = names or os.listdir(directory)
 
   for name in names:
@@ -225,15 +218,22 @@ def update_skills(directory, stdout, *names):
     try:
       subprocess.check_output(['git', 'pull'], shell=True, cwd=folder, stderr=subprocess.STDOUT)
 
+      install_dependencies_if_needed(folder, stdout)
+
       if stdout:
         stdout('  Updated ✔️')
       
       logging.info('Updated "%s"' % name)
+
+      updated_skills.append(name)
+      
     except subprocess.CalledProcessError as e:
       if stdout:
         stdout('  Failed to update ❌')
 
       logging.error('Could not pull in "%s": "%s"' % (folder, e))
+  
+  return updated_skills
 
 def uninstall_skills(directory, stdout, *names):
   """Uninstall given skills.
@@ -243,7 +243,12 @@ def uninstall_skills(directory, stdout, *names):
     stdout (func): Function to call to output something
     names (list of str): list of skills to uninstall
 
+  Returns:
+    list of str: List of removed skills
+
   """
+
+  removed_skills = []
 
   for name in names:
     if stdout:
@@ -264,12 +269,16 @@ def uninstall_skills(directory, stdout, *names):
       if stdout:
         stdout('  Uninstalled ✔️')
       
-      logging.info('Uninstalled "%s"' % repo)
+      logging.info('Uninstalled "%s"' % name)
+
+      removed_skills.append(name)
     except Exception as e:
       if stdout:
         stdout('  Failed ❌')
 
       logging.error('Could not delete the "%s" skill folder: "%s"' % (folder, e))
+
+  return removed_skills
 
 def get_installed_skills(lang):
   """Retrieve installed and loaded skills. You must call import_skills first if 
@@ -283,7 +292,7 @@ def get_installed_skills(lang):
 
   """
 
-  unique_pkgs = list(set(from_skill_folder(get_package_name_from_module(v.__module__)) for v in handlers.values()))
+  unique_pkgs = list(set(get_package_name_from_module(v.__module__) for v in handlers.values()))
   skills = []
 
   for pkg in unique_pkgs:
@@ -294,6 +303,6 @@ def get_installed_skills(lang):
       translations = module_translations.get(pkg, {}).get(lang, {})
       meta = meta_func(lambda k: translations.get(k, k))
 
-    skills.append(SkillData(pkg, **meta))
+    skills.append(SkillData(from_skill_folder(pkg), **meta))
 
   return skills
