@@ -10,5 +10,5 @@ Coming next
 - [x] You can now use a `pytlas.conf` file and it will be read by the cli in the current working directory
 - [ ] Introduce a `pytlas.settings` namespace which will handle all global settings used by skills. It will read settings from a configuration file and environment variables (should replace `pytlas.cli.conf`)
 - [ ] Defer all loadings (training and localization) by storing only a function handler and calling it at runtime. It will make easy to add dynamic trainings at runtime (such as available rooms or devices needed in training entities)
-- [ ] Skills manager (need tests!!)
+- [x] Skills manager
 - [ ] Remote training of the interpreter for when you have large training data and you are deploying pytlas on a small device

@@ -176,7 +176,7 @@ def install_skills(directory, stdout=None, *names):
     
   return installed_skills
 
-def update_skills(directory, stdout, *names):
+def update_skills(directory, stdout=None, *names):
   """Update given skills.
 
   Args:
@@ -222,7 +222,7 @@ def update_skills(directory, stdout, *names):
       
       logging.info('Updated "%s"' % name)
 
-      updated_skills.append(name)
+      updated_skills.append(from_skill_folder(folder_name))
       
     except subprocess.CalledProcessError as e:
       if stdout:
@@ -232,7 +232,7 @@ def update_skills(directory, stdout, *names):
   
   return updated_skills
 
-def uninstall_skills(directory, stdout, *names):
+def uninstall_skills(directory, stdout=None, *names):
   """Uninstall given skills.
 
   Args:
@@ -275,7 +275,7 @@ def uninstall_skills(directory, stdout, *names):
 
   return removed_skills
 
-def get_installed_skills(lang):
+def get_loaded_skills(lang):
   """Retrieve installed and loaded skills. You must call import_skills first if 
   you want them to show in the results.
 
