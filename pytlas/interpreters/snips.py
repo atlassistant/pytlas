@@ -1,9 +1,8 @@
 import os
-from shutil import rmtree
 from pytlas.interpreters.interpreter import Interpreter, compute_checksum
 from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
-from pytlas.utils import read_file
+from pytlas.utils import read_file, rmtree
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.constants import ENTITIES, AUTOMATICALLY_EXTENSIBLE, RESOLVED_VALUE, \
   ENTITY_KIND, ENTITY, RES_VALUE, RES_RAW_VALUE, RES_INTENT, RES_INTENT_NAME, RES_SLOTS, \

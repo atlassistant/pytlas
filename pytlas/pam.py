@@ -1,8 +1,7 @@
 from pytlas.skill import handlers, module_metas
 from pytlas.localization import module_translations
-from pytlas.utils import get_package_name_from_module
+from pytlas.utils import get_package_name_from_module, rmtree
 from pytlas.skill_data import SkillData
-from shutil import rmtree
 import re, logging, os, subprocess
 
 DEFAULT_REPO_URL = os.environ.get('PYTLAS_DEFAULT_REPO_URL', 'https://github.com/')
@@ -148,9 +147,7 @@ def install_skills(directory, stdout=None, *names):
     if os.path.isdir(dest):
       if stdout:
         stdout('  Skill folder already exists, updating')
-      
-      logging.warning('Skill already exists, will update it')
-      
+            
       installed_skills.extend(update_skills(directory, stdout, name))
 
       continue
@@ -269,8 +266,6 @@ def uninstall_skills(directory, stdout, *names):
       if stdout:
         stdout('  Uninstalled ✔️')
       
-      logging.info('Uninstalled "%s"' % name)
-
       removed_skills.append(name)
     except Exception as e:
       if stdout:

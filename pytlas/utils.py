@@ -1,4 +1,5 @@
 import sys, inspect, os, random
+from shutil import rmtree as shrmtree
 from fuzzywuzzy import process
 from markdown import markdown
 from bs4 import BeautifulSoup
@@ -153,3 +154,33 @@ def find_match(choices, value):
   match = process.extractOne(value, choices, score_cutoff=60)
 
   return match[0] if match else None
+
+def _onerror(func, path, exc_info):
+  """Error handler for ``shutil.rmtree``.
+
+  If the error is due to an access error (read only file)
+  it attempts to add write permission and then retries.
+
+  If the error is for another reason it re-raises the error.
+
+  """
+  import stat
+
+  if not os.access(path, os.W_OK):
+      # Is the error an access error ?
+      os.chmod(path, stat.S_IWUSR)
+      func(path)
+  else:
+      raise
+
+def rmtree(path, ignore_errors=False):
+  """Recursively deletes a folder and its children and handle readonly files as per
+  https://stackoverflow.com/a/2656405/7641999.
+
+  Args:
+    path (str): Path to delete
+    ignore_errors (bool): Should we ignore errors
+
+  """
+
+  shrmtree(path, ignore_errors=ignore_errors, onerror=_onerror)
