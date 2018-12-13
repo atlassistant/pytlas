@@ -7,6 +7,7 @@ TEST_DESCRIPTION = 'Give weather forecasts'
 TEST_VERSION = '1.1.0'
 TEST_AUTHOR = 'Julien LEICHER'
 TEST_HOMEPAGE = 'https://julien.leicher.me'
+TEST_SETTINGS = ['A_SETTING']
 
 class TestSkillData:
 
@@ -22,11 +23,13 @@ class TestSkillData:
       description=TEST_DESCRIPTION,
       version=TEST_VERSION,
       homepage=TEST_HOMEPAGE,
-      author=TEST_AUTHOR)
+      author=TEST_AUTHOR,
+      settings=TEST_SETTINGS)
     
     expect(str(data)).to.equal("""%s - v%s
   description: %s
   homepage: %s
   author: %s
   package: %s
-""" % (TEST_NAME, TEST_VERSION, TEST_DESCRIPTION, TEST_HOMEPAGE, TEST_AUTHOR, TEST_PACKAGE))
+  settings: %s
+""" % (TEST_NAME, TEST_VERSION, TEST_DESCRIPTION, TEST_HOMEPAGE, TEST_AUTHOR, TEST_PACKAGE, TEST_SETTINGS))

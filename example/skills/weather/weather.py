@@ -1,7 +1,15 @@
-from pytlas import intent, training, translations, Card
+from pytlas import intent, training, translations, meta, Card
 from datetime import datetime
 from dateutil.parser import parse as dateParse 
 import requests, pytz
+
+@meta()
+def register(_): return {
+  'name': _('weather'),
+  'description': _('Gives weather forecasts using the OpenWeather API'),
+  'version': '1.0.0',
+  'settings': ['OPENWEATHER_APPID', 'OPENWEATHER_UNITS']
+}
 
 # This entity will be shared among training data since it's not language specific
 locations = """
