@@ -13,6 +13,7 @@ OPT_DRY = 'dry'
 OPT_PARSE = 'parse'
 OPT_WATCH = 'watch'
 OPT_TRAINING_FILE = 'training_file'
+OPT_GRAPH = 'graph'
 
 CONFIG_SECTION = 'pytlas'
 CONFIG_DEFAULT_FILENAME = 'pytlas.conf'

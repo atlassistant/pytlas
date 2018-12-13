@@ -3,7 +3,7 @@ from pytlas.cli.prompt import Prompt
 from pytlas.cli.utils import install_logs
 from pytlas.cli.config import get, getboolean, write_config, log_configuration, \
   CONFIG_DEFAULT_FILENAME, OPT_VERBOSE, OPT_DEBUG, OPT_LANG, OPT_SKILLS, OPT_CACHE, \
-  OPT_WATCH, OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY
+  OPT_WATCH, OPT_TRAINING_FILE, OPT_PARSE, OPT_WATCH, OPT_DRY, OPT_GRAPH
 from pytlas.importers import restrict_load_languages, import_skills
 from pytlas.pam import get_loaded_skills, install_skills, uninstall_skills, update_skills
 import click, logging, os
@@ -16,6 +16,7 @@ import click, logging, os
 @click.option('-l', '--lang', help='Lang of the interpreter to use')
 @click.option('-s', '--skills', type=click.Path(), help='Specifies the directory containing pytlas skills')
 @click.option('-c', '--cache', type=click.Path(), help='Path to the directory where engine cache will be outputted')
+@click.option('-g', '--graph', type=click.Path(), help='Output the transitions graph to the given path')
 @write_config
 def main():
   """An open-source 🤖 assistant library built for people and made to be super easy to setup and understand.
@@ -51,7 +52,7 @@ def repl():
       interpreter.fit_from_skill_data()
 
     if not getboolean(OPT_DRY):
-      Prompt(Agent(interpreter, **os.environ), get(OPT_PARSE)).cmdloop()
+      Prompt(Agent(interpreter, transitions_graph_path=get(OPT_GRAPH), **os.environ), get(OPT_PARSE)).cmdloop()
   except ImportError:
     logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 
 

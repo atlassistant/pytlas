@@ -19,7 +19,7 @@ setup(
   include_package_data=True,
   install_requires=[
     'click==7.0',
-    'transitions==0.6.4',
+    'transitions==0.6.9',
     'fuzzywuzzy==0.16.0',
     'colorlog==3.1.4',
     'pychatl==1.2.3',

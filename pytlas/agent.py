@@ -39,7 +39,7 @@ class Agent:
 
   """
 
-  def __init__(self, interpreter, model=None, handlers=None, **meta):
+  def __init__(self, interpreter, model=None, handlers=None, transitions_graph_path=None, **meta):
     """Initialize an agent.
 
     When skills ask or answer something to the client, they can send markdown formatted text
@@ -53,12 +53,14 @@ class Agent:
       interpreter (Interpreter): Interpreter used to convert human language to intents
       model (object): Model which will receive events raised by this agent instance
       handlers (dict): Dictionary of intent: handler to use. If no one is provided, all handlers registered will be used instead.
+      transitions_graph_path (str): If pygraphviz is installed, where to output the transitions graph
       meta (dict): Every other properties will be made available through the self.meta property
 
     """
 
     self._logger = logging.getLogger(self.__class__.__name__.lower())
     self._interpreter = interpreter
+    self._transitions_graph_path = transitions_graph_path
 
     self._on_ask = None
     self._on_answer = None
@@ -94,7 +96,18 @@ class Agent:
     intents = [i for i in self._interpreter.intents if not is_builtin(i)]
     states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + intents
     
-    self._machine = Machine(
+    MachineKlass = Machine
+
+    if self._transitions_graph_path:
+      try:
+        import pygraphviz
+        from transitions.extensions import GraphMachine
+        
+        MachineKlass = GraphMachine
+      except:
+        self._logger.error('Could not use a GraphMachine, is pygraphviz installed?')
+
+    self._machine = MachineKlass(
       model=self, 
       states=states, 
       send_event=True,
@@ -131,6 +144,9 @@ class Agent:
         [STATE_ASLEEP, STATE_ASK],
         intent,
         after=self._on_intent)
+
+    if self._transitions_graph_path and getattr(self._machine, 'get_graph', None):
+      self._machine.get_graph().draw(self._transitions_graph_path, prog='dot')
 
   @property
   def model(self):
