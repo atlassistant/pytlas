@@ -1,5 +1,6 @@
 from sure import expect
-from pytlas.utils import find_match, keep_one
+from unittest.mock import patch, mock_open
+from pytlas.utils import find_match, keep_one, read_file
 
 class TestFindMatch:
 
@@ -30,3 +31,16 @@ class TestKeepOne:
     values = ['a value', 'another value', 'something more']
 
     expect(keep_one(values)).to.be.within(values)
+
+class TestReadFile:
+
+  def test_it_should_raise_an_exception_when_errors_not_ignored(self):
+    expect(lambda: read_file('something')).to.throw(Exception)
+
+  def test_it_should_not_raise_exception_when_errors_ignored(self):
+    expect(read_file('something', ignore_errors=True)).to.be.none
+
+  def test_it_should_read_the_file_correctly(self):
+    with patch('builtins.open', mock_open(read_data='some content')):
+      expect(read_file('somepath')).to.equal('some content')
+      
