@@ -1,7 +1,7 @@
 from colorlog import ColoredFormatter, escape_codes
 import re, logging
 
-class CustomFormatter(ColoredFormatter):
+class CustomFormatter(ColoredFormatter): # pragma: no cover
   """Custom formatter used to highlight every words wrapped in quotes.
   """
 
@@ -21,7 +21,7 @@ class CustomFormatter(ColoredFormatter):
 
     return self._pattern.sub(r'%s\1%s' % (escape_codes['cyan'], escape_codes['reset']), msg) + escape_codes['reset']
 
-def install_logs(verbose, debug=False):
+def install_logs(verbose, debug=False): # pragma: no cover
   """Install a custom colored formatter in the root logger.
 
   Args:

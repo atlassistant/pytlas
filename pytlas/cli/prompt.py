@@ -1,7 +1,7 @@
 from pytlas.version import __version__
 import cmd, sys
 
-class Prompt(cmd.Cmd):
+class Prompt(cmd.Cmd): # pragma: no cover
   intro = 'pytlas prompt v%s (type exit to leave)' % __version__
   prompt = '> '
 

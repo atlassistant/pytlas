@@ -18,7 +18,7 @@ import click, logging, os
 @click.option('-c', '--cache', type=click.Path(), help='Path to the directory where engine cache will be outputted')
 @click.option('-g', '--graph', type=click.Path(), help='Output the transitions graph to the given path')
 @write_config
-def main():
+def main(): # pragma: no cover
   """An open-source 🤖 assistant library built for people and made to be super easy to setup and understand.
   """
   
@@ -33,7 +33,7 @@ def main():
 @click.option('--watch', is_flag=True, help='Reload on skill files change')
 @click.argument('training_file', type=click.Path(), nargs=1, required=False)
 @write_config
-def repl():
+def repl(): # pragma: no cover
   """Start a REPL session to interact with your assistant.
   """
 
@@ -57,7 +57,7 @@ def repl():
     logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 
 
 @main.group()
-def skills():
+def skills(): # pragma: no cover
   """Manage skills for this pytlas instance.
 
   Under the hood, it uses git to clone and update skills so it must be installed and available in your path.
@@ -66,7 +66,7 @@ def skills():
   pass
 
 @skills.command('list')
-def list_skills():
+def list_skills(): # pragma: no cover
   """List installed skills for this instance.
   """
 
@@ -77,7 +77,7 @@ def list_skills():
 
 @skills.command('add')
 @click.argument('skills', nargs=-1, required=True)
-def add_skills(skills):
+def add_skills(skills): # pragma: no cover
   """Add given skills to your instance.
   """
 
@@ -85,7 +85,7 @@ def add_skills(skills):
 
 @skills.command('update')
 @click.argument('skills', nargs=-1)
-def update_skills_command(skills):
+def update_skills_command(skills): # pragma: no cover
   """Update given skills for this instance. If no skills are defined, they will be all updated.
   """
   
@@ -93,7 +93,7 @@ def update_skills_command(skills):
 
 @skills.command('remove')
 @click.argument('skills', nargs=-1, required=True)
-def remove_skills(skills):
+def remove_skills(skills): # pragma: no cover
   """Remove given skills from your instance.
   """
 

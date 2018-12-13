@@ -77,7 +77,7 @@ def import_or_reload(module_name):
     except ImportError:
       logging.error ('Could not import module "%s"' % module_name)
 
-def _watch(directory):
+def _watch(directory): # pragma: no cover
   try:
     from watchgod import watch
   except ImportError:
