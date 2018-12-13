@@ -103,7 +103,7 @@ def install_dependencies_if_needed(directory, stdout=None):
   """
 
   if os.path.isfile(os.path.join(directory, 'requirements.txt')):
-    if stdout:
+    if stdout: # pragma: no cover
       stdout('  Installing dependencies')
 
     logging.info('Installing skill dependencies from "%s"' % directory)
@@ -112,7 +112,7 @@ def install_dependencies_if_needed(directory, stdout=None):
       shell=True, 
       stderr=subprocess.STDOUT,
       cwd=directory)
-  elif stdout:
+  elif stdout: # pragma: no cover
     stdout('  No requirements.txt available, skipping')
 
 def install_skills(directory, stdout=None, *names):
@@ -134,7 +134,7 @@ def install_skills(directory, stdout=None, *names):
     url = name
     owner, repo = skill_parts_from_name(name)
 
-    if stdout:
+    if stdout: # pragma: no cover
       stdout('Processing %s/%s' % (owner, repo))
 
     dest = os.path.abspath(os.path.join(directory, to_skill_folder(owner, repo)))
@@ -145,7 +145,7 @@ def install_skills(directory, stdout=None, *names):
     logging.info('Will download skill from "%s" to "%s"' % (url, dest))
 
     if os.path.isdir(dest):
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  Skill folder already exists, updating')
             
       installed_skills.extend(update_skills(directory, stdout, name))
@@ -153,7 +153,7 @@ def install_skills(directory, stdout=None, *names):
       continue
 
     try:
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  Cloning skill repository')
 
       subprocess.check_output(['git', 'clone', url, dest], shell=True, stderr=subprocess.STDOUT)
@@ -162,14 +162,14 @@ def install_skills(directory, stdout=None, *names):
 
       install_dependencies_if_needed(dest, stdout)
 
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  ✔️ Installed')
 
       logging.info('Successfully installed "%s"' % repo)
 
       installed_skills.append(name)
     except subprocess.CalledProcessError as e:
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  ❌ Failed')
         
       logging.error("Could not clone the skill repo, make sure you didn't mispelled it and you have sufficient rights to clone it. \"%s\"" % e)
@@ -193,7 +193,7 @@ def update_skills(directory, stdout=None, *names):
   names = names or os.listdir(directory)
 
   for name in names:
-    if stdout:
+    if stdout: # pragma: no cover
       stdout('Processing %s' % name)
 
     try:
@@ -205,7 +205,7 @@ def update_skills(directory, stdout=None, *names):
     folder = os.path.abspath(os.path.join(directory, folder_name))
 
     if not os.path.isdir(os.path.join(folder, '.git')):
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  Not a git repository, could not update it')
       
       logging.warning('"%s" is not a git repository, skipping update' % folder)
@@ -217,7 +217,7 @@ def update_skills(directory, stdout=None, *names):
 
       install_dependencies_if_needed(folder, stdout)
 
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  ✔️ Updated')
       
       logging.info('Updated "%s"' % name)
@@ -225,7 +225,7 @@ def update_skills(directory, stdout=None, *names):
       updated_skills.append(from_skill_folder(folder_name))
       
     except subprocess.CalledProcessError as e:
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  ❌ Failed')
 
       logging.error('Could not pull in "%s": "%s"' % (folder, e))
@@ -248,7 +248,7 @@ def uninstall_skills(directory, stdout=None, *names):
   removed_skills = []
 
   for name in names:
-    if stdout:
+    if stdout: # pragma: no cover
       stdout('Processing %s' % name)
     
     owner, repo = skill_parts_from_name(name)
@@ -263,12 +263,12 @@ def uninstall_skills(directory, stdout=None, *names):
     try:
       rmtree(folder)
 
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  ✔️ Uninstalled')
       
       removed_skills.append(name)
     except Exception as e:
-      if stdout:
+      if stdout: # pragma: no cover
         stdout('  ❌ Failed')
 
       logging.error('Could not delete the "%s" skill folder: "%s"' % (folder, e))
