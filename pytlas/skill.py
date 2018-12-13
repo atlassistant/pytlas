@@ -20,7 +20,7 @@ def register_metadata(func, package=None):
 
   module_metas[package] = func
 
-  logging.info('Registered metadata for skill "%s"' % package)
+  logging.info('Registered "%s.%s" metadata' % (package, func.__name__))
 
 def meta(package=None):
   """Decorator used to register skill metadata.
@@ -31,7 +31,7 @@ def meta(package=None):
   """
 
   def new(func):
-    register_metadata(func, package or get_caller_package_name())
+    register_metadata(func, package or get_caller_package_name() or func.__module__)
 
     return func
     
@@ -63,7 +63,7 @@ def intent(intent_name, package=None):
   """
   
   def new(func):
-    register(intent_name, func, package or get_caller_package_name())
+    register(intent_name, func, package or get_caller_package_name() or func.__module__)
 
     return func
     

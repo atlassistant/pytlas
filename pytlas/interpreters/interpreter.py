@@ -1,7 +1,8 @@
 import logging, hashlib, os, json
 from pytlas.interpreters.slot import SlotValue
-from pytlas.training import module_trainings
+from pytlas.training import get_training_data
 from pychatl.utils import deep_update
+from pychatl import parse
 import pychatl.postprocess as postprocessors
 
 def compute_checksum(data):
@@ -60,23 +61,24 @@ class Interpreter:
     
     """
 
-    filtered_module_trainings = module_trainings
+    filtered_module_trainings = get_training_data(self.lang)
 
     if skills:
-      filtered_module_trainings = { k: v for (k, v) in module_trainings.items() if k in skills }
+      filtered_module_trainings = { k: v for (k, v) in filtered_module_trainings.items() if k in skills }
 
     self._logger.info('Merging skill training data from "%d" modules' % len(filtered_module_trainings))
 
     data = {}
 
-    for (module, module_data) in filtered_module_trainings.items():
-      lang_data = module_data.get(self.lang)
-
-      if lang_data:
-        data = deep_update(data, lang_data)
+    for (module, training_dsl) in filtered_module_trainings.items():
+      if training_dsl:
+        try:
+          data = deep_update(data, parse(training_dsl))
+        except Exception as e:
+          self._logger.error('Could not parse "%s" training data: "%s"' % (module, e))
       else:
-        self._logger.warning('Skill "%s" does not seem to have training data for the lang "%s"' % (module, self.lang))
-
+        self._logger.warning('No training data found for "%s"' % module)
+      
     try:
       data = getattr(postprocessors, self.name)(data, language=self.lang)
     except AttributeError:

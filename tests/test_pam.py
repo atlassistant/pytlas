@@ -51,7 +51,7 @@ class TestPam:
 
     register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather3')
     register_metadata(get_meta, 'atlassistant__weather3')
-    register_translations('fr', {
+    register_translations('fr', lambda: {
       'weather': 'météo',
     }, 'atlassistant__weather3')
 

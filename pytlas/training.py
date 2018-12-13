@@ -1,17 +1,31 @@
 import logging, os
-from pytlas.utils import get_caller_package_name, get_absolute_path_to_package_file
+from pytlas.utils import get_caller_package_name
 from pytlas.importers import should_load_resources
-from pychatl import parse
 
-# Training data per module / lang
+# Training data per module / lang => func
 module_trainings = {}
 
-def register(lang, path_or_data, package=None):
+def get_training_data(lang):
+  """Retrieve all training data for the given language.
+
+  It will evaluate all register functions for the given language.
+
+  Args:
+    lang (str): Language to get
+
+  Returns:
+    dict: Dictionary with package name as key and training DSL string as value
+
+  """
+
+  return { k: v.get(lang, lambda: None)() for k, v in module_trainings.items()}
+
+def register(lang, func, package=None):
   """Register training data written using the chatl DSL language into the system.
 
   Args:
     lang (str): Language for which the training has been made for
-    path_or_data (str): Path or raw data representing the training data
+    func (func): Function to call to return training data written using the chatl DSL
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
 
   """
@@ -21,29 +35,12 @@ def register(lang, path_or_data, package=None):
   if not should_load_resources(lang):
     return logging.debug('Skipped "%s" training data for language "%s"' % (package, lang))
 
-  abspath = get_absolute_path_to_package_file(path_or_data, package)
-  
-  if os.path.isfile(abspath):
-    with open(abspath, encoding='utf-8') as f:
-      data = f.read()
-  else:
-    data = path_or_data
-
   if package not in module_trainings:
     module_trainings[package] = {}
 
-  try:
-    parsed_data = parse(data)
-  except Exception as ex:
-    return logging.error('Could not parse "%s" training data: %s' % (package, ex))
+  module_trainings[package][lang] = func
 
-  module_trainings[package][lang] = parsed_data
-
-  def flatten(type):
-    return ', '.join(['"%s"' % d for d in parsed_data[type].keys()])
-
-  logging.info('Imported training data (intents: %s / entities: %s / synonyms: %s) from "%s" for the lang "%s"' % 
-    (flatten('intents'), flatten('entities'), flatten('synonyms'), package, lang))
+  logging.info('Registered "%s.%s" training data for the lang "%s"' % (package, func.__name__, lang))
 
 def training(lang, package=None):
   """Decorator applied to a function that returns DSL data to register training data.
@@ -55,7 +52,7 @@ def training(lang, package=None):
   """
 
   def new(func):
-    register(lang, func(), package or get_caller_package_name() or func.__module__)
+    register(lang, func, package or get_caller_package_name() or func.__module__)
     return func
 
   return new

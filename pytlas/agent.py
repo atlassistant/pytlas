@@ -1,7 +1,7 @@
 import logging
 from pytlas.request import Request
 from pytlas.utils import get_package_name_from_module, keep_one, strip_format, find_match
-from pytlas.localization import module_translations
+from pytlas.localization import get_translations
 from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
 from pytlas.skill import handlers as skill_handlers
@@ -66,6 +66,7 @@ class Agent:
     self._on_thinking = None
 
     self._handlers = handlers or skill_handlers
+    self._translations = get_translations(self._interpreter.lang)
 
     self._intents_queue = []
     self._request = None
@@ -268,9 +269,8 @@ class Agent:
       self.done()
     else:
       if (self._request == None or self._request.intent != intent):
-        # Creates the request and load module translations for the interpreter language
-        # if any
-        translations = module_translations.get(get_package_name_from_module(handler.__module__), {}).get(self._interpreter.lang, {})
+        # Creates the request and load module translations if any
+        translations = self._translations.get(get_package_name_from_module(handler.__module__), {})
 
         self._logger.debug('Found "%s" translations matching the request' % len(translations))
 

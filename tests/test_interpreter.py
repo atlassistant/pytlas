@@ -9,13 +9,13 @@ class TestInterpreter:
     self.interpreter = Interpreter('snips', 'en')
     self.interpreter.fit = MagicMock()
 
-    register('en', """
+    register('en', lambda: """
 @[interpreter_module1_entity]
   an entity
   another entity
 """, 'interpreter_module1')
 
-    register('en', """
+    register('en', lambda: """
 @[interpreter_module2_entity]
   an entity
   another entity

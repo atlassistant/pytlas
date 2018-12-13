@@ -1,6 +1,5 @@
 from sure import expect
-from unittest.mock import patch, mock_open
-from pytlas.localization import translations, register, module_translations
+from pytlas.localization import translations, register, module_translations, get_translations
 
 @translations ('fr', 'amodule')
 def some_translations(): return {
@@ -13,33 +12,38 @@ class TestLocalization:
   def test_it_should_be_imported_with_the_decorator(self):
     expect(module_translations).to.have.key('amodule')
     expect(module_translations['amodule']).to.have.key('fr')
-    expect(module_translations['amodule']['fr']['hi']).to.equal('bonjour')
-    expect(module_translations['amodule']['fr']['bye']).to.equal('au revoir')
+
+    r = module_translations['amodule']['fr']()
+
+    expect(r['hi']).to.equal('bonjour')
+    expect(r['bye']).to.equal('au revoir')
+
+  def test_it_should_evaluate_translations_correctly(self):
+
+    register('it', lambda: {
+      'hi': 'ciao',
+      'bye': 'addio',
+    }, 'amodule')
+
+    t = get_translations('it')
+
+    expect(t).to.have.key('amodule')
+    expect(t['amodule']).to.have.key('hi')
+    expect(t['amodule']['hi']).to.equal('ciao')
+    expect(t['amodule']).to.have.key('bye')
+    expect(t['amodule']['bye']).to.equal('addio');
 
   def test_it_should_be_imported_with_the_register_function_with_dict(self):
-    register ('en', {
+
+    register('en', lambda: {
       'hi': 'hello',
       'bye': 'see ya!',
     }, 'amodule')
 
     expect(module_translations).to.have.key('amodule')
     expect(module_translations['amodule']).to.have.key('en')
-    expect(module_translations['amodule']['en']['hi']).to.equal('hello')
-    expect(module_translations['amodule']['en']['bye']).to.equal('see ya!')
 
-  def test_it_should_be_imported_with_the_register_function_with_filepath(self):
-    with patch('builtins.open') as mock:
-      mock_open(mock, """
-{
-  "hi": "buongiorno",
-  "bye": "arrivederci"
-}
-""")
+    r = module_translations['amodule']['en']()
 
-      with patch('pytlas.utils.get_module_path', return_value='/home/pytlas/amodule') as mock_module_path:
-        register('it', './a_path', 'amodule')
-
-        expect(module_translations).to.have.key('amodule')
-        expect(module_translations['amodule']).to.have.key('it')
-        expect(module_translations['amodule']['it']['hi']).to.equal('buongiorno')
-        expect(module_translations['amodule']['it']['bye']).to.equal('arrivederci')
+    expect(r['hi']).to.equal('hello')
+    expect(r['bye']).to.equal('see ya!')

@@ -1,6 +1,5 @@
 from sure import expect
-from unittest.mock import patch, mock_open
-from pytlas.training import register, training, module_trainings
+from pytlas.training import register, training, module_trainings, get_training_data
 
 @training ('en', 'amodule')
 def en_data(): return """
@@ -17,11 +16,50 @@ class TestTraining:
   def test_it_should_be_imported_with_the_decorator(self):
     expect(module_trainings).to.have.key('amodule')
     expect(module_trainings['amodule']).to.have.key('en')
-    expect(module_trainings['amodule']['en']['intents']).to.have.length_of(1)
-    expect(module_trainings['amodule']['en']['entities']).to.have.length_of(1)
 
-  def test_it_should_be_imported_with_the_register_function_with_dict(self):
-    register ('fr', """
+    r = module_trainings['amodule']['en']()
+
+    expect(r).to.equal("""
+%[get_forecast]
+  will it rain in @[city]
+
+@[city]
+  paris
+  london
+""")
+
+  def test_it_should_evaluate_translations_correctly(self):
+
+    def it_training_data(): return """
+%[some_intent]
+  con dati di allenamento
+
+%[another one]
+  con un altro dato
+
+@[and_entity]
+  con un certo valore
+"""
+
+    register('it', it_training_data, 'amodule')
+
+    t = get_training_data('it')
+
+    expect(t).to.have.key('amodule')
+    expect(t['amodule']).to.equal("""
+%[some_intent]
+  con dati di allenamento
+
+%[another one]
+  con un altro dato
+
+@[and_entity]
+  con un certo valore
+""")
+
+  def test_it_should_be_imported_with_the_register_function(self):
+
+    def fr_training_data(): return """
 %[some_intent]
   with training data
 
@@ -30,16 +68,16 @@ class TestTraining:
 
 @[and_entity]
   with some value
-""", 'amodule')
+"""
+
+    register('fr', fr_training_data, 'amodule')
 
     expect(module_trainings).to.have.key('amodule')
     expect(module_trainings['amodule']).to.have.key('fr')
-    expect(module_trainings['amodule']['fr']['intents']).to.have.length_of(2)
-    expect(module_trainings['amodule']['fr']['entities']).to.have.length_of(1)
 
-  def test_it_should_be_imported_with_the_register_function_with_filepath(self):
-    with patch('builtins.open') as mock:
-      mock_open(mock, """
+    r = module_trainings['amodule']['fr']()
+
+    expect(r).to.equal("""
 %[some_intent]
   with training data
 
@@ -50,11 +88,3 @@ class TestTraining:
   with some value
 """)
 
-      with patch('pytlas.utils.get_module_path', return_value='/home/pytlas/amodule'):
-        with patch('os.path.isfile', return_value=True):
-          register('it', './a_path', 'amodule')
-
-          expect(module_trainings).to.have.key('amodule')
-          expect(module_trainings['amodule']).to.have.key('it')
-          expect(module_trainings['amodule']['it']['intents']).to.have.length_of(2)
-          expect(module_trainings['amodule']['it']['entities']).to.have.length_of(1)

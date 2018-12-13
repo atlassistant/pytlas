@@ -1,5 +1,5 @@
 from pytlas.skill import handlers, module_metas
-from pytlas.localization import module_translations
+from pytlas.localization import get_translations
 from pytlas.utils import get_package_name_from_module, rmtree
 from pytlas.skill_data import SkillData
 import re, logging, os, subprocess
@@ -163,14 +163,14 @@ def install_skills(directory, stdout=None, *names):
       install_dependencies_if_needed(dest, stdout)
 
       if stdout:
-        stdout('  Installed! ✔️')
+        stdout('  ✔️ Installed')
 
       logging.info('Successfully installed "%s"' % repo)
 
       installed_skills.append(name)
     except subprocess.CalledProcessError as e:
       if stdout:
-        stdout('  Failed ❌')
+        stdout('  ❌ Failed')
         
       logging.error("Could not clone the skill repo, make sure you didn't mispelled it and you have sufficient rights to clone it. \"%s\"" % e)
     
@@ -218,7 +218,7 @@ def update_skills(directory, stdout=None, *names):
       install_dependencies_if_needed(folder, stdout)
 
       if stdout:
-        stdout('  Updated ✔️')
+        stdout('  ✔️ Updated')
       
       logging.info('Updated "%s"' % name)
 
@@ -226,7 +226,7 @@ def update_skills(directory, stdout=None, *names):
       
     except subprocess.CalledProcessError as e:
       if stdout:
-        stdout('  Failed to update ❌')
+        stdout('  ❌ Failed')
 
       logging.error('Could not pull in "%s": "%s"' % (folder, e))
   
@@ -264,12 +264,12 @@ def uninstall_skills(directory, stdout=None, *names):
       rmtree(folder)
 
       if stdout:
-        stdout('  Uninstalled ✔️')
+        stdout('  ✔️ Uninstalled')
       
       removed_skills.append(name)
     except Exception as e:
       if stdout:
-        stdout('  Failed ❌')
+        stdout('  ❌ Failed')
 
       logging.error('Could not delete the "%s" skill folder: "%s"' % (folder, e))
 
@@ -295,7 +295,7 @@ def get_loaded_skills(lang):
     meta_func = module_metas.get(pkg)
 
     if meta_func:
-      translations = module_translations.get(pkg, {}).get(lang, {})
+      translations = get_translations(lang).get(pkg, {})
       meta = meta_func(lambda k: translations.get(k, k))
 
     skills.append(SkillData(from_skill_folder(pkg), **meta))
