@@ -79,14 +79,47 @@ def to_env_key(section, setting):
 
   return ('%s_%s' % (section, setting)).upper()
 
+def stringify(value):
+  """Stringify the given value.
+
+  Args:
+    value (object): Value to stringify
+
+  Returns:
+    str: String version of the value
+
+  Examples:
+    >>> stringify('a string')
+    'a string'
+    >>> stringify(5)
+    '5'
+    >>> stringify(2.3)
+    '2.3'
+    >>> stringify(True)
+    'True'
+    >>> stringify(['one', 'two', 'three'])
+    'one,two,three'
+    >>> stringify([1, 2, 3.2])
+    '1,2,3.2'
+  
+  """
+
+  if isinstance(value, str):
+    return value
+
+  if isinstance(value, list):
+    return ','.join(map(str, value))
+
+  return str(value)
+
 def set(setting, value, section=DEFAULT_SECTION):
   """Sets a setting value in the inner config.
 
-  Value should be a string (since all value can be read from env variables).
+  Value will be stringified by this method (since all value can be read from env variables).
 
   Args:
     setting (str): Setting key to write
-    value (str): Value to write
+    value (object): Value to write
     section (str): Section to write to
 
   """
@@ -94,9 +127,7 @@ def set(setting, value, section=DEFAULT_SECTION):
   if section not in config:
     config[section] = {}
 
-  config[section][setting] = value
-
-  config.set(section, setting, value)
+  config[section][setting] = stringify(value)
 
 def get(setting, default=None, section=DEFAULT_SECTION):
   """Gets a setting value, if an environment variable is defined, it will take
@@ -118,7 +149,7 @@ def get(setting, default=None, section=DEFAULT_SECTION):
   return os.environ.get(to_env_key(section, setting), config.get(section, setting, fallback=default))
 
 def getbool(setting, default=False, section=DEFAULT_SECTION):
-  """Gets a boolean value for a setting. It uses the get under the hood so the same
+  """Gets a boolean value for a setting. It uses the `get` under the hood so the same
   rules applies.
 
   Args:
@@ -136,7 +167,7 @@ def getbool(setting, default=False, section=DEFAULT_SECTION):
   return config._convert_to_boolean(v) if v else default
 
 def getint(setting, default=0, section=DEFAULT_SECTION):
-  """Gets a int value for a setting. It uses the get under the hood so the same
+  """Gets a int value for a setting. It uses the `get` under the hood so the same
   rules applies.
 
   Args:
@@ -154,7 +185,7 @@ def getint(setting, default=0, section=DEFAULT_SECTION):
   return int(v) if v else default
 
 def getfloat(setting, default=0.0, section=DEFAULT_SECTION):
-  """Gets a float value for a setting. It uses the get under the hood so the same
+  """Gets a float value for a setting. It uses the `get` under the hood so the same
   rules applies.
 
   Args:
@@ -170,3 +201,22 @@ def getfloat(setting, default=0.0, section=DEFAULT_SECTION):
   v = get(setting, section=section)
 
   return float(v) if v else default
+
+def getlist(setting, default=[], section=DEFAULT_SECTION):
+  """Gets a list for a setting. It will split values separated by a comma.
+  
+  It uses the `get` under the hood so the same rules applies.
+
+  Args:
+    setting (str): Name of the configuration option
+    default (list): Fallback value
+    section (str): Section to look in
+
+  Returns:
+    list: Value of the setting
+
+  """
+
+  v = get(setting, section=section)
+
+  return v.split(',') if v else default
