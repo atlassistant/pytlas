@@ -2,9 +2,8 @@ from pytlas.skill import handlers, module_metas
 from pytlas.localization import get_translations
 from pytlas.utils import get_package_name_from_module, rmtree
 from pytlas.skill_data import SkillData
-import re, logging, os, subprocess
+import re, logging, os, subprocess, pytlas.settings as settings
 
-DEFAULT_REPO_URL = os.environ.get('PYTLAS_DEFAULT_REPO_URL', 'https://github.com/')
 SKILL_FOLDER_SEPARATOR = '__'
 
 def skill_parts_from_name(path):
@@ -140,7 +139,7 @@ def install_skills(directory, stdout=None, *names):
     dest = os.path.abspath(os.path.join(directory, to_skill_folder(owner, repo)))
 
     if name.startswith(owner):
-      url = DEFAULT_REPO_URL + name
+      url =  settings.get(settings.SETTING_DEFAULT_REPO_URL) + name
 
     logging.info('Will download skill from "%s" to "%s"' % (url, dest))
 

@@ -1,7 +1,7 @@
 from sure import expect
 from configparser import NoOptionError
-from pytlas.settings import write_to_settings, config, DEFAULT_SECTION, SETTING_LANG, \
-  SETTING_SKILLS, DEFAULT_SETTING_LANG, DEFAULT_SETTING_SKILLS, get, set as set_setting, \
+from pytlas.settings import write_to_settings, config, DEFAULT_SECTION, SETTING_DEFAULT_REPO_URL, \
+  SETTING_SKILLS, DEFAULT_SETTING_SKILLS, DEFAULT_SETTING_DEFAULT_REPO_URL, get, set as set_setting, \
   getbool, getint, getfloat, getlist
 import os
 
@@ -14,7 +14,7 @@ class TestSettings:
 
   def test_it_should_return_default_settings(self):
     expect(config.get(DEFAULT_SECTION, SETTING_SKILLS)).to.equal(DEFAULT_SETTING_SKILLS)
-    expect(config.get(DEFAULT_SECTION, SETTING_LANG)).to.equal(DEFAULT_SETTING_LANG)
+    expect(config.get(DEFAULT_SECTION, SETTING_DEFAULT_REPO_URL)).to.equal(DEFAULT_SETTING_DEFAULT_REPO_URL)
 
   def test_it_should_write_to_settings_correctly_with_the_decorator(self):
     

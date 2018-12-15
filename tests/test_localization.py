@@ -1,5 +1,8 @@
 from sure import expect
 from pytlas.localization import translations, register, module_translations, get_translations
+import pytlas.settings as settings
+
+settings.set(settings.SETTING_LANG, []) # Allow all languages to be loaded
 
 @translations ('fr', 'amodule')
 def some_translations(): return {

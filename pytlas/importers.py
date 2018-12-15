@@ -1,21 +1,5 @@
-import importlib, os, logging, sys, threading
+import importlib, os, logging, sys, threading, pytlas.settings as settings
 from types import ModuleType
-
-"""A list of allowed language resources to be loaded.
-"""
-LOAD_LANGUAGES = None
-
-def restrict_load_languages(languages):
-  """Set allowed language ressources to be loaded.
-
-  Args:
-    languages (list): List of language codes to allow
-
-  """
-
-  global LOAD_LANGUAGES
-
-  LOAD_LANGUAGES = languages
 
 def should_load_resources(language_code):
   """Determines if resources for the given language should be loaded. It will help
@@ -29,12 +13,9 @@ def should_load_resources(language_code):
 
   """
 
-  global LOAD_LANGUAGES
+  langs = settings.getlist(settings.SETTING_LANG)
 
-  if LOAD_LANGUAGES == None:
-    LOAD_LANGUAGES = list(filter(None, os.environ.get('PYTLAS_LOAD_LANGUAGES', '').split(',')))
-
-  return not LOAD_LANGUAGES or language_code in LOAD_LANGUAGES
+  return not langs or language_code in langs
 
 def _reload(module):
   """Recursively reloads a module. It only works for simple scenario but it may be suitable for pytlas ;).

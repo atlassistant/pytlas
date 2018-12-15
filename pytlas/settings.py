@@ -3,6 +3,7 @@ from functools import wraps
 import os
 
 DEFAULT_SECTION = 'pytlas'
+DEFAULT_FILENAME = 'pytlas.conf'
 
 config = ConfigParser()
 
@@ -22,16 +23,20 @@ SETTING_PARSE = 'parse'
 SETTING_WATCH = 'watch'
 SETTING_TRAINING_FILE = 'training_file'
 SETTING_GRAPH_FILE = 'graph'
+SETTING_DEFAULT_REPO_URL = 'default_repo_url'
+DEFAULT_SETTING_DEFAULT_REPO_URL = 'https://github.com/'
 
 # Default parameters value
 config[DEFAULT_SECTION] = {
   SETTING_LANG: DEFAULT_SETTING_LANG,
   SETTING_SKILLS: DEFAULT_SETTING_SKILLS,
+  SETTING_DEFAULT_REPO_URL: DEFAULT_SETTING_DEFAULT_REPO_URL,
 }
 
 def write_to_settings(section=DEFAULT_SECTION):
   """Simple decorator used to write each argument value to the settings
-  if they're set and call the wrapped func without arguments.
+  if they're set and call the wrapped func without arguments. If a keyword is named
+  `config`, the filepath represented by this keyword will be read in the config object.
 
   Args:
     section (str): Section to write the settings
