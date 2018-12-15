@@ -2,7 +2,7 @@ from sure import expect
 from configparser import NoOptionError
 from pytlas.settings import write_to_settings, config, DEFAULT_SECTION, SETTING_LANG, \
   SETTING_SKILLS, DEFAULT_SETTING_LANG, DEFAULT_SETTING_SKILLS, get, set as set_setting, \
-  getbool, getint, getfloat
+  getbool, getint, getfloat, getlist
 import os
 
 class TestSettings:
@@ -29,7 +29,6 @@ class TestSettings:
     expect(config.get(DEFAULT_SECTION, 'a_setting_key')).to.equal('a value')
 
   def test_it_should_retrieve_a_string_value(self):
-
     set_setting('key', 'value', section='strings')
 
     expect(get('key', section='strings')).to.equal('value')
@@ -52,9 +51,15 @@ class TestSettings:
     expect(r).to.be.a(bool)
     expect(r).to.be.false
 
-    set_setting('a key', '1', section='bools')
+    set_setting('a key', 1, section='bools')
 
     r = getbool('a key', section='bools')
+    expect(r).to.be.a(bool)
+    expect(r).to.be.true
+
+    set_setting('another key', True, section='bools')
+
+    r = getbool('another key', section='bools')
     expect(r).to.be.a(bool)
     expect(r).to.be.true
 
@@ -63,7 +68,7 @@ class TestSettings:
     expect(r).to.be.a(int)
     expect(r).to.equal(0)
 
-    set_setting('a key', '1337', section='ints')
+    set_setting('a key', 1337, section='ints')
 
     r = getint('a key', section='ints')
     expect(r).to.be.a(int)
@@ -74,8 +79,19 @@ class TestSettings:
     expect(r).to.be.a(float)
     expect(r).to.equal(0.0)
 
-    set_setting('a key', '1337.2', section='floats')
+    set_setting('a key', 1337.2, section='floats')
 
     r = getfloat('a key', section='floats')
     expect(r).to.be.a(float)
     expect(r).to.equal(1337.2)
+
+  def test_it_should_returns_a_list_of_str_when_asked_to(self):
+    r = getlist('a key', section='lists')
+    expect(r).to.be.a(list)
+    expect(r).to.be.empty
+
+    set_setting('a key', ['one', 'two'], section='lists')
+
+    r = getlist('a key', section='lists')
+    expect(r).to.be.a(list)
+    expect(r).to.equal(['one', 'two'])
