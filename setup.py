@@ -17,6 +17,9 @@ setup(
   license='GPL-3.0',
   packages=find_packages(),
   include_package_data=True,
+  classifiers=[
+    "Programming Language :: Python :: 3",
+  ],
   install_requires=[
     'click==7.0',
     'transitions==0.6.9',

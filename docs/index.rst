@@ -22,13 +22,14 @@ pytlas |travis| |coveralls| |pypi| |rtd| |license|
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
-pytlas is an open-source 🤖💬 assistant library built for people and made to be super easy to setup and understand.
+pytlas is an open-source 🤖💬 **python 3** assistant library built for people and made to be super easy to setup and understand.
 
-Its goal is to make easy to map natural language sentences to python function handlers. It also manages a conversation with the help of a finite state machine.
+Its goal is to make easy to **map natural language sentences** to **python function handlers**. It also manages a conversation with the help of a finite state machine.
 
 .. toctree::
   :maxdepth: 2
   :caption: Contents
 
   getting_started/index
+  core_components/index
 
