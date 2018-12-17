@@ -1,7 +1,7 @@
 from sure import expect
 from unittest.mock import MagicMock
 from pytlas.interpreters import Interpreter, Intent, SlotValue
-from pytlas.agent import Agent, build_scopes, STATE_CANCEL
+from pytlas.agent import Agent, build_scopes, STATE_CANCEL, STATE_FALLBACK
 
 def on_manage_list(r):
   r.agent.context('manage_list')
@@ -36,16 +36,16 @@ class TestAgentContext:
       'manage_list': on_manage_list,
       'manage_list/rename': on_rename_list,
       'manage_list/close': on_close_list,
-      'manage_list/__fallback__': on_list_fallback,
+      'manage_list/' + STATE_FALLBACK: on_list_fallback,
       'open_context': on_open_context,
     }
 
     self.interpreter = Interpreter('test', 'en')
-    self.interpreter.intents = list(self.handlers.keys())
+    self.interpreter.intents = [i for i in self.handlers.keys() if STATE_FALLBACK not in i]
     self.agent = Agent(self.interpreter, handlers=self.handlers, model=self)
 
   def test_it_should_parse_scopes_correctly(self):
-    intents = ['an intent', 'an intent/a sub intent', 'an intent/a sub intent/another one', 'one more', 'one more/__fallback__']
+    intents = ['an intent', 'an intent/a sub intent', 'an intent/a sub intent/another one', 'one more']
 
     r = build_scopes(intents)
 
@@ -87,7 +87,17 @@ class TestAgentContext:
 
     self.agent.parse('I want to manage a list')
 
-    self.interpreter.parse.assert_called_once_with('I want to manage a list', [STATE_CANCEL, 'manage_list', 'open_context'])
+    self.interpreter.parse.assert_called_once()
+
+    call_args = self.interpreter.parse.call_args[0]
+    expect(call_args).to.have.length_of(2)
+    expect(call_args[0]).to.equal('I want to manage a list')
+    expect(call_args[1]).to.be.a(list)
+    expect(call_args[1]).to.have.length_of(3)
+    expect(call_args[1]).to.contain(STATE_CANCEL)
+    expect(call_args[1]).to.contain('manage_list')
+    expect(call_args[1]).to.contain('open_context')
+
     self.interpreter.parse.reset_mock()
 
     expect(self.agent.current_context).to.equal('manage_list')
@@ -100,7 +110,16 @@ class TestAgentContext:
     
     self.agent.parse('Rename to something else')
 
-    self.interpreter.parse.assert_called_once_with('Rename to something else', [STATE_CANCEL, 'manage_list/rename', 'manage_list/close'])
+    self.interpreter.parse.assert_called_once()
+
+    call_args = self.interpreter.parse.call_args[0]
+    expect(call_args).to.have.length_of(2)
+    expect(call_args[0]).to.equal('Rename to something else')
+    expect(call_args[1]).to.be.a(list)
+    expect(call_args[1]).to.have.length_of(3)
+    expect(call_args[1]).to.contain(STATE_CANCEL)
+    expect(call_args[1]).to.contain('manage_list/rename')
+    expect(call_args[1]).to.contain('manage_list/close')
 
     expect(self.agent.current_context).to.be.none
 

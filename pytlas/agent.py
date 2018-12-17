@@ -36,7 +36,8 @@ def build_scopes(intents):
   association between a context and available scopes.
 
   Scopes are intents which could be triggered from a particular context. They will be given
-  to the interpreter to restrict the list of intents to be parsed.
+  to the interpreter to restrict the list of intents to be parsed. That's why STATE_CANCEL is
+  always added to every scopes.
 
   Builtin nested scopes will be discarded they do not have specific meanings for the NLU.
 
@@ -56,9 +57,6 @@ def build_scopes(intents):
     try:
       last_idx = intent.rindex(CONTEXT_SEPARATOR)
       root = intent[:last_idx]
-
-      if is_builtin(intent[last_idx + 1:]):
-        continue
 
       if root not in scopes:
         scopes[root] = [STATE_CANCEL] # Cancel is always present
@@ -139,7 +137,6 @@ class Agent:
     intents = [i for i in self._interpreter.intents if not is_builtin(i)]
     states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + intents
 
-    # Construct available scopes from interpreter intents
     # TODO take it into account when building transitions to restrict available ones
     self._available_scopes = build_scopes(intents)
 
@@ -165,9 +162,9 @@ class Agent:
 
     # Go to the asleep state from anywhere except the ask state
     self._machine.add_transition(
-      STATE_ASLEEP, 
-      [STATE_CANCEL, STATE_FALLBACK] + intents,
-      STATE_ASLEEP,
+      STATE_ASLEEP, # trigger
+      [STATE_FALLBACK, STATE_CANCEL] + intents, # source
+      STATE_ASLEEP, # destination
       after=self.end_conversation)
 
     # Go to the cancel state from anywhere except the asleep state
@@ -299,10 +296,8 @@ class Agent:
       self._intents_queue.extend(intents)
     
     # If the user wants to cancel the current action, immediately go to the cancel state
-    # But only when not in the asleep state or a context has been opened
-    # TODO should we restrict from where the user can cancel an intent?
-    if cancel_intent and (self.state != STATE_ASLEEP or self.current_context): # pylint: disable=E1101
-      self.go(STATE_CANCEL, intent=cancel_intent) # Go to the cancel intent right now!
+    if cancel_intent: # pylint: disable=E1101
+      self.go(STATE_CANCEL, intent=cancel_intent)
     else:
       if self.state == STATE_ASK: # pylint: disable=E1101
 
@@ -331,12 +326,12 @@ class Agent:
     if intent.name == STATE_CANCEL:
       self.context(None)
 
+    handler = self._handlers.get(intent.name)
+
     # If we are in a context and the intent is a builtin one, check if the skill has a specific
     # handler registered, else fallback to the generic one
     if self.current_context and is_builtin(intent.name):
-      handler = self._handlers.get(self.current_context + CONTEXT_SEPARATOR + intent.name, self._handlers.get(intent.name))
-    else:
-      handler = self._handlers.get(intent.name)
+      handler = self._handlers.get(self.current_context + CONTEXT_SEPARATOR + intent.name, handler)
     
     if not handler:
       self._logger.warning('No handler found for the intent "%s"' % intent.name)
