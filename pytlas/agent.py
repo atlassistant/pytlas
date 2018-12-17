@@ -16,6 +16,7 @@ STATE_ASLEEP = STATE_PREFIX + 'asleep' + STATE_SUFFIX
 STATE_CANCEL = STATE_PREFIX + 'cancel' + STATE_SUFFIX
 STATE_FALLBACK = STATE_PREFIX + 'fallback' + STATE_SUFFIX
 STATE_ASK = STATE_PREFIX + 'ask' + STATE_SUFFIX
+CONTEXT_SEPARATOR = '/'
 
 def is_builtin(state):
   """Checks if the given state is a builtin one.
@@ -29,6 +30,44 @@ def is_builtin(state):
   """
 
   return state.startswith(STATE_PREFIX) and state.endswith(STATE_SUFFIX) if state else False
+
+def build_scopes(intents):
+  """Build all scopes given an intents list. It will create a dict which contains
+  association between a context and available scopes.
+
+  Scopes are intents which could be triggered from a particular context. They will be given
+  to the interpreter to restrict the list of intents to be parsed.
+
+  Builtin nested scopes will be discarded they do not have specific meanings for the NLU.
+
+  Args:
+    intents (list): List of intents
+
+  Returns:
+    dict: Dictionary mapping each context to a list of available scopes
+
+  """
+
+  scopes = {
+    None: [STATE_CANCEL], # represents the root scopes, ie. when not in a specific context
+  }
+
+  for intent in intents:
+    try:
+      last_idx = intent.rindex(CONTEXT_SEPARATOR)
+      root = intent[:last_idx]
+
+      if is_builtin(intent[last_idx + 1:]):
+        continue
+
+      if root not in scopes:
+        scopes[root] = [STATE_CANCEL] # Cancel is always present
+
+      scopes[root].append(intent)
+    except:
+      scopes[None].append(intent)
+
+  return scopes
 
 class Agent:
   """Manages a conversation with a client.
@@ -74,12 +113,16 @@ class Agent:
     self._request = None
     self._asked_slot = None
     self._choices = None
-    
+    self._available_scopes = {}
+    self._current_scopes = None
+
     self.model = model
     self.meta = meta
+    self.current_context = None
 
     self._machine = None
     self.build()
+    self.context(None)
 
   def build(self):
     """Setup the state machine based on the interpreter available intents. This is
@@ -95,10 +138,14 @@ class Agent:
 
     intents = [i for i in self._interpreter.intents if not is_builtin(i)]
     states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + intents
-    
+
+    # Construct available scopes from interpreter intents
+    # TODO take it into account when building transitions to restrict available ones
+    self._available_scopes = build_scopes(intents)
+
     MachineKlass = Machine
 
-    if self._transitions_graph_path:
+    if self._transitions_graph_path: # pragma: no cover
       try:
         import pygraphviz
         from transitions.extensions import GraphMachine
@@ -126,7 +173,7 @@ class Agent:
     # Go to the cancel state from anywhere except the asleep state
     self._machine.add_transition(
       STATE_CANCEL,
-      [STATE_ASK, STATE_FALLBACK] + intents,
+      [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK] + intents,
       STATE_CANCEL,
       after=self._on_intent)
 
@@ -145,7 +192,7 @@ class Agent:
         intent,
         after=self._on_intent)
 
-    if self._transitions_graph_path and getattr(self._machine, 'get_graph', None):
+    if self._transitions_graph_path and getattr(self._machine, 'get_graph', None): # pragma: no cover
       self._machine.get_graph().draw(self._transitions_graph_path, prog='dot')
 
   @property
@@ -229,13 +276,13 @@ class Agent:
 
     Args:
       msg (str): Raw message to parse
-      meta (dict): Optional metadata to add to the request
+      meta (dict): Optional metadata to add to the request object
 
     """
 
     self._logger.info('Parsing sentence "%s"' % msg)
 
-    intents = self._interpreter.parse(msg) or [Intent(STATE_FALLBACK, text=msg)]
+    intents = self._interpreter.parse(msg, self._current_scopes) or [Intent(STATE_FALLBACK, text=msg)]
 
     # Add meta to each parsed intents
     for intent in intents:
@@ -252,7 +299,9 @@ class Agent:
       self._intents_queue.extend(intents)
     
     # If the user wants to cancel the current action, immediately go to the cancel state
-    if cancel_intent and self.state != STATE_ASLEEP: # pylint: disable=E1101
+    # But only when not in the asleep state or a context has been opened
+    # TODO should we restrict from where the user can cancel an intent?
+    if cancel_intent and (self.state != STATE_ASLEEP or self.current_context): # pylint: disable=E1101
       self.go(STATE_CANCEL, intent=cancel_intent) # Go to the cancel intent right now!
     else:
       if self.state == STATE_ASK: # pylint: disable=E1101
@@ -278,7 +327,16 @@ class Agent:
   def _process_intent(self, intent):
     self._logger.info('Processing intent %s' % intent)
 
-    handler = self._handlers.get(intent.name)
+    # Cancel intent, dismiss the context
+    if intent.name == STATE_CANCEL:
+      self.context(None)
+
+    # If we are in a context and the intent is a builtin one, check if the skill has a specific
+    # handler registered, else fallback to the generic one
+    if self.current_context and is_builtin(intent.name):
+      handler = self._handlers.get(self.current_context + CONTEXT_SEPARATOR + intent.name, self._handlers.get(intent.name))
+    else:
+      handler = self._handlers.get(intent.name)
     
     if not handler:
       self._logger.warning('No handler found for the intent "%s"' % intent.name)
@@ -385,6 +443,21 @@ class Agent:
     """
 
     self.go(STATE_ASLEEP, require_input=require_input)
+
+  def context(self, context_name):
+    """Switch the agent to the given context name. It will populates the list of reachable
+    scopes so the interpreter will only parse intents defined in this scope.
+
+    Args:
+      context_name (str): Name of the context to switch to (None represents the root one)
+
+    """
+
+    self.current_context = context_name
+    self._current_scopes = self._available_scopes.get(self.current_context, self._available_scopes.get(None))
+
+    self._logger.info('Switched to the context "%s" with now "%d" understandable intents: %s' % 
+      (self.current_context, len(self._current_scopes),  ', '.join('"%s"' % s for s in self._current_scopes)))
 
   def end_conversation(self, event=None):
     """Ends a conversation, means nothing would come from the skill anymore and

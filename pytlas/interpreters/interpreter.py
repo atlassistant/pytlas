@@ -100,7 +100,30 @@ class Interpreter:
       self.fit(json.load(f))
 
   def parse_slot(self, intent, slot, msg):
+    """Parses the given raw message to extract a slot matching given criterias.
+
+    Args:
+      intent (str): Name of the current intent
+      slot (str): Name of the current slot to extract
+      msg (str): Raw message to parse
+
+    Returns:
+      list of SlotValue: Slot values extracted
+
+    """
+
     return [SlotValue(msg)] # Default is to wrap the raw msg in a SlotValue
 
-  def parse(self, msg):
+  def parse(self, msg, scopes=None):
+    """Parses the given raw message and returns parsed intents.
+
+    Args:
+      msg (str): Message to parse
+      scopes (list of str): Optional list of scopes used to restrict parsed intents
+    
+    Returns:
+      list of Intent: Parsed intents
+    
+    """
+
     return []

@@ -122,13 +122,13 @@ class SnipsInterpreter(Interpreter):
 
     return self._engine and self._engine.fitted
 
-  def parse(self, msg):
+  def parse(self, msg, scopes=None):
     if not self.is_ready:
       return []
 
     # TODO manage multiple intents in the same sentence
 
-    parsed = self._engine.parse(msg)
+    parsed = self._engine.parse(msg, intents=scopes)
 
     if parsed[RES_INTENT] == None:
       return []

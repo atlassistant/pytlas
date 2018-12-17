@@ -69,6 +69,9 @@ def read_file(path, ignore_errors=False):
     
   """
 
+  # TODO maybe add relative_to_file parameter use to resolve the path relative to the file
+  # given. It will make easy for skills to read a file relative to __file__
+
   try:
     with open(path) as f:
       return f.read()
