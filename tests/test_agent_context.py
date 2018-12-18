@@ -1,7 +1,7 @@
 from sure import expect
 from unittest.mock import MagicMock
 from pytlas.interpreters import Interpreter, Intent, SlotValue
-from pytlas.agent import Agent, build_scopes, STATE_CANCEL, STATE_FALLBACK
+from pytlas.agent import Agent, build_scopes, STATE_CANCEL, STATE_FALLBACK, STATE_ASLEEP
 
 def on_manage_list(r):
   r.agent.context('manage_list')
@@ -32,12 +32,15 @@ def on_open_context(r):
 class TestAgentContext:
 
   def setup(self):
+    self.on_context = MagicMock()
+
     self.handlers = {
       'manage_list': on_manage_list,
       'manage_list/rename': on_rename_list,
       'manage_list/close': on_close_list,
       'manage_list/' + STATE_FALLBACK: on_list_fallback,
       'open_context': on_open_context,
+      'open_context/nested': MagicMock(),
     }
 
     self.interpreter = Interpreter('test', 'en')
@@ -83,10 +86,14 @@ class TestAgentContext:
     expect(self.agent._current_scopes).to.contain('open_context')
 
   def test_it_should_handle_context_switching_from_a_skill(self):
-    self.interpreter.parse = MagicMock(return_value=[Intent('manage_list')])
+    self.on_context.assert_called_once_with(None)
+    self.on_context.reset_mock()
 
+    self.interpreter.parse = MagicMock(return_value=[Intent('manage_list')])
     self.agent.parse('I want to manage a list')
 
+    self.on_context.assert_called_once_with('manage_list')
+    self.on_context.reset_mock()
     self.interpreter.parse.assert_called_once()
 
     call_args = self.interpreter.parse.call_args[0]
@@ -108,13 +115,14 @@ class TestAgentContext:
 
     self.interpreter.parse = MagicMock(return_value=[Intent('manage_list/close')])
     
-    self.agent.parse('Rename to something else')
+    self.agent.parse('I am done with that list')
 
+    self.on_context.assert_called_once_with(None)
     self.interpreter.parse.assert_called_once()
 
     call_args = self.interpreter.parse.call_args[0]
     expect(call_args).to.have.length_of(2)
-    expect(call_args[0]).to.equal('Rename to something else')
+    expect(call_args[0]).to.equal('I am done with that list')
     expect(call_args[1]).to.be.a(list)
     expect(call_args[1]).to.have.length_of(3)
     expect(call_args[1]).to.contain(STATE_CANCEL)
@@ -159,3 +167,24 @@ class TestAgentContext:
     expect(self.agent.meta).to.have.key('list')
     expect(self.agent.meta['list']).to.have.length_of(2)
     expect(self.agent.meta['list']).to.contain('Buy milk too')
+
+  def test_it_should_not_be_able_to_transition_to_nested_state_if_not_in_the_context(self):
+    self.handlers['manage_list/rename'] = MagicMock()
+
+    self.agent.go('manage_list/rename', intent=Intent('manage_list/rename'))
+    self.handlers['manage_list/rename'].assert_not_called()
+
+    self.agent.go('manage_list', intent=Intent('manage_list'))
+    self.agent.go('manage_list/rename', intent=Intent('manage_list/rename'))
+    self.handlers['manage_list/rename'].assert_called_once()
+
+  def test_it_should_create_attribute_on_the_agent_to_check_if_right_context(self):
+    expect(callable(self.agent.is_in_manage_list_context)).to.be.true
+    expect(self.agent.is_in_manage_list_context(None)).to.be.false
+    self.agent.context('manage_list')
+    expect(self.agent.is_in_manage_list_context(None)).to.be.true
+
+    expect(callable(self.agent.is_in_open_context_context)).to.be.true
+    expect(self.agent.is_in_open_context_context(None)).to.be.false
+    self.agent.context('open_context')
+    expect(self.agent.is_in_open_context_context(None)).to.be.true

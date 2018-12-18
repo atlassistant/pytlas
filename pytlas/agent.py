@@ -103,6 +103,7 @@ class Agent:
     self._on_answer = None
     self._on_done = None
     self._on_thinking = None
+    self._on_context = None
 
     self._handlers = handlers or skill_handlers
     self._translations = get_translations(self._interpreter.lang)
@@ -122,6 +123,9 @@ class Agent:
     self.build()
     self.context(None)
 
+  def _build_is_in_context_lambda(self, ctx):
+    return lambda _: self.current_context == ctx
+
   def build(self):
     """Setup the state machine based on the interpreter available intents. This is
     especialy useful if you have trained the interpreter after creating this agent.
@@ -137,10 +141,10 @@ class Agent:
     intents = [i for i in self._interpreter.intents if not is_builtin(i)]
     states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + intents
 
-    # TODO take it into account when building transitions to restrict available ones
     self._available_scopes = build_scopes(intents)
 
     MachineKlass = Machine
+    kwargs = {} # Additional arguments to give to the machine
 
     if self._transitions_graph_path: # pragma: no cover
       try:
@@ -148,6 +152,7 @@ class Agent:
         from transitions.extensions import GraphMachine
         
         MachineKlass = GraphMachine
+        kwargs['show_conditions'] = True
       except:
         self._logger.error('Could not use a GraphMachine, is pygraphviz installed?')
 
@@ -156,7 +161,8 @@ class Agent:
       states=states, 
       send_event=True,
       before_state_change=self._log_transition,
-      initial=STATE_ASLEEP)
+      initial=STATE_ASLEEP,
+      **kwargs)
 
     self._logger.info('Instantiated agent with "%s" states: %s' % (len(states), ', '.join('"%s"' % s for s in states)))
 
@@ -167,29 +173,49 @@ class Agent:
       STATE_ASLEEP, # destination
       after=self.end_conversation)
 
-    # Go to the cancel state from anywhere except the asleep state
+    # Go to the cancel state from anywhere
     self._machine.add_transition(
       STATE_CANCEL,
       [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK] + intents,
       STATE_CANCEL,
-      after=self._on_intent)
+      after=self._on_cancel)
 
     # Go to the ask state from every intents
+    # For now, you can't ask something from the cancel state...
     self._machine.add_transition(
       STATE_ASK,
       [STATE_FALLBACK] + intents,
       STATE_ASK,
       after=self._on_asked)
 
-    # And go to intents state from asleep or ask states
-    for intent in [STATE_FALLBACK] + intents:
-      self._machine.add_transition(
-        intent,
-        [STATE_ASLEEP, STATE_ASK],
-        intent,
-        after=self._on_intent)
+    # Fallback is treated as a common intent
+    self._machine.add_transition(
+      STATE_FALLBACK,
+      [STATE_ASLEEP, STATE_ASK],
+      STATE_FALLBACK,
+      after=self._on_intent)
+
+    for (ctx, ctx_intents) in self._available_scopes.items():
+      conditions = None
+
+      # If we need a specific context, create an attribute which will check
+      # if we are in the right context as a condition
+      if ctx:
+        attr_name = 'is_in_%s_context' % ctx
+        setattr(self, attr_name, self._build_is_in_context_lambda(ctx))
+        conditions = [attr_name]
+
+      for intent in ctx_intents:
+        if intent != STATE_CANCEL:
+          self._machine.add_transition(
+            intent,
+            [STATE_ASLEEP, STATE_ASK],
+            intent,
+            after=self._on_intent,
+            conditions=conditions)
 
     if self._transitions_graph_path and getattr(self._machine, 'get_graph', None): # pragma: no cover
+      self._logger.info('Writing graph to "%s"' % self._transitions_graph_path)
       self._machine.get_graph().draw(self._transitions_graph_path, prog='dot')
 
   @property
@@ -225,6 +251,7 @@ class Agent:
       self._on_answer = getattr(self._model, 'on_answer', None)
       self._on_done = getattr(self._model, 'on_done', None)
       self._on_thinking = getattr(self._model, 'on_thinking', None)
+      self._on_context = getattr(self._model, 'on_context', None)
 
   def _log_transition(self, e):
     dest = e.transition.dest
@@ -322,10 +349,6 @@ class Agent:
   def _process_intent(self, intent):
     self._logger.info('Processing intent %s' % intent)
 
-    # Cancel intent, dismiss the context
-    if intent.name == STATE_CANCEL:
-      self.context(None)
-
     handler = self._handlers.get(intent.name)
 
     # If we are in a context and the intent is a builtin one, check if the skill has a specific
@@ -363,6 +386,10 @@ class Agent:
       return self.done()
 
     self._process_intent(**event.kwargs)
+
+  def _on_cancel(self, event):
+    self.context(None)
+    self._on_intent(event)
 
   def _on_asked(self, event):
     if not self._is_valid(event.kwargs, ['slot', 'text']):
@@ -453,6 +480,9 @@ class Agent:
 
     self._logger.info('Switched to the context "%s" with now "%d" understandable intents: %s' % 
       (self.current_context, len(self._current_scopes),  ', '.join('"%s"' % s for s in self._current_scopes)))
+
+    if self._on_context:
+      self._on_context(self.current_context)
 
   def end_conversation(self, event=None):
     """Ends a conversation, means nothing would come from the skill anymore and
