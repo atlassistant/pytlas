@@ -39,11 +39,12 @@ Here is a snippet which cover the basics of using pytlas inside your own program
   def en_data(): return """
   %[lights_on]
     turn the @[room]'s lights on would you
-    turn lights on in the @[room]
-    lights on in @[room] please
+    turn lights on in the @[room] and @[room]
+    lights on in @[room] and @[room] please
     turn on the lights in @[room]
     turn the lights on in @[room]
     enlight me in @[room]
+    lights on in @[room] and [room]
 
   ~[basement]
     cellar
