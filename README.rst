@@ -19,174 +19,17 @@ pytlas |travis| |coveralls| |pypi| |rtd| |license|
 
 ⚠️ **You're reading the develop README.** For the last published version documentation, `please click here <https://github.com/atlassistant/pytlas/tree/43bda4ea9936c414a77aafdc803144dcbaa50672>`_.
 
-An open-source 🤖💬 assistant library built for people and made to be super easy to setup and understand.
+An open-source 🤖💬 python 3 assistant library built for people and made to be super easy to setup and understand.
 
 I first started to develop `atlas <https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.
 
-I have ditched the **MQTT** part to keep things super simple to understand.
+Documentation
+-------------
 
-Installation
-------------
-
-pip
-~~~
-
-.. code-block:: bash
-
-  $ pip install pytlas[snips]
-
-source
-~~~~~~
-
-.. code-block:: bash
-
-  $ git clone https://github.com/atlassistant/pytlas.git
-  $ cd pytlas
-  $ python setup.py install
-
-  or
-
-  $ pip install -e .[snips]
-
-Additional resources
-~~~~~~~~~~~~~~~~~~~~
-
-⚠️ If you want to use `snips-nlu` as the backend (which is the default), you would have to download needed resources with the following command as per `the documentation <https://github.com/snipsco/snips-nlu#language-resources>`_ where `en` is the language code you plan to use :
-
-.. code-block:: bash
-
-  $ snips-nlu download en
-
-or
-
-.. code-block:: bash
-
-  $ snips-nlu download-all-languages
-
-to download all languages resources.
-
-Usage
------
-
-From the terminal
-~~~~~~~~~~~~~~~~~
-
-pytlas include a basic CLI interface to interact with the system.
-
-This line will start the pytlas repl with skills located in the `example/skills/` directory. It will load all data and fit the engine before starting the prompt.
-
-.. code-block:: bash
-
-  $ pytlas -s example/skills -v -l en repl
-
-From code
-~~~~~~~~~
-
-Here is a snippet which cover the basics of using pytlas inside your own program :
-
-.. code-block:: python
-
-  # pytlas is fairly easy to understand.
-  # It will take raw user inputs, parse them and call appropriate handlers with
-  # parsed slots values. It will also manage the conversation states so skills can 
-  # ask for user inputs if they need to.
-
-  from pytlas import Agent, intent, training
-  from pytlas.interpreters.snips import SnipsInterpreter
-
-  # Here, we register a sentence as training data for the specified language
-  # Those training sample are written using a simple DSL named chatl. It make it 
-  # back-end agnostic and is much more readable than raw dataset needed by NLU
-  # engines.
-  #
-  # Those data will be parsed by `pychatl` to output the correct dataset use for the fit
-  # part.
-
-  @training('en')
-  def en_data(): return """
-  %[lights_on]
-    turn the @[room]'s lights on would you
-    turn lights on in the @[room] and @[room]
-    lights on in @[room] and @[room] please
-    turn on the lights in @[room]
-    turn the lights on in @[room]
-    enlight me in @[room]
-    lights on in @[room] and [room]
-
-  ~[basement]
-    cellar
-
-  @[room](extensible=false)
-    living room
-    kitchen
-    bedroom
-    ~[basement]
-
-  """
-
-  # Here we are registering a function (with the intent decorator) as an handler 
-  # for the intent 'lights_on'.
-  #
-  # So when a user input will be parsed as a 'lights_on' intent by the interpreter, 
-  # this handler will be called with a special `Request` object which contains the 
-  # agent (which triggered this handler) and the intent with its slots.
-
-  @intent('lights_on')
-  def on_intent_lights_on(request):
-    
-    # With the request object, we can communicate back with the `answer` method
-    # or the `ask` method if we need more user input. Here we are joining on each
-    # slot `value` because a slot can have multiple values.
-    
-    request.agent.answer('Turning lights on in %s' % ', '.join([v.value for v in request.intent.slot('room')]))
-
-    # When using the `answer` method, you should call the `done` method as well. This is
-    # useful because a skill could communicate multiple answers at different intervals
-    # (ie. when fetching the information elsewhere).
-
-    return request.agent.done()
-
-  class Client:
-    """This client is used as a model for an agent. It will receive lifecycle events
-    raised by the agent.
-    """
-
-    def on_answer(self, text, cards, **meta):
-      print (text)
-
-    def on_ask(self, slot, text, choices, **meta):
-      print (text)
-
-  if __name__ == '__main__':
-    
-    # The last piece is the `Interpreter`. This is the part responsible for human
-    # language parsing. It parses raw human sentences into something more useful for
-    # the program.
-
-    interpreter = SnipsInterpreter('en')
-
-    # Train the interpreter using training data register with the `training` decorator
-    # or `pytlas.training.register` function.
-
-    interpreter.fit_from_skill_data()
-    
-    # The `Agent` uses the model given to call appropriate lifecycle hooks.
-
-    agent = Agent(interpreter, model=Client())
-
-    # With this next line, this is what happenned:
-    #
-    # - The message is parsed by the `SnipsInterpreter`
-    # - A 'lights_on' intents is retrieved and contains 'kitchen' and 'bedroom' as the 'room' slot values
-    # - Since the `Agent` is asleep, it will transition to the 'lights_on' state immediately
-    # - Transitioning to this state call the appropriate handler (at the beginning of this file)
-    # - 'Turning lights on in kitchen, bedroom' is printed to the terminal by the `Client.on_answer` defined above
-    # - `done` is called by the skill so the agent transitions back to the 'asleep' state
-
-    agent.parse('turn the lights on in kitchen and bedroom please')
+The documentation is being actively re-written to `https://pytlas.readthedocs.io <https://pytlas.readthedocs.io>`_, that's the next big step before the V3 release!
 
 Creating a skill
-----------------
+~~~~~~~~~~~~~~~~
 
 Skill are reusable piece of code that you can share with others and do the actual job. You can have a skill that fetch weather forecasts, another one that talks with your home connected components, that's entirely up to you!
 
