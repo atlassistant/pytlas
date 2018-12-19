@@ -16,6 +16,10 @@ From pypi
 
   $ pip install pytlas[snips]
 
+.. note::
+
+  The `[snips]` mention here represents an extra require and will download `snips_nlu` for you.
+
 From source
 -----------
 

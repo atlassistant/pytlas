@@ -26,10 +26,13 @@ pytlas is an open-source 🤖💬 **python 3** assistant library built for peopl
 
 Its goal is to make easy to **map natural language sentences** to **python function handlers**. It also manages a conversation with the help of a finite state machine.
 
+Ever wanted to develop your own Alexa, Siri or Google Assistant and host it yourself? This is possible!
+
 .. toctree::
   :maxdepth: 2
   :caption: Contents
 
   getting_started/index
   core_components/index
+  writing_skills/index
 

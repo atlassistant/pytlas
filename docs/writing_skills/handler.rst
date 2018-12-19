@@ -1,0 +1,5 @@
+.. _handler:
+
+Handler
+=======
+
