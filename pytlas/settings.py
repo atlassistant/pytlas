@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 from functools import wraps
-import os
+import os, re
 
 DEFAULT_SECTION = 'pytlas'
 DEFAULT_FILENAME = 'pytlas.conf'
@@ -66,6 +66,8 @@ def write_to_settings(section=DEFAULT_SECTION):
   
   return new
 
+env_sanitizer_re = re.compile('[^0-9a-zA-Z]+')
+
 def to_env_key(section, setting):
   """Convert a section and a setting to an environment key.
 
@@ -79,10 +81,12 @@ def to_env_key(section, setting):
   Examples:
     >>> to_env_key('pytlas', 'lang')
     'PYTLAS_LANG'
+    >>> to_env_key('pytlas.a skill', 'password')
+    'PYTLAS_A_SKILL_PASSWORD'
 
   """
 
-  return ('%s_%s' % (section, setting)).upper()
+  return env_sanitizer_re.sub('_', '%s_%s' % (section, setting)).upper()
 
 def stringify(value):
   """Stringify the given value.
