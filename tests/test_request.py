@@ -53,13 +53,17 @@ class TestRequest:
     expect(r.agent.ask).to_not.equal(self.agent.ask)
     expect(r.agent.ask).to.equal(r.agent.empty_func)
     expect(r.agent.done).to.equal(r.agent.empty_func)
+    expect(r.agent.context).to.equal(r.agent.empty_func)
     expect(r.agent.answer).to.equal(r.agent.empty_func)
     expect(r.agent.meta).to.equal(self.agent.meta)
 
   def test_it_should_call_agent_methods_if_the_current_request(self):
     r = Request(self.agent, None)
 
-    expect(r.agent.ask).to_not.equal(self.agent.ask)
-
     self.agent._request = r
+
     expect(r.agent.ask).to.equal(self.agent.ask)
+    expect(r.agent.done).to.equal(self.agent.done)
+    expect(r.agent.context).to.equal(self.agent.context)
+    expect(r.agent.answer).to.equal(self.agent.answer)
+    expect(r.agent.meta).to.equal(self.agent.meta)

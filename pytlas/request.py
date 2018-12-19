@@ -2,7 +2,7 @@ import uuid, logging
 from datetime import datetime
 from babel.dates import format_date, format_datetime, format_time
 
-AGENT_SILENTED_METHODS = ['ask', 'answer', 'done']
+AGENT_SILENTED_METHODS = ['ask', 'answer', 'done', 'context']
 
 class AgentProxy:
   """Returns an agent proxy to silent down some methods (ask, answer and done) for skills
