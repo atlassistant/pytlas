@@ -5,7 +5,7 @@ Meta
 
 When working with **pytlas**, you may find metadata in different places.
 
-Especialy in:
+Especially in:
 
 - The agent `__init__`, `answer`, `ask` and `parse` methods,
 - The `Intent` class

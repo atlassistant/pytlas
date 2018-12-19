@@ -5,7 +5,7 @@ Client
 
 A client is a thin layer used by an agent to communicate with the user. It can be anything such as a tiny CLI (as the one provided), a WebSocket server or a connected speaker.
 
-It will receive those agent events:
+When provided to an agent, some specific members will be called by the agent on specific lifecycle events:
 
 .. py:function:: on_answer(text, cards, raw_text, **meta)
 

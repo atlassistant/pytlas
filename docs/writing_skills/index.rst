@@ -20,3 +20,4 @@ There's only two parts that your skill should always define to make it work, :re
   translations
   metadata
   settings
+  context

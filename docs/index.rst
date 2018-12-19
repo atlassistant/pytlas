@@ -28,11 +28,15 @@ Its goal is to make easy to **map natural language sentences** to **python funct
 
 Ever wanted to develop your own Alexa, Siri or Google Assistant and host it yourself? This is possible!
 
+.. warning::
+
+    **pytlas** being a library, it does not handle speech recognition and synthesis. It only handles text inputs. If you want it to be able to interact with the voice, you must write a :ref:`client` (that's in my TODO list btw ;) ).
+
 .. toctree::
   :maxdepth: 2
   :caption: Contents
 
   getting_started/index
-  core_components/index
   writing_skills/index
+  core_components/index
 

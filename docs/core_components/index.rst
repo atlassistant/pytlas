@@ -1,7 +1,7 @@
 Core components
 ===============
 
-In order to develop for pytlas, you should understand how core components fit together to make it understand and call your handlers. If you only want to develop your own skills, you can omit this section and directly go to :ref:`skills`.
+In order to develop for pytlas, you should understand how core components fit together to make it understand and call your handlers. If you only want to develop your own skills, you can omit this section and go to :ref:`skills`.
 
 The general command flow looks like this:
 
