@@ -57,20 +57,21 @@ def get_module_path(module_name):
   except (AttributeError, KeyError):
     return os.getcwd()
 
-def read_file(path, ignore_errors=False):
+def read_file(path, ignore_errors=False, relative_to_file=None):
   """Read the file content at the specified path.
 
   Args:
     path (str): Path to be read
     ignore_errors: True if you don't want exception to be raised (None will be returned)
+    relative_to_file (str): If set, the path will be evaluated relative to this filepath
 
   Returns:
     str: Content of the file or None if not found and ignore_errors was true
     
   """
 
-  # TODO maybe add relative_to_file parameter use to resolve the path relative to the file
-  # given. It will make easy for skills to read a file relative to __file__
+  if relative_to_file:
+    path = os.path.join(os.path.dirname(relative_to_file), path)
 
   try:
     with open(path) as f:

@@ -1,3 +1,4 @@
+import os
 from sure import expect
 from unittest.mock import patch, mock_open
 from pytlas.utils import find_match, keep_one, read_file
@@ -41,6 +42,14 @@ class TestReadFile:
     expect(read_file('something', ignore_errors=True)).to.be.none
 
   def test_it_should_read_the_file_correctly(self):
-    with patch('builtins.open', mock_open(read_data='some content')):
+    with patch('builtins.open', mock_open(read_data='some content')) as mopen:
       expect(read_file('somepath')).to.equal('some content')
+
+      mopen.assert_called_once_with('somepath')
+
+  def test_it_should_read_the_file_relative_to_another_one(self):
+    with patch('builtins.open', mock_open(read_data='some content')) as mopen:
+      expect(read_file('somepath', relative_to_file='/home/julien/pytlas/a.file')).to.equal('some content')
+
+      mopen.assert_called_once_with('/home/julien/pytlas%ssomepath' % os.path.sep)
       
