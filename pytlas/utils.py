@@ -58,7 +58,7 @@ def get_module_path(module_name):
     return os.getcwd()
 
 def read_file(path, ignore_errors=False, relative_to_file=None):
-  """Read the file content at the specified path.
+  """Read the file content as utf-8 at the specified path.
 
   Args:
     path (str): Path to be read
@@ -74,7 +74,7 @@ def read_file(path, ignore_errors=False, relative_to_file=None):
     path = os.path.join(os.path.dirname(relative_to_file), path)
 
   try:
-    with open(path) as f:
+    with open(path, encoding='utf-8') as f:
       return f.read()
   except Exception as e:
     if not ignore_errors:

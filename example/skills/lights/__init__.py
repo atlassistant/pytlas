@@ -1,14 +1,8 @@
 from pytlas import register_training, register_translations
+from pytlas.utils import read_file
 from .skill import *
-import json, os
+import json
 
-def read_file(path):
-  with open(os.path.join(os.path.dirname(__file__), path)) as fp:
-    return fp.read()
-
-def parse_json(path):
-  return json.loads(read_file(path))
-
-register_translations ('fr', lambda: parse_json('lights.fr.json'))
-register_training ('en', lambda: read_file('lights.en.dsl'))
-register_training ('fr', lambda: read_file('lights.fr.dsl'))
+register_translations ('fr', lambda: json.loads(read_file('lights.fr.json', relative_to_file=__file__)))
+register_training ('en', lambda: read_file('lights.en.dsl', relative_to_file=__file__))
+register_training ('fr', lambda: read_file('lights.fr.dsl', relative_to_file=__file__))

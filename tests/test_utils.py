@@ -45,11 +45,11 @@ class TestReadFile:
     with patch('builtins.open', mock_open(read_data='some content')) as mopen:
       expect(read_file('somepath')).to.equal('some content')
 
-      mopen.assert_called_once_with('somepath')
+      mopen.assert_called_once_with('somepath', encoding='utf-8')
 
   def test_it_should_read_the_file_relative_to_another_one(self):
     with patch('builtins.open', mock_open(read_data='some content')) as mopen:
       expect(read_file('somepath', relative_to_file='/home/julien/pytlas/a.file')).to.equal('some content')
 
-      mopen.assert_called_once_with('/home/julien/pytlas%ssomepath' % os.path.sep)
+      mopen.assert_called_once_with('/home/julien/pytlas%ssomepath' % os.path.sep, encoding='utf-8')
       
