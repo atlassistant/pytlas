@@ -2,7 +2,7 @@ from sure import expect
 from configparser import NoOptionError
 from pytlas.settings import write_to_settings, config, DEFAULT_SECTION, SETTING_DEFAULT_REPO_URL, \
   SETTING_SKILLS, DEFAULT_SETTING_SKILLS, DEFAULT_SETTING_DEFAULT_REPO_URL, get, set as set_setting, \
-  getbool, getint, getfloat, getlist
+  getbool, getint, getfloat, getlist, getpath
 import os
 
 class TestSettings:
@@ -95,3 +95,12 @@ class TestSettings:
     r = getlist('a key', section='lists')
     expect(r).to.be.a(list)
     expect(r).to.equal(['one', 'two'])
+
+  def test_it_should_returns_an_absolute_path_when_asked_to(self):
+    r = getpath('a key', section='paths')
+    expect(r).to.be.none
+
+    set_setting('a key', 'something', section='paths')
+
+    r = getpath('a key', section='paths')
+    expect(r).to.equal(os.path.abspath('something'))

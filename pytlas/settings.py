@@ -225,3 +225,22 @@ def getlist(setting, default=[], section=DEFAULT_SECTION):
   v = get(setting, section=section)
 
   return v.split(',') if v else default
+
+def getpath(setting, default=None, section=DEFAULT_SECTION):
+  """Gets an absolute path for a setting.
+  
+  It uses the `get` under the hood so the same rules applies.
+
+  Args:
+    setting (str): Name of the configuration option
+    default (str): Fallback value
+    section (str): Section to look in
+
+  Returns:
+    str: Value of the setting
+
+  """
+
+  v = get(setting, section=section)
+
+  return os.path.abspath(v) if v else default

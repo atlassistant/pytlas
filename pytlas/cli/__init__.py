@@ -31,14 +31,14 @@ def repl(): # pragma: no cover
   """Start a REPL session to interact with your assistant.
   """
 
-  import_skills(settings.get(settings.SETTING_SKILLS), settings.getbool(settings.SETTING_WATCH))
+  import_skills(settings.getpath(settings.SETTING_SKILLS), settings.getbool(settings.SETTING_WATCH))
 
   try:
     from pytlas.interpreters.snips import SnipsInterpreter
     
-    interpreter = SnipsInterpreter(settings.get(settings.SETTING_LANG), settings.get(settings.SETTING_CACHE))
+    interpreter = SnipsInterpreter(settings.get(settings.SETTING_LANG), settings.getpath(settings.SETTING_CACHE))
 
-    training_file = settings.get(settings.SETTING_TRAINING_FILE)
+    training_file = settings.getpath(settings.SETTING_TRAINING_FILE)
 
     if training_file:
       interpreter.fit_from_file(training_file)
@@ -46,7 +46,7 @@ def repl(): # pragma: no cover
       interpreter.fit_from_skill_data()
 
     if not settings.getbool(settings.SETTING_DRY):
-      Prompt(Agent(interpreter, transitions_graph_path=settings.get(settings.SETTING_GRAPH_FILE), **os.environ), settings.get(settings.SETTING_PARSE)).cmdloop()
+      Prompt(Agent(interpreter, transitions_graph_path=settings.getpath(settings.SETTING_GRAPH_FILE), **os.environ), settings.get(settings.SETTING_PARSE)).cmdloop()
   except ImportError:
     logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 
 
@@ -64,7 +64,7 @@ def list_skills(): # pragma: no cover
   """List installed skills for this instance.
   """
 
-  import_skills(settings.get(settings.SETTING_SKILLS))
+  import_skills(settings.getpath(settings.SETTING_SKILLS))
 
   for skill_data in get_loaded_skills(settings.get(settings.SETTING_LANG)):
     click.echo(skill_data)
@@ -75,7 +75,7 @@ def add_skills(skills): # pragma: no cover
   """Add given skills to your instance.
   """
 
-  install_skills(settings.get(settings.SETTING_SKILLS), click.echo, *skills)
+  install_skills(settings.getpath(settings.SETTING_SKILLS), click.echo, *skills)
 
 @skills.command('update')
 @click.argument('skills', nargs=-1)
@@ -83,7 +83,7 @@ def update_skills_command(skills): # pragma: no cover
   """Update given skills for this instance. If no skills are defined, they will be all updated.
   """
   
-  update_skills(settings.get(settings.SETTING_SKILLS), click.echo, *skills)
+  update_skills(settings.getpath(settings.SETTING_SKILLS), click.echo, *skills)
 
 @skills.command('remove')
 @click.argument('skills', nargs=-1, required=True)
@@ -91,4 +91,4 @@ def remove_skills(skills): # pragma: no cover
   """Remove given skills from your instance.
   """
 
-  uninstall_skills(settings.get(settings.SETTING_SKILLS), click.echo, *skills)
+  uninstall_skills(settings.getpath(settings.SETTING_SKILLS), click.echo, *skills)
