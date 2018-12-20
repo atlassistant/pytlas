@@ -3,11 +3,16 @@
 Training
 ========
 
-Training data allow your skill to define which sentences will trigger specific intents so you must provide enough data for it to understand patterns.
+You should always start by defining example sentence of how a user might trigger your code.
+
+It allows your skill to define which sentences will trigger specific intents so you must provide enough data for it to understand patterns.
 
 .. note::
 
   You should define training data in all languages that you wish to support in your skill.
+
+Format
+------
 
 It uses a specific **interpreter agnostic format** called `pychatl <https://github.com/atlassistant/pychatl>`_ that I also maintain. Its goal is to be easy to write and read by humans.
 
@@ -47,3 +52,13 @@ So, going back to our skill, let's define some training data:
   """
 
 Where `%[lights_on]` and `%[lights_off]` define intents, `@[room]` is an entity and `~[basement]` is a synonym.
+
+Best practices
+--------------
+
+Here is some thoughts about making great training data.
+
+* Use lowercase
+* Avoid punctuation
+* Give at least 10 sentences per intent
+* Provide variety in your samples

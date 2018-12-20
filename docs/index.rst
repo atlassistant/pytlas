@@ -30,7 +30,7 @@ Ever wanted to develop your own Alexa, Siri or Google Assistant and host it your
 
 .. warning::
 
-    **pytlas** being a library, it does not handle speech recognition and synthesis. It only handles text inputs. If you want it to be able to interact with the voice, you must write a :ref:`client` (that's in my TODO list btw ;) ).
+    **pytlas** being a library, it does not handle speech recognition and synthesis. It only handles text inputs. If you want it to be able to interact with the voice, you must write a :ref:`client` (that's in my TODO list btw 😉).
 
 .. toctree::
   :maxdepth: 2

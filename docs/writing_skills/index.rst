@@ -9,7 +9,15 @@ There's only two parts that your skill should always define to make it work, :re
 
 .. note::
 
-  For the rest of this section, I assumed you have created a new folder (that's your skill name) in your instance skills directory (`skills/` subdirectory by default) and created an `__init__.py` file inside it that makes this folder an importable python module.
+  For the rest of this section, I assumed the following directory structure:
+
+    .. code-block:: bash
+
+      - skills/
+        - your_awesome_skill/
+          - __init__.py
+
+  and we're going to work directly in the `__init__.py` file.
 
 .. toctree::
   :maxdepth: 2
@@ -19,5 +27,6 @@ There's only two parts that your skill should always define to make it work, :re
   handler
   translations
   metadata
+  request
   settings
   context

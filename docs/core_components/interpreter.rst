@@ -18,3 +18,21 @@ Slot
 A slot is like a parameter value for a function. It represents an entity in the context of an intent.
 
 So when I say *what's the weather like in Paris?*, my intent is *get weather* and the slot *city* should be *Paris*.
+
+Implementing a custom interpreter
+---------------------------------
+
+If you wish to implement your own interpreter, you must at least extends from `pytlas.interpreters.Interpreter` and implement those methods.
+
+.. py:function:: fit(data)
+
+  Fit the interpreter with training data.
+
+.. py:function:: parse(msg, scopes=None)
+  :noindex:
+
+  Parse a raw message and returns an intents list. *scopes* is an optional list of allowed intent names.
+
+.. py:function:: parse_slot(intent, slot, msg)
+
+  Parse a slot for a given context.
