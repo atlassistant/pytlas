@@ -12,7 +12,7 @@ Getting started
 
 .. note::
 
-  The agent in the :ref:`request` is a proxy which maps to an :ref:`agents`.
+  The agent in the :ref:`request` is a proxy which maps to an :ref:`agents` so you have access to everything it exposes.
 
 Here the basic code you need to have. Calling `request.agent.done` is mandatory to inform the agent that it should returns to its asleep state.
 
