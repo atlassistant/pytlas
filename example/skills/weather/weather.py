@@ -35,7 +35,7 @@ def en_data(): return """
   tell me if it is going to rain @[date] in @[location]
   will it rain in @[location] and @[location] @[date]
 
-@[date](snips:type=snips/datetime)
+@[date](type=datetime)
   tomorrow
   today
   this evening
@@ -68,7 +68,7 @@ def fr_data(): return """
   y'avoir du vent
   faire nuageux
 
-@[date](snips:type=snips/datetime)
+@[date](type=datetime)
   demain
   aujourd'hui
   ce week-end
