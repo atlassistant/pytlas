@@ -245,6 +245,6 @@ def getpath(setting, default=None, section=DEFAULT_SECTION):
 
   """
 
-  v = get(setting, section=section)
+  v = get(setting, default, section=section)
 
-  return os.path.abspath(v) if v else default
+  return os.path.abspath(v) if v else None

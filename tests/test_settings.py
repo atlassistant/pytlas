@@ -100,6 +100,9 @@ class TestSettings:
     r = getpath('a key', section='paths')
     expect(r).to.be.none
 
+    r = getpath('a key', 'default/path', section='paths')
+    expect(r).to.equal(os.path.abspath('default/path'))
+
     set_setting('a key', 'something', section='paths')
 
     r = getpath('a key', section='paths')
