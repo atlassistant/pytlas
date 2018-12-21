@@ -26,7 +26,7 @@ Want to get your feet wet? Have a look at the `example/skills` folder to see how
 Documentation
 -------------
 
-The documentation is being actively re-written to `https://pytlas.readthedocs.io <https://pytlas.readthedocs.io>`_, that's the next big step before the V3 release!
+The documentation is hosted on readthedocs here `https://pytlas.readthedocs.io <https://pytlas.readthedocs.io>`_. It still needs some improvement so don't hesitate to help me!
 
 Testing
 -------
