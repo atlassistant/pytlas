@@ -138,7 +138,7 @@ def set(setting, value, section=DEFAULT_SECTION):
 
   config[section][setting] = stringify(value)
 
-def get(setting, default=None, section=DEFAULT_SECTION):
+def get(setting, default=None, section=DEFAULT_SECTION, additional_lookup={}):
   """Gets a setting value, if an environment variable is defined, it will take
   precedence over the value hold in the inner config object.
 
@@ -149,15 +149,18 @@ def get(setting, default=None, section=DEFAULT_SECTION):
     setting (str): Name of the configuration option
     default (str): Fallback value
     section (str): Section to look in
+    additional_lookup (dict): Additional dictionary to look in
 
   Returns:
     str: Value of the setting
 
   """
 
-  return os.environ.get(to_env_key(section, setting), config.get(section, setting, fallback=default))
+  env_key = to_env_key(section, setting)
 
-def getbool(setting, default=False, section=DEFAULT_SECTION):
+  return additional_lookup.get(env_key, os.environ.get(env_key, config.get(section, setting, fallback=default)))
+
+def getbool(setting, default=False, section=DEFAULT_SECTION, additional_lookup={}):
   """Gets a boolean value for a setting. It uses the `get` under the hood so the same
   rules applies.
 
@@ -165,17 +168,18 @@ def getbool(setting, default=False, section=DEFAULT_SECTION):
     setting (str): Name of the configuration option
     default (bool): Fallback value
     section (str): Section to look in
+    additional_lookup (dict): Additional dictionary to look in
 
   Returns:
     bool: Value of the setting
 
   """
 
-  v = get(setting, section=section)
+  v = get(setting, section=section, additional_lookup=additional_lookup)
 
   return config._convert_to_boolean(v) if v else default
 
-def getint(setting, default=0, section=DEFAULT_SECTION):
+def getint(setting, default=0, section=DEFAULT_SECTION, additional_lookup={}):
   """Gets a int value for a setting. It uses the `get` under the hood so the same
   rules applies.
 
@@ -183,17 +187,18 @@ def getint(setting, default=0, section=DEFAULT_SECTION):
     setting (str): Name of the configuration option
     default (int): Fallback value
     section (str): Section to look in
+    additional_lookup (dict): Additional dictionary to look in
 
   Returns:
     int: Value of the setting
 
   """
 
-  v = get(setting, section=section)
+  v = get(setting, section=section, additional_lookup=additional_lookup)
 
   return int(v) if v else default
 
-def getfloat(setting, default=0.0, section=DEFAULT_SECTION):
+def getfloat(setting, default=0.0, section=DEFAULT_SECTION, additional_lookup={}):
   """Gets a float value for a setting. It uses the `get` under the hood so the same
   rules applies.
 
@@ -201,17 +206,18 @@ def getfloat(setting, default=0.0, section=DEFAULT_SECTION):
     setting (str): Name of the configuration option
     default (float): Fallback value
     section (str): Section to look in
+    additional_lookup (dict): Additional dictionary to look in
 
   Returns:
     float: Value of the setting
 
   """
 
-  v = get(setting, section=section)
+  v = get(setting, section=section, additional_lookup=additional_lookup)
 
   return float(v) if v else default
 
-def getlist(setting, default=[], section=DEFAULT_SECTION):
+def getlist(setting, default=[], section=DEFAULT_SECTION, additional_lookup={}):
   """Gets a list for a setting. It will split values separated by a comma.
   
   It uses the `get` under the hood so the same rules applies.
@@ -220,17 +226,18 @@ def getlist(setting, default=[], section=DEFAULT_SECTION):
     setting (str): Name of the configuration option
     default (list): Fallback value
     section (str): Section to look in
+    additional_lookup (dict): Additional dictionary to look in
 
   Returns:
     list: Value of the setting
 
   """
 
-  v = get(setting, section=section)
+  v = get(setting, section=section, additional_lookup=additional_lookup)
 
   return v.split(',') if v else default
 
-def getpath(setting, default=None, section=DEFAULT_SECTION):
+def getpath(setting, default=None, section=DEFAULT_SECTION, additional_lookup={}):
   """Gets an absolute path for a setting.
   
   It uses the `get` under the hood so the same rules applies.
@@ -239,12 +246,13 @@ def getpath(setting, default=None, section=DEFAULT_SECTION):
     setting (str): Name of the configuration option
     default (str): Fallback value
     section (str): Section to look in
+    additional_lookup (dict): Additional dictionary to look in
 
   Returns:
     str: Value of the setting
 
   """
 
-  v = get(setting, default, section=section)
+  v = get(setting, default, section=section, additional_lookup=additional_lookup)
 
   return os.path.abspath(v) if v else None

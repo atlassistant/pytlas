@@ -9,7 +9,7 @@ When you use the `pytlas repl`, you can provide a config file that will be parse
 
 .. code-block:: python
 
-  from pytlas import settings
+  from pytlas import settings, intent
 
   # Get a string
   settings.get('openweather_key', 'a default value', section='pytlas.weather')
@@ -26,3 +26,10 @@ When you use the `pytlas repl`, you can provide a config file that will be parse
 
   # You can also programatically set a setting
   settings.set('a key', 'your value', section='pytlas.weather')
+
+  @intent('my_intent')
+  def my_handler(r):
+    # Inside an handler, you can pass agent metadata to `additional_lookup`
+    # With this call, agent meta will take precedence over env and file settings, this
+    # is useful to allow agent to override some settings such as api keys.
+    settings.get('openweather_key', 'a default value', section='pytlas.weather', additional_lookup=r.agent.meta)

@@ -36,6 +36,13 @@ class TestSettings:
   def test_it_should_returns_the_default_if_not_found(self):
     expect(get('a key', default='a value')).to.equal('a value')
 
+  def test_it_should_returns_the_one_in_additional_lookup_first(self):
+    d = {
+      'PYTLAS_A_KEY': 'an additional value',
+    }
+
+    expect(get('a key', default='a value', additional_lookup=d)).to.equal('an additional value')
+
   def test_it_should_retrieve_the_env_var_which_takes_precedence_if_any(self):
     
     set_setting('a_key', 'a value', section='envs')
@@ -45,6 +52,10 @@ class TestSettings:
     os.environ['ENVS_A_KEY'] = 'an env value'
 
     expect(get('a_key', section='envs')).to.equal('an env value')
+
+    expect(get('a_key', section='envs', additional_lookup={
+      'ENVS_A_KEY': 'an added env value',
+    })).to.equal('an added env value')
 
   def test_it_should_returns_a_boolean_when_asked_to(self):
     r = getbool('a key', section='bools')
@@ -63,6 +74,10 @@ class TestSettings:
     expect(r).to.be.a(bool)
     expect(r).to.be.true
 
+    expect(getbool('another key', section='bools', additional_lookup={
+      'BOOLS_ANOTHER_KEY': 'True',
+    })).to.be.true
+
   def test_it_should_returns_an_int_when_asked_to(self):
     r = getint('a key', section='ints')
     expect(r).to.be.a(int)
@@ -73,6 +88,10 @@ class TestSettings:
     r = getint('a key', section='ints')
     expect(r).to.be.a(int)
     expect(r).to.equal(1337)
+
+    expect(getint('a key', section='ints', additional_lookup={
+      'INTS_A_KEY': '42',
+    })).to.equal(42)
 
   def test_it_should_returns_a_float_when_asked_to(self):
     r = getfloat('a key', section='floats')
@@ -85,6 +104,10 @@ class TestSettings:
     expect(r).to.be.a(float)
     expect(r).to.equal(1337.2)
 
+    expect(getfloat('a key', section='floats', additional_lookup={
+      'FLOATS_A_KEY': '42.2',
+    })).to.equal(42.2)
+
   def test_it_should_returns_a_list_of_str_when_asked_to(self):
     r = getlist('a key', section='lists')
     expect(r).to.be.a(list)
@@ -95,6 +118,10 @@ class TestSettings:
     r = getlist('a key', section='lists')
     expect(r).to.be.a(list)
     expect(r).to.equal(['one', 'two'])
+
+    expect(getlist('a key', section='lists', additional_lookup={
+      'LISTS_A_KEY': 'a,b,c',
+    })).to.equal(['a', 'b', 'c'])
 
   def test_it_should_returns_an_absolute_path_when_asked_to(self):
     r = getpath('a key', section='paths')
@@ -107,3 +134,7 @@ class TestSettings:
 
     r = getpath('a key', section='paths')
     expect(r).to.equal(os.path.abspath('something'))
+
+    expect(getpath('a key', section='paths', additional_lookup={
+      'PATHS_A_KEY': 'var/data',
+    })).to.equal(os.path.abspath('var/data'))
