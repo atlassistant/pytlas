@@ -6,11 +6,12 @@ Using the pytlas CLI
 
 pytlas include a basic CLI interface to interact with the system.
 
-This line will start the pytlas REPL with skills located in the example/skills/ directory. It will load all data and fit the engine before starting the interactive prompt.
+This line will start the pytlas REPL with skills located in the example/skills/ directory (in the git repository). It will load all data and fit the engine before starting the interactive prompt.
 
 .. code:: bash
 
-  $ pytlas -s example/skills -v -l en repl
+  $ cd example
+  $ pytlas repl
 
 Using the library
 -----------------
