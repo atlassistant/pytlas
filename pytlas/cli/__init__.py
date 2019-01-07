@@ -5,6 +5,30 @@ from pytlas.importers import import_skills
 from pytlas.pam import get_loaded_skills, install_skills, uninstall_skills, update_skills
 import click, logging, os, pytlas.settings as settings
 
+def instantiate_and_fit_interpreter(): # pragma: no cover
+  import_skills(settings.getpath(settings.SETTING_SKILLS), settings.getbool(settings.SETTING_WATCH))
+
+  try:
+    from pytlas.interpreters.snips import SnipsInterpreter
+    
+    interpreter = SnipsInterpreter(settings.get(settings.SETTING_LANG), settings.getpath(settings.SETTING_CACHE))
+
+    training_file = settings.getpath(settings.SETTING_TRAINING_FILE)
+
+    if training_file:
+      interpreter.fit_from_file(training_file)
+    else:
+      interpreter.fit_from_skill_data()
+
+    return interpreter
+  except ImportError:
+    logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 
+
+def instantiate_agent_prompt(sentence=None): # pragma: no cover
+  interpreter = instantiate_and_fit_interpreter()
+
+  Prompt(Agent(interpreter, transitions_graph_path=settings.getpath(settings.SETTING_GRAPH_FILE), **os.environ), parse_message=sentence).cmdloop()
+
 @click.group()
 @click.version_option(__version__)
 @click.option('--config', default=settings.DEFAULT_FILENAME, help='Path to the configuration file')
@@ -22,8 +46,6 @@ def main(): # pragma: no cover
   install_logs(settings.getbool(settings.SETTING_VERBOSE), settings.getbool(settings.SETTING_DEBUG))
 
 @main.group(invoke_without_command=True)
-@click.option('--parse', help='Parse the given message immediately and exits when the skill is done')
-@click.option('--dry', is_flag=True, help='Dry run, will not load the interactive prompt')
 @click.option('--watch', is_flag=True, help='Reload on skill files change')
 @click.argument('training_file', type=click.Path(), nargs=1, required=False)
 @settings.write_to_settings()
@@ -31,24 +53,22 @@ def repl(): # pragma: no cover
   """Start a REPL session to interact with your assistant.
   """
 
-  import_skills(settings.getpath(settings.SETTING_SKILLS), settings.getbool(settings.SETTING_WATCH))
+  instantiate_agent_prompt()
 
-  try:
-    from pytlas.interpreters.snips import SnipsInterpreter
-    
-    interpreter = SnipsInterpreter(settings.get(settings.SETTING_LANG), settings.getpath(settings.SETTING_CACHE))
+@main.command('parse')
+@click.argument('sentence', required=True)
+def parse(sentence): # pragma: no cover
+  """Parse the given message immediately and exits when the skill is done.
+  """
 
-    training_file = settings.getpath(settings.SETTING_TRAINING_FILE)
+  instantiate_agent_prompt(sentence)
 
-    if training_file:
-      interpreter.fit_from_file(training_file)
-    else:
-      interpreter.fit_from_skill_data()
+@main.command('train')
+def train(): # pragma: no cover
+  """Dry run, will not load the interactive prompt but only the fit part.
+  """
 
-    if not settings.getbool(settings.SETTING_DRY):
-      Prompt(Agent(interpreter, transitions_graph_path=settings.getpath(settings.SETTING_GRAPH_FILE), **os.environ), settings.get(settings.SETTING_PARSE)).cmdloop()
-  except ImportError:
-    logging.critical('Could not import the "snips" interpreter, is "snips-nlu" installed?') 
+  instantiate_and_fit_interpreter()
 
 @main.group()
 def skills(): # pragma: no cover

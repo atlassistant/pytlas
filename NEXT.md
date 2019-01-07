@@ -5,5 +5,5 @@ Coming next
 - [ ] Try to use the new [snips parsing API](https://github.com/snipsco/snips-nlu/pull/724) for parsing slots when in ask state and see if it works as expected when released
 - [ ] Add `AgentMock` used for testing skills
 - [x] Add `additional_lookup` property to `settings.get` which will take precedence over `os.environ`. With this modification, we can use `settings.get('a key', additional_lookup=r.agent.meta)` in skills to allow agent overriding of global settings.
-- [ ] Add cli command `pytlas train` and remove the `--dry` flag
-- [ ] Add cli command `pytlas parse` and remove the `--parse` arg
+- [x] Add cli command `pytlas train` and remove the `--dry` flag
+- [x] Add cli command `pytlas parse` and remove the `--parse` arg
