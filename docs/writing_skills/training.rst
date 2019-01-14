@@ -14,7 +14,7 @@ It allows your skill to define which sentences will trigger specific intents so 
 Format
 ------
 
-It uses a specific **interpreter agnostic format** called `pychatl <https://github.com/atlassistant/pychatl>`_ that I also maintain. Its goal is to be easy to write and read by humans.
+It uses a specific **interpreter agnostic format** called `chatl <https://github.com/atlassistant/chatl>`_ that I also maintain. Its goal is to be easy to write and read by humans.
 
 This tiny DSL will be transformed to a format understandable by your interpreter of choice.
 
