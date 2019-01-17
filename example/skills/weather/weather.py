@@ -109,7 +109,7 @@ units_map = {
 @intent('get_forecast')
 def on_forecast(req):
   appid = settings.get('appid', section='weather', additional_lookup=req.agent.meta)
-  units = settings.get('units', section='weather', additional_lookup=req.agent.meta)
+  units = settings.get('units', default='metric', section='weather', additional_lookup=req.agent.meta)
 
   if not appid:
     req.agent.answer(req._('You must provide an WEATHER_APPID'))
