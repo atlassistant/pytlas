@@ -1,4 +1,4 @@
-from pytlas import intent, training, translations, meta, Card
+from pytlas import intent, training, translations, meta, settings, Card
 from datetime import datetime
 from dateutil.parser import parse as dateParse 
 import requests, pytz
@@ -8,7 +8,7 @@ def register(_): return {
   'name': _('weather'),
   'description': _('Gives weather forecasts using the OpenWeather API'),
   'version': '1.0.0',
-  'settings': ['OPENWEATHER_APPID', 'OPENWEATHER_UNITS']
+  'settings': ['WEATHER_APPID', 'WEATHER_UNITS']
 }
 
 # This entity will be shared among training data since it's not language specific
@@ -82,7 +82,7 @@ def fr_data(): return """
 def fr_translations(): return {
   'For where?': 'Pour quel emplacement ?',
   'Checking weather for %s on %s': "Je recherche la météo sur %s pour le %s",
-  'You must provide an OPENWEATHER_APPID': "Vous devez fournir la clé OPENWEATHER_APPID",
+  'You must provide an WEATHER_APPID': "Vous devez fournir la clé WEATHER_APPID",
   'Here what I found for %s!': "Voici ce que j'ai trouvé pour %s",
   'No results found for %s': "Aucun résultat trouvé pour %s",
 }
@@ -108,11 +108,11 @@ units_map = {
 
 @intent('get_forecast')
 def on_forecast(req):
-  appid = req.agent.meta.get('OPENWEATHER_APPID')
-  units = req.agent.meta.get('OPENWEATHER_UNITS', 'metric')
+  appid = settings.get('appid', section='weather', additional_lookup=req.agent.meta)
+  units = settings.get('units', section='weather', additional_lookup=req.agent.meta)
 
   if not appid:
-    req.agent.answer(req._('You must provide an OPENWEATHER_APPID'))
+    req.agent.answer(req._('You must provide an WEATHER_APPID'))
     return req.agent.done()
 
   city = req.intent.slot('location').first().value
