@@ -5,6 +5,7 @@ from pytlas import Agent
 from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.card import Card
 from pytlas.interpreters import Interpreter, Intent, SlotValue
+from pytlas.hooks import register, ON_AGENT_CREATED
 
 last_request = None
 
@@ -118,9 +119,20 @@ class TestAgent:
       STATE_CANCEL: on_cancel,
       STATE_FALLBACK: on_fallback,
     }
+
     self.interpreter = Interpreter('test', 'en')
     self.interpreter.intents = list(self.handlers.keys()) + ['intent_without_handler']
     self.agent = Agent(self.interpreter, model=self, handlers=self.handlers)
+
+  def test_it_should_trigger_agent_created_hook_upon_creation(self):
+    self.on_agent_created = MagicMock()
+    self.on_agent_created.__name__ = 'on_agent_created'
+
+    register(ON_AGENT_CREATED, self.on_agent_created)
+
+    agt = Agent(self.interpreter, handlers=self.handlers)
+
+    self.on_agent_created.assert_called_once_with(agt)
 
   def test_it_should_queue_string_as_intent(self):
     self.agent.queue_intent('greet')

@@ -5,6 +5,7 @@ from pytlas.localization import get_translations
 from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
 from pytlas.skill import handlers as skill_handlers
+from pytlas.hooks import trigger, ON_AGENT_CREATED, ON_AGENT_DESTROYED
 from transitions import Machine, MachineError
 
 # Silent the transitions logger
@@ -122,6 +123,12 @@ class Agent:
     self._machine = None
     self.build()
     self.context(None)
+
+    trigger(ON_AGENT_CREATED, self)
+
+  def __del__(self):
+    # Maybe we should use a finalizer instead
+    trigger(ON_AGENT_DESTROYED, self)
 
   def _build_is_in_context_lambda(self, ctx):
     return lambda _: self.current_context == ctx
