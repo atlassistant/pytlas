@@ -103,7 +103,6 @@
           "entities": [
             "room"
           ],
-          "language_code": "en",
           "tagging_scheme_code": 2,
           "use_stemming": true
         },
@@ -118,13 +117,13 @@
       {
         "args": {
           "entity_labels": [
-            "snips/amountOfMoney",
             "snips/number",
-            "snips/datetime",
-            "snips/percentage",
-            "snips/duration",
             "snips/ordinal",
-            "snips/temperature"
+            "snips/percentage",
+            "snips/amountOfMoney",
+            "snips/temperature",
+            "snips/datetime",
+            "snips/duration"
           ],
           "language_code": "en",
           "tagging_scheme_code": 1
@@ -139,7 +138,6 @@
       {
         "args": {
           "cluster_name": "brown_clusters",
-          "language_code": "en",
           "use_stemming": false
         },
         "factory_name": "word_cluster",
@@ -155,7 +153,7 @@
     "tagging_scheme": 1,
     "unit_name": "crf_slot_filler"
   },
-  "crf_model_file": "modelc94xkuu2.crfsuite",
+  "crf_model_file": "modelf1r4xqhu.crfsuite",
   "intent": "lights_on",
   "language_code": "en",
   "slot_name_mapping": {

@@ -52,8 +52,8 @@ class SnipsInterpreter(Interpreter):
     self._entities = {}
 
   def _configure(self):
-    self._slot_mappings = self._engine._dataset_metadata.get('slot_name_mappings', {})
-    self._entities = self._engine._dataset_metadata.get(ENTITIES, {})
+    self._slot_mappings = self._engine.dataset_metadata.get('slot_name_mappings', {})
+    self._entities = self._engine.dataset_metadata.get(ENTITIES, {})
 
     self.intents = list(self._slot_mappings.keys())
 
@@ -86,8 +86,6 @@ class SnipsInterpreter(Interpreter):
     if checksum == cached_checksum:
       self.load_from_cache()
     else:
-      load_resources('snips_nlu_%s' % self.lang)
-
       config = None
 
       try:
@@ -96,7 +94,7 @@ class SnipsInterpreter(Interpreter):
       except AttributeError:
         self._logger.warning('Could not import default configuration, it will use the generic one instead')
 
-      self._engine = SnipsNLUEngine(config)
+      self._engine = SnipsNLUEngine(config, resources=load_resources('snips_nlu_%s' % self.lang))
       self._engine.fit(data)
 
       if self.cache_directory:
@@ -130,7 +128,7 @@ class SnipsInterpreter(Interpreter):
 
     parsed = self._engine.parse(msg, intents=scopes)
 
-    if parsed[RES_INTENT] == None:
+    if parsed[RES_INTENT][RES_INTENT_NAME] == None:
       return []
 
     slots = {}
@@ -153,12 +151,19 @@ class SnipsInterpreter(Interpreter):
     if not self.is_ready:
       return []
 
+    # Here I still use my own method to parse slots because it gives better
+    # results in my benchmarks.
+    #
+    # However, we should keep an eye on https://github.com/snipsco/snips-nlu/pull/724
+    # for when it becomes relevant. For now get_slots returns less results than this
+    # homemade method below.
+
     entity_label = self._slot_mappings.get(intent, {}).get(slot)
 
     # No label, just returns the given value
     if not entity_label:
       return [SlotValue(msg)]
-      
+
     result = []
 
     # If it's a builtin entity, try to parse it
@@ -172,7 +177,7 @@ class SnipsInterpreter(Interpreter):
 
         if RES_RAW_VALUE not in slot_data:
           slot_data[RES_RAW_VALUE] = slot_data[RES_VALUE]
-          slot_data[RES_VALUE] = slot_data[ENTITY]
+          slot_data[RES_VALUE] = slot_data[RESOLVED_VALUE]
           slot_data[ENTITY] = slot_data[ENTITY_KIND]
 
         result.append(SlotValue(get_entity_value(slot_data[RES_VALUE]), **slot_data))

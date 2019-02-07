@@ -1,62 +1,29 @@
 {
   "config": {
+    "ignore_stop_words": true,
     "max_pattern_length": 1000,
-    "max_queries": 100,
+    "max_queries": 500,
     "unit_name": "deterministic_intent_parser"
   },
   "group_names_to_slot_names": {
-    "group_0": "room",
-    "group_1": "room",
-    "group_10": "room",
-    "group_11": "location",
-    "group_12": "date",
-    "group_13": "location",
-    "group_14": "date",
-    "group_15": "location",
-    "group_16": "date",
-    "group_17": "date",
-    "group_18": "location",
-    "group_19": "date",
-    "group_2": "room",
-    "group_20": "location",
-    "group_21": "date",
-    "group_22": "location",
-    "group_23": "location",
-    "group_24": "location",
-    "group_25": "date",
-    "group_3": "room",
-    "group_4": "room",
-    "group_5": "room",
-    "group_6": "room",
-    "group_7": "room",
-    "group_8": "room",
-    "group_9": "room"
+    "group0": "date",
+    "group1": "location",
+    "group2": "room"
   },
   "language_code": "en",
   "patterns": {
     "get_forecast": [
-      "^\\s*tell\\s*me\\s*if\\s*it\\s*is\\s*going\\s*to\\s*rain\\s*(?P<group_21>%SNIPSDATETIME%)\\s*in\\s*(?P<group_22>%LOCATION%)\\s*$",
-      "^\\s*what\\s*s\\s*the\\s*weather\\s*like\\s*in\\s*(?P<group_13>%LOCATION%)\\s*on\\s*(?P<group_14>%SNIPSDATETIME%)\\s*$",
-      "^\\s*will\\s*it\\s*be\\s*sunny\\s*in\\s*(?P<group_11>%LOCATION%)\\s*at\\s*(?P<group_12>%SNIPSDATETIME%)\\s*$",
-      "^\\s*will\\s*it\\s*rain\\s*in\\s*(?P<group_23>%LOCATION%)\\s*and\\s*(?P<group_24>%LOCATION%)\\s*(?P<group_25>%SNIPSDATETIME%)\\s*$",
-      "^\\s*what\\s*will\\s*be\\s*the\\s*weather\\s*on\\s*(?P<group_19>%SNIPSDATETIME%)\\s*in\\s*(?P<group_20>%LOCATION%)\\s*$",
-      "^\\s*will\\s*it\\s*rain\\s*in\\s*(?P<group_15>%LOCATION%)\\s*(?P<group_16>%SNIPSDATETIME%)\\s*$",
-      "^\\s*what\\s*kind\\s*of\\s*weather\\s*should\\s*I\\s*expect\\s*at\\s*(?P<group_17>%SNIPSDATETIME%)\\s*in\\s*(?P<group_18>%LOCATION%)\\s*$"
+      "^\\s*sunny\\s*(?P<group1>%LOCATION%)\\s*(?P<group0>%SNIPSDATETIME%)\\s*$",
+      "^\\s*weather\\s*like\\s*(?P<group1>%LOCATION%)\\s*(?P<group0>%SNIPSDATETIME%)\\s*$",
+      "^\\s*rain\\s*(?P<group1>%LOCATION%)\\s*(?P<group0>%SNIPSDATETIME%)\\s*$",
+      "^\\s*kind\\s*weather\\s*expect\\s*(?P<group0>%SNIPSDATETIME%)\\s*(?P<group1>%LOCATION%)\\s*$",
+      "^\\s*weather\\s*(?P<group0>%SNIPSDATETIME%)\\s*(?P<group1>%LOCATION%)\\s*$",
+      "^\\s*tell\\s*going\\s*rain\\s*(?P<group0>%SNIPSDATETIME%)\\s*(?P<group1>%LOCATION%)\\s*$",
+      "^\\s*rain\\s*(?P<group1>%LOCATION%)\\s*(?P<group1_2>%LOCATION%)\\s*(?P<group0>%SNIPSDATETIME%)\\s*$"
     ],
-    "lights_off": [
-      "^\\s*turn\\s*off\\s*the\\s*lights\\s*in\\s*(?P<group_9>%ROOM%)\\s*$",
-      "^\\s*turn\\s*the\\s*lights\\s*off\\s*in\\s*(?P<group_10>%ROOM%)\\s*$",
-      "^\\s*turn\\s*the\\s*(?P<group_6>%ROOM%)\\s*s\\s*lights\\s*off\\s*would\\s*you\\s*$",
-      "^\\s*lights\\s*off\\s*in\\s*(?P<group_8>%ROOM%)\\s*please\\s*$",
-      "^\\s*turn\\s*lights\\s*off\\s*in\\s*the\\s*(?P<group_7>%ROOM%)\\s*$"
-    ],
+    "lights_off": [],
     "lights_on": [
-      "^\\s*turn\\s*the\\s*lights\\s*on\\s*in\\s*(?P<group_4>%ROOM%)\\s*$",
-      "^\\s*turn\\s*the\\s*(?P<group_0>%ROOM%)\\s*s\\s*lights\\s*on\\s*would\\s*you\\s*$",
-      "^\\s*turn\\s*lights\\s*on\\s*in\\s*the\\s*(?P<group_1>%ROOM%)\\s*$",
-      "^\\s*turn\\s*on\\s*the\\s*lights\\s*in\\s*(?P<group_3>%ROOM%)\\s*$",
-      "^\\s*lights\\s*on\\s*in\\s*(?P<group_2>%ROOM%)\\s*please\\s*$",
-      "^\\s*enlight\\s*me\\s*in\\s*(?P<group_5>%ROOM%)\\s*$"
+      "^\\s*enlight\\s*(?P<group2>%ROOM%)\\s*$"
     ]
   },
   "slot_names_to_entities": {

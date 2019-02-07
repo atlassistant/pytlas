@@ -36,6 +36,15 @@ try:
       for interpreter in interpreters:
         yield self.it_should_contains_intents_defined_in_the_dataset, interpreter
 
+    def it_should_returns_an_empty_array_when_no_intent_has_been_found(self, interpreter):
+      intents = interpreter.parse('yolo')
+
+      expect(intents).to.be.empty
+
+    def test_it_should_returns_an_empty_array_when_no_intent_has_been_found(self):
+      for interpreter in interpreters:
+        yield self.it_should_returns_an_empty_array_when_no_intent_has_been_found, interpreter
+
     def it_should_parse_an_intent_with_slots_correctly(self, interpreter):
       intents = interpreter.parse('will it rain in Paris and London today')
 

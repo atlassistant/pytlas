@@ -760,7 +760,7 @@ tackl,tackle,tackled,tackles,tackling
 bounc,bouncing,bounced,bounces,bounce
 float,floating,floated,floats
 profession,professionals,professional
-bound,binds,binding
+bind,binds,binding,binded
 appropri,appropriate,appropriations
 creativ,creativity,creative
 bizarr,bizarre
@@ -2089,7 +2089,8 @@ alreadi,already
 undertak,undertaking,undertakes,undertook,undertake,undertaken
 genom,genome
 ceas,ceased,ceasing,cease,ceases
-found,finding,founded,finds,find
+find,finding,finds,found,findings
+found,founded,find
 intervent,interventions,intervention
 adolesc,adolescent
 trailer,trailers
@@ -2289,7 +2290,6 @@ hairi,hairy
 fireplac,fireplace
 reput,reputation
 fine,fined,fines,fining
-find,finding,found,finds,findings
 violenc,violence
 penalti,penalty,penalties
 cell,cells
@@ -2963,7 +2963,6 @@ masturb,masturbating,masturbation
 essenti,essentially,essentials,essential
 nanci,nancy
 agricultur,agricultural,agriculture
-bind,binding,binded,binds
 counter,countering,countered,counters
 correspond,corresponded,correspondence,corresponding,corresponds
 element,elements
