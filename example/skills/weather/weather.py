@@ -134,20 +134,24 @@ def on_forecast(req):
   forecasts = fetch_forecasts_for(city, date, date_meta.get('grain'), appid, req.lang, units)
 
   if len(forecasts) > 0:
-    req.agent.answer(req._('Here what I found for %s!') % city, cards=[create_forecast_card(req, d, units) for d in forecasts])
+    req.agent.answer(req._('Here what I found for %s!') % city, cards=[create_forecast_card(req, date, data, units) for date, data in forecasts.items()])
   else:
     req.agent.answer(req._('No results found for %s') % city)
 
   return req.agent.done()
 
-def create_forecast_card(req, data, unit):
-  w = data['weather'][0]
+def create_forecast_card(req, date, data, unit):
+  text = []
 
-  icon = emojis_map.get(w['icon'][:-1])
-  desc = w['description'].capitalize()
-  temps = '{min}{unit} - {max}{unit}'.format(unit=units_map.get(unit), min=int(data['main']['temp_min']), max=int(data['main']['temp_max']))
+  for d in data:
+    w = d['weather'][0]
+    icon = emojis_map.get(w['icon'][:-1])
+    desc = w['description'].capitalize()
+    tmps = '{min}{unit} / {max}{unit}'.format(unit=units_map.get(unit), min=int(d['main']['temp_min']), max=int(d['main']['temp_max']))
 
-  return Card('%s %s' % (icon, desc), temps, req._d(data['date']))
+    text.append('%s %s %s · %s' % (icon, req._d(d['date'], time_only=True), desc, tmps))
+
+  return Card(req._d(date, date_only=True), '\n'.join(text))
 
 def fetch_forecasts_for(city, date, grain, appid, lang, units):
   payload = {
@@ -160,25 +164,32 @@ def fetch_forecasts_for(city, date, grain, appid, lang, units):
   r = requests.get('https://api.openweathermap.org/data/2.5/forecast', params=payload)
 
   if not r.ok:
-    return []
+    return {}
 
-  result = []
+  result = {}
 
   for data in r.json().get('list', []):
     # TODO check timezones
 
     parsed_date = dateParse(data.get('dt_txt')).replace(tzinfo=pytz.UTC)
-    data['date'] = parsed_date # Keep it in the data dict for the card
+    data['date'] = parsed_date # Keep the date in there
+    cur_date = parsed_date.date() # Current date without time
 
+    # Prevent for keys error
+    if cur_date not in result:
+      result[cur_date] = []
+
+    # If it's a date range, filter on it
     if isinstance(date, tuple):
       if parsed_date >= date[0] and parsed_date <= date[1]:
-        result.append(data)
+        result[cur_date].append(data)
     else:
       # Returns the first one superior, that's the best we can do
       if grain == 'Hour' and parsed_date >= date:
-        return [data]
+        return { cur_date: [data] }
       
       if parsed_date.date() == date.date():
-        result.append(data)
+        result[cur_date].append(data)
 
-  return result
+  # Remove empty keys
+  return { k: v for k, v in result.items() if len(v) > 0 }
