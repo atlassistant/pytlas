@@ -3,12 +3,19 @@
 Hooks
 =====
 
-Hooks represents lifecycle events your skill can listen to. At the moment, only 2 hooks are available:
+Hooks represents lifecycle events your skill can listen to. At the moment, only 2 hooks are available as decorators.
 
-.. py:function:: on_agent_created(agent)
+.. code-block:: python
 
-  This hook will be called when an agent is first created. It enables you to make additional setup stuff on your skill part. It will receive one argument which is the created agent.
+  from pytlas import on_agent_created, on_agent_destroyed
 
-.. py:function:: on_agent_destroyed(agent)
+  @on_agent_created()
+  def do_some_setup_for(agent):
+    # It will be called on agent startup so you have a change to do some
+    # stuff in your skill.
+    print (agent.meta)
 
-  This hook will be called when an agent is destroyed. It will receive one argument which is the destroyed agent.
+  @on_agent_destroyed()
+  def do_some_cleanup_for(agent):
+    # It will be called upon agent destruction.
+    print ('Some cleanup stuff could go here!')
