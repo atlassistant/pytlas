@@ -39,6 +39,10 @@ snips
 
 The official interpreter supported use the fantastic `snips-nlu <https://github.com/snipsco/snips-nlu>`_ python library.
 
+.. warning::
+
+  On a Raspberry PI, you may have trouble getting `snips-nlu` to install correctly. A more complete docs will come soon for this particular case.
+
 Given the language you want your assistant to understand, you may need to `download additional resources <https://github.com/snipsco/snips-nlu#language-resources>`_ using the following command:
 
 .. code:: bash

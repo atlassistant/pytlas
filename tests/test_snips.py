@@ -75,7 +75,7 @@ try:
         yield self.it_should_parse_an_intent_with_slots_correctly, interpreter
 
     def it_should_parse_intent_with_date_range_correctly(self, interpreter):
-      intents = interpreter.parse('will it rain from the third of september 2018 to the fifth of september 2018')
+      intents = interpreter.parse('will it rain from september 3 2018 to september 5 2018')
 
       expect(intents).to.have.length_of(1)
 
