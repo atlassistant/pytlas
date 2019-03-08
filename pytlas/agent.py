@@ -1,4 +1,4 @@
-import logging
+import logging, uuid
 from pytlas.request import Request
 from pytlas.utils import get_package_name_from_module, keep_one, strip_format, find_match
 from pytlas.localization import get_translations
@@ -116,6 +116,7 @@ class Agent:
     self._available_scopes = {}
     self._current_scopes = None
 
+    self.id = uuid.uuid4().hex
     self.model = model
     self.meta = meta
     self.current_context = None

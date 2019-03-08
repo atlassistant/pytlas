@@ -18,7 +18,9 @@ class TestRequest:
     r2 = Request(self.agent, None)
 
     expect(r.id).to_not.be.none
+    expect(r.id).to.be.a(str)
     expect(r2.id).to_not.be.none
+    expect(r2.id).to.be.a(str)
     expect(r.id).to_not.equal(r2.id)
 
   def test_it_should_have_the_same_language_as_the_interpreter(self):

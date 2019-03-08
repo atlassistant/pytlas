@@ -38,5 +38,6 @@ Ever wanted to develop your own Alexa, Siri or Google Assistant and host it your
 
   getting_started/index
   writing_skills/index
+  pam/index
   core_components/index
 

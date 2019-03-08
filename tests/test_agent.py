@@ -124,6 +124,17 @@ class TestAgent:
     self.interpreter.intents = list(self.handlers.keys()) + ['intent_without_handler']
     self.agent = Agent(self.interpreter, model=self, handlers=self.handlers)
 
+  def test_it_should_have_a_unique_id(self):
+    agt1 = Agent(self.interpreter)
+    agt2 = Agent(self.interpreter)
+
+    expect(agt1.id).to_not.be.none
+    expect(agt1.id).to.be.a(str)
+    expect(agt2.id).to_not.be.none
+    expect(agt2.id).to.be.a(str)
+
+    expect(agt1.id).to_not.equal(agt2.id)
+
   def test_it_should_trigger_agent_created_hook_upon_creation(self):
     self.on_agent_created = MagicMock()
     self.on_agent_created.__name__ = 'on_agent_created'
