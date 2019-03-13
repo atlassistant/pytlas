@@ -117,21 +117,12 @@ def on_forecast(req):
 
   city = req.intent.slot('location').first().value
   date_slot = req.intent.slot('date').first()
-  date = date_slot.value_as_date or datetime.utcnow()
-
+  date = date_slot.value or datetime.utcnow()
+  
   if not city:
     return req.agent.ask('location', req._('For where?'))
 
-  # Here we try to determine the grain of the given date slot
-  # to give better targeted results to the user
-  date_meta = date_slot.meta.get('value', {})
-  date_from = date_meta.get('from')
-  date_to = date_meta.get('to')
-
-  if date_from and date_to:
-    date = (dateParse(date_from), dateParse(date_to))
-
-  forecasts = fetch_forecasts_for(city, date, date_meta.get('grain'), appid, req.lang, units)
+  forecasts = fetch_forecasts_for(city, date, date_slot.meta.get('grain'), appid, req.lang, units)
 
   if len(forecasts) > 0:
     req.agent.answer(req._('Here what I found for %s!') % city, cards=[create_forecast_card(req, date, data, units) for date, data in forecasts.items()])
