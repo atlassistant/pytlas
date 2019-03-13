@@ -1,7 +1,9 @@
 import os
+from dateutil.relativedelta import relativedelta
+from dateutil.parser import parse as parse_date
 from pytlas.interpreters.interpreter import Interpreter, compute_checksum
 from pytlas.interpreters.intent import Intent
-from pytlas.interpreters.slot import SlotValue
+from pytlas.interpreters.slot import SlotValue, UnitValue
 from pytlas.utils import read_file, rmtree
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.constants import ENTITIES, AUTOMATICALLY_EXTENSIBLE, RESOLVED_VALUE, \
@@ -13,24 +15,45 @@ import snips_nlu.default_configs as snips_confs
 def get_entity_value(data):
   """Try to retrieve a flat value from a parsed snips entity.
 
-  This is usefull for range where the `value` is not defined but `from` is.
+  It will try to convert the parsed slot value to a python representation:
+
+    - for Duration, it will returns a `dateutil.relativedelta` object
+    - for AmountOfMoney and Temperature, it returns a `pytlas.interpreters.slot.UnitValue`
+    - for Percentage, a float between 0 and 1
+    - for InstantTime, a `datetime.datetime` object,
+    - for TimeInterval, a tuple of `datetime.datetime` objects,
+    - for anything else, a string
 
   Args:
     data (dict): Entity data
 
   Returns:
-    any: Flat value
-
-  Examples:
-    >>> get_entity_value({ 'value': 'a value', 'from': '2018-09-05' })
-    'a value'
-
-    >>> get_entity_value({ 'from': '2018-09-05' })
-    '2018-09-05'
+    any: A python object which match the slot value kind
 
   """
 
-  return data.get(RES_VALUE, data.get('from'))
+  kind = data.get('kind')
+
+  if kind == 'Duration':
+    return relativedelta(
+      days=data.get('days'),
+      hours=data.get('hours'),
+      minutes=data.get('minutes'),
+      months=data.get('months'),
+      seconds=data.get('seconds'),
+      weeks=data.get('weeks'),
+      years=data.get('years'),
+    )
+  elif kind == 'AmountOfMoney' or kind == 'Temperature':
+    return UnitValue(data.get('value'), data.get('unit'))
+  elif kind == 'Percentage':
+    return data.get('value') / 100.0
+  elif kind == 'InstantTime':
+    return parse_date(data.get('value'))
+  elif kind == 'TimeInterval':
+    return (parse_date(data.get('from')), parse_date(data.get('to')))
+
+  return data.get('value')
 
 class SnipsInterpreter(Interpreter):
   """Wraps the snips-nlu stuff to provide valuable informations to an agent.
