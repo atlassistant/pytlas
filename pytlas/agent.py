@@ -106,7 +106,7 @@ class Agent:
     self._on_thinking = None
     self._on_context = None
 
-    self._handlers = handlers or skill_handlers
+    self._handlers = handlers if handlers != None else skill_handlers
     self._translations = get_translations(self._interpreter.lang)
 
     self._intents_queue = []
