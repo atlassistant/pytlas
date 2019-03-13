@@ -72,3 +72,76 @@ class SlotValues(list):
     """
 
     return self[len(self) - 1] if not self.is_empty() else SlotValue(None)
+
+class UnitValue:
+  """Basic class to represents a value which is in a relative unit format in a slot,
+  such as a temperature or a currency.
+
+  It also override common comparison and arithmetic operators to make it easier.
+
+  """
+
+  def __init__(self, value, unit):
+    # Maybe we should use decimal instead :/
+    self.value = value
+    self.unit = unit
+
+  def __str__(self):
+    return '%.2g %s' % (self.value, self.unit)
+
+  def __get_other_value(self, other):
+    if isinstance(other, UnitValue):
+      if other.unit != self.unit:
+        raise ArithmeticError('Unit are not the same!')
+
+      return other.value
+    
+    return other
+
+  def __add__(self, other):
+    return UnitValue(self.value + self.__get_other_value(other), self.unit)
+
+  def __sub__(self, other):
+    return UnitValue(self.value - self.__get_other_value(other), self.unit)
+
+  def __mul__(self, other):
+    return UnitValue(self.value * self.__get_other_value(other), self.unit)
+
+  def __truediv__(self, other):
+    return UnitValue(self.value / self.__get_other_value(other), self.unit)
+
+  def __eq__(self, other):
+    try:
+      return self.value == self.__get_other_value(other)
+    except ArithmeticError:
+      return False
+
+  def __ne__(self, other):
+    try:
+      return self.value != self.__get_other_value(other)
+    except ArithmeticError:
+      return False
+
+  def __lt__(self, other):
+    try:
+      return self.value < self.__get_other_value(other)
+    except ArithmeticError:
+      return False
+
+  def __le__(self, other):
+    try:
+      return self.value <= self.__get_other_value(other)
+    except ArithmeticError:
+      return False
+
+  def __gt__(self, other):
+    try:
+      return self.value > self.__get_other_value(other)
+    except ArithmeticError:
+      return False
+
+  def __ge__(self, other):
+    try:
+      return self.value >= self.__get_other_value(other)
+    except ArithmeticError:
+      return False
