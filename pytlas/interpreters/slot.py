@@ -10,7 +10,10 @@ class SlotValue:
     self.meta = meta
 
   def __str__(self):
-    return self.value
+    if isinstance(self.value, tuple):
+      return ', '.join(str(v) for v in self.value)
+
+    return str(self.value)
 
 class SlotValues(list):
   """Represents a list of SlotValue.
