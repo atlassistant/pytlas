@@ -24,6 +24,10 @@ Implementing a custom interpreter
 
 If you wish to implement your own interpreter, you must at least extends from `pytlas.interpreters.Interpreter` and implement those methods.
 
+.. note::
+
+  When creating `SlotValue` instance to represent a slot, always remember to sets a value in a meaningfull python representation. See :ref:`retrieving_slots` to see what's expected by developers.
+
 .. py:function:: fit(data)
 
   Fit the interpreter with training data.

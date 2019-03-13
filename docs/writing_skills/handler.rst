@@ -26,10 +26,23 @@ Here the basic code you need to have. Calling `request.agent.done` is mandatory 
   def my_handler(request):
     return request.agent.done()
 
+.. _retrieving_slots:
+
 Retrieving slots
 ----------------
 
 Remember, slots are like function arguments that has been extracted by the interpreter.
+
+.. note::
+
+  In a slot, the `value` property will give you back a representation of what have been parsed by the NLU engine in a meaningul way:
+
+    - for durations, it will returns a `dateutil.relativedelta` object
+    - for moneys and temperatures, it returns a `pytlas.interpreters.slot.UnitValue`
+    - for percentages, a float between 0 and 1
+    - for exact time, a `datetime.datetime` object,
+    - for time ranges, a tuple of `datetime.datetime` objects representing the lower and upper bounds
+    - for anything else, a string
 
 .. code-block:: python
 
