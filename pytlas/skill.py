@@ -26,6 +26,19 @@ class Meta:
 
   def __init__(self, name=None, description='No description provided',
     version='?.?.?', author='', homepage='', media='', settings=[]):
+    """Instantiate a new Metadata instance for a skill.
+
+    Args:
+      name (str): Name of the skill
+      description (str): Description of what your skill is doing
+      version (str): Version of the skill
+      author (str): Author of the skill
+      homepage (str): URL of the skill to submit issues or enhancements
+      media (str): Logo representing your skill
+      settings (list of str or list of Setting): Settings used by your skill
+
+    """
+
     self.name = name
     self.media = media
     self.description = description
