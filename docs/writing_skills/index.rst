@@ -25,6 +25,7 @@ There's only two parts that your skill should always define to make it work, :re
 
   training
   handler
+  testing
   translations
   metadata
   request

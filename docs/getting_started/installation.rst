@@ -1,3 +1,5 @@
+.. _installation:
+
 Installation
 ============
 
@@ -33,6 +35,8 @@ Choosing your interpreter
 -------------------------
 
 in order to understand natural language, pytlas is backed by **interpreters** which may need additional installation steps.
+
+.. _installation_snips:
 
 snips
 ~~~~~

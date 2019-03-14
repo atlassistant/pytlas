@@ -114,12 +114,12 @@ def create_skill_agent(skill_folder, lang='en', additional_skills=[]):
   import_or_reload(skill_name)
 
   # And instantiate an interpreter
-  additional_skills.append(skill_name)
+  skills_to_load = [skill_name] + additional_skills
 
   interpreter = SnipsInterpreter(lang)
-  interpreter.fit_from_skill_data(additional_skills)
+  interpreter.fit_from_skill_data(skills_to_load)
 
   # Filter handlers for targeted skill only
-  valid_handlers = { k: v for (k, v) in handlers.items() if get_root_package_name(v.__module__) in additional_skills }
+  valid_handlers = { k: v for (k, v) in handlers.items() if get_root_package_name(v.__module__) in skills_to_load }
 
   return Agent(interpreter, model=AgentModelMock(), handlers=valid_handlers)
