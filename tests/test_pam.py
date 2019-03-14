@@ -1,9 +1,8 @@
 from sure import expect
 from unittest.mock import patch
-from pytlas.skill import register, register_metadata
+from pytlas.skill import register, register_metadata, Meta
 from pytlas.localization import register as register_translations
 from pytlas.pam import get_loaded_skills, install_skills, update_skills, uninstall_skills
-from pytlas.skill_data import SkillData
 
 class TestPam:
 
@@ -17,7 +16,7 @@ class TestPam:
 
       data = r[0]
 
-      expect(data).to.be.a(SkillData)
+      expect(data).to.be.a(Meta)
       expect(data.name).to.equal('atlassistant/weather1')
       expect(data.version).to.equal('?.?.?')
 
@@ -38,9 +37,8 @@ class TestPam:
 
       data = r[0]
 
-      expect(data).to.be.a(SkillData)
+      expect(data).to.be.a(Meta)
       expect(data.name).to.equal('weather')
-      expect(data.package).to.equal('atlassistant/weather2')
       expect(data.version).to.equal('1.0.0')
 
   def test_it_should_localize_installed_skill_metadata_when_available(self):
@@ -62,9 +60,8 @@ class TestPam:
 
       data = r[0]
 
-      expect(data).to.be.a(SkillData)
+      expect(data).to.be.a(Meta)
       expect(data.name).to.equal('météo')
-      expect(data.package).to.equal('atlassistant/weather3')
 
   def test_it_should_install_skill_from_relative_name(self):
     with patch('subprocess.check_output', return_value='') as subprocess_mock:

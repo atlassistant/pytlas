@@ -1,7 +1,7 @@
 from pytlas.skill import handlers, module_metas
 from pytlas.localization import get_translations
 from pytlas.utils import get_package_name_from_module, rmtree
-from pytlas.skill_data import SkillData
+from pytlas.skill import Meta
 import re, logging, os, subprocess, pytlas.settings as settings
 
 SKILL_FOLDER_SEPARATOR = '__'
@@ -282,12 +282,12 @@ def get_loaded_skills(lang):
     lang (str): Language code to translate skills name and description
 
   Returns:
-    list of SkillData: Skills retrieved.
+    list of Meta: Skills loaded.
 
   """
 
   unique_pkgs = list(set(get_package_name_from_module(v.__module__) for v in handlers.values()))
-  skills = []
+  skills_meta = []
 
   for pkg in unique_pkgs:
     meta = {}
@@ -297,6 +297,11 @@ def get_loaded_skills(lang):
       translations = get_translations(lang).get(pkg, {})
       meta = meta_func(lambda k: translations.get(k, k))
 
-    skills.append(SkillData(from_skill_folder(pkg), **meta))
+      if not isinstance(meta, Meta):
+        meta = Meta(**meta)
+    else:
+      meta = Meta(from_skill_folder(pkg))
 
-  return skills
+    skills_meta.append(meta)
+
+  return skills_meta

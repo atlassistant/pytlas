@@ -7,6 +7,44 @@ handlers = {}
 # to translate them in the user language.
 module_metas = {}
 
+class Setting:
+  """Represents a skill settings.
+  """
+
+  def __init__(self, name, data_type=str, description='No description provided'):
+    self.name = name
+    self.description = description
+    self.type = data_type
+
+  def __str__(self):
+    return "%s (%s)" % (self.name, self.type.__name__)
+
+class Meta:
+  """Represents a single skill metadata. It's used primarly for skill listing and
+  comprehensive help on how your assistant can help you.
+  """
+
+  def __init__(self, name=None, description='No description provided',
+    version='?.?.?', author='', homepage='', media='', settings=[]):
+    self.name = name
+    self.media = media
+    self.description = description
+    self.version = version
+    self.author = author
+    self.homepage = homepage
+    self.settings = [setting if isinstance(setting, Setting) else Setting(setting) for setting in settings]
+
+  def __str__(self):
+    data = self.__dict__
+    data['settings'] = ', '.join([ str(s) for s in data['settings'] ])
+
+    return """{name} - v{version}
+  description: {description}
+  homepage: {homepage}
+  author: {author}
+  settings: {settings}
+""".format(**data)
+
 def register_metadata(func, package=None):
   """Register skill package metadata
 
