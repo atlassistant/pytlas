@@ -20,6 +20,11 @@ class TestSlotValue:
 
 class TestUnitValue:
 
+  def test_it_should_print_value_and_unit(self):
+    v = UnitValue(20, '$')
+
+    expect(str(v)).to.equal('20$')
+
   def test_it_should_keep_the_value_and_the_unit(self):
     v = UnitValue(20.4, '$')
 

@@ -35,7 +35,7 @@ Remember, slots are like function arguments that has been extracted by the inter
 
 .. note::
 
-  In a slot, the `value` property will give you back a representation of what have been parsed by the NLU engine in a meaningul way:
+  In a slot, the `value` property will give you back a representation of what have been parsed by the NLU engine in a meaningful way:
 
     - for durations, it will returns a `dateutil.relativedelta` object
     - for moneys and temperatures, it returns a `pytlas.interpreters.slot.UnitValue`

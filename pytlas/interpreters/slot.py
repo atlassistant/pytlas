@@ -74,7 +74,7 @@ class UnitValue:
     self.unit = unit
 
   def __str__(self):
-    return '%.2g %s' % (self.value, self.unit)
+    return '%.2g%s' % (self.value, self.unit)
 
   def __get_other_value(self, other):
     if isinstance(other, UnitValue):

@@ -5,7 +5,7 @@ Agent
 
 An agent represent the interface between the user and loaded skills. It maintain the conversation state and use an underlying interpreter to understand the user.
 
-The agent is the entry point which will take raw user inputs with its `parse` method.
+The agent is the entry point which will take raw user inputs with its `parse` method and call loaded handlers as needed.
 
 Entry point
 -----------
