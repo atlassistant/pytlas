@@ -4,6 +4,7 @@ import os, re
 
 DEFAULT_SECTION = 'pytlas'
 DEFAULT_FILENAME = 'pytlas.conf'
+DEFAULT_LANG = 'en'
 
 config = ConfigParser()
 

@@ -34,7 +34,7 @@ def instantiate_agent_prompt(sentence=None): # pragma: no cover
 @click.option('--config', default=settings.DEFAULT_FILENAME, help='Path to the configuration file')
 @click.option('-v', '--verbose', is_flag=True, help='Verbose output')
 @click.option('--debug', is_flag=True, help='Debug mode')
-@click.option('-l', '--lang', help='Lang of the interpreter to use')
+@click.option('-l', '--lang', help='Lang of the interpreter to use', default=settings.DEFAULT_LANG)
 @click.option('-s', '--skills', type=click.Path(), help='Specifies the directory containing pytlas skills')
 @click.option('-c', '--cache', type=click.Path(), help='Path to the directory where engine cache will be outputted')
 @click.option('-g', '--graph', type=click.Path(), help='Output the transitions graph to the given path')
@@ -44,10 +44,6 @@ def main(): # pragma: no cover
   """
   
   install_logs(settings.getbool(settings.SETTING_VERBOSE), settings.getbool(settings.SETTING_DEBUG))
-
-  # If no language has been set, use the english one by default
-  if not settings.getlist(settings.SETTING_LANG):
-    settings.set(settings.SETTING_LANG, ['en'])
 
 @main.group(invoke_without_command=True)
 @click.option('--watch', is_flag=True, help='Reload on skill files change')
