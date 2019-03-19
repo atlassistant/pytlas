@@ -45,6 +45,10 @@ def main(): # pragma: no cover
   
   install_logs(settings.getbool(settings.SETTING_VERBOSE), settings.getbool(settings.SETTING_DEBUG))
 
+  # If no language has been set, use the english one by default
+  if not settings.getlist(settings.SETTING_LANG):
+    settings.set(settings.SETTING_LANG, ['en'])
+
 @main.group(invoke_without_command=True)
 @click.option('--watch', is_flag=True, help='Reload on skill files change')
 @click.argument('training_file', type=click.Path(), nargs=1, required=False)
@@ -86,7 +90,7 @@ def list_skills(): # pragma: no cover
 
   import_skills(settings.getpath(settings.SETTING_SKILLS))
 
-  for skill_data in get_loaded_skills(settings.get(settings.SETTING_LANG)):
+  for skill_data in get_loaded_skills(settings.getlist(settings.SETTING_LANG)[0]):
     click.echo(skill_data)
 
 @skills.command('add')
