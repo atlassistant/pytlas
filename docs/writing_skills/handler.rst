@@ -81,6 +81,11 @@ When you need to show something to the user, you should use the `answer` method.
     # And say it to the user
 
     request.agent.answer('Turning lights on in %s' % room)
+    
+    # You can also give the text parameter an array of strings.
+    # If you do so, pytlas will choose one item randomly. This make it easy
+    # to provide some variations for your skill handler.
+    # request.agent.answer(['Turning lights on in %s' % room, 'Alright, lights on in %s' % room])
 
     return request.agent.done()
 
@@ -100,6 +105,8 @@ When you need some informations or slot have not been extracted in the original 
     if not room:
       # Here we ask the user to fill the 'room' slot. That's the only case when you don't
       # need to call done yourself.
+      # Like in the answer text argument, the ask text argument also accept an array of strings and
+      # pytlas will choose one randomly to provide to the user.
       return request.agent.ask('room', 'Which room?')
 
     request.agent.answer('Turning lights on in %s' % room)
