@@ -1,12 +1,11 @@
-Pytlas Assistant Manager
-========================
+Managing skills
+===============
 
-The PAM module tries to make it easy to add, update and remove skills to and from your pytlas instance.
-
+The PAM (for Pytlas Assistant Manager) module tries to make it easy to add, update and remove skills to and from your pytlas instance.
 
 .. note::
 
-  Since it uses `git` to manage skills retrieval and updates, the command should be available in order for this module to work.
+  Since it uses `git` internally to manage skills retrieval and updates, the command should be available in your environment when executing all commands listed below.
 
 .. toctree::
   :maxdepth: 2
