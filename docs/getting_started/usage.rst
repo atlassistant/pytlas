@@ -72,7 +72,9 @@ Here is a snippet which cover the basics of using pytlas inside your own program
     # With the request object, we can communicate back with the `answer` method
     # or the `ask` method if we need more user input. Here we are joining on each
     # slot `value` because a slot can have multiple values.
-    
+
+    # This is where you should call the actual code managing the lights
+
     request.agent.answer('Turning lights on in %s' % ', '.join([v.value for v in request.intent.slot('room')]))
 
     # When using the `answer` method, you should call the `done` method as well. This is
