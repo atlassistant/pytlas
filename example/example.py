@@ -5,6 +5,7 @@
 
 from pytlas import Agent, intent, training
 from pytlas.interpreters.snips import SnipsInterpreter
+import os
 
 # Here, we register a sentence as training data for the specified language
 # Those training sample are written using a simple DSL named chatl. It make it 
@@ -75,7 +76,7 @@ if __name__ == '__main__':
   # language parsing. It parses raw human sentences into something more useful for
   # the program.
 
-  interpreter = SnipsInterpreter('en')
+  interpreter = SnipsInterpreter('en', cache_directory=os.path.join(os.path.dirname(__file__), 'cache'))
 
   # Train the interpreter using training data register with the `training` decorator
   # or `pytlas.training.register` function.
