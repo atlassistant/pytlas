@@ -6,12 +6,12 @@ Using the pytlas CLI
 
 pytlas include a basic CLI interface to interact with the system.
 
-This line will start the pytlas REPL with skills located in the example/skills/ directory (in the git repository). It will load all data and fit the engine before starting the interactive prompt.
+This line will start the pytlas REPL with skills located in the example/skills/ directory (in the git repository). It will load all data and fit the engine before starting the interactive prompt. The `-c cache/` lets the interpreter save its trained data to this folder to speed up the loading at the next launch if training data has not changed since.
 
 .. code:: bash
 
   $ cd example
-  $ pytlas repl
+  $ pytlas -c cache/ repl
 
 Using the library
 -----------------
@@ -27,7 +27,8 @@ Here is a snippet which cover the basics of using pytlas inside your own program
 
   from pytlas import Agent, intent, training
   from pytlas.interpreters.snips import SnipsInterpreter
-
+  import os
+  
   # Here, we register a sentence as training data for the specified language
   # Those training sample are written using a simple DSL named chatl. It make it 
   # back-end agnostic and is much more readable than raw dataset needed by NLU
@@ -97,7 +98,7 @@ Here is a snippet which cover the basics of using pytlas inside your own program
     # language parsing. It parses raw human sentences into something more useful for
     # the program.
 
-    interpreter = SnipsInterpreter('en')
+    interpreter = SnipsInterpreter('en', cache_directory=os.path.join(os.path.dirname(__file__), 'cache'))
 
     # Train the interpreter using training data register with the `training` decorator
     # or `pytlas.training.register` function.
