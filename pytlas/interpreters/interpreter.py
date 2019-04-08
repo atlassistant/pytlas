@@ -19,7 +19,7 @@ def compute_checksum(data):
   """
 
   if not isinstance(data, str):
-    data = json.dumps(data)
+    data = json.dumps(data, sort_keys=True)
 
   return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
