@@ -106,8 +106,7 @@ def install_dependencies_if_needed(directory, stdout=None):
 
     logging.info('Installing skill dependencies from "%s"' % directory)
 
-    subprocess.check_output(['pip', 'install', '-r', 'requirements.txt'], 
-      shell=True, 
+    subprocess.check_output(['pip', 'install', '-r', 'requirements.txt'],
       stderr=subprocess.STDOUT,
       cwd=directory)
   elif stdout: # pragma: no cover
@@ -154,7 +153,7 @@ def install_skills(directory, stdout=None, *names):
       if stdout: # pragma: no cover
         stdout('  Cloning skill repository')
 
-      subprocess.check_output(['git', 'clone', url, dest], shell=True, stderr=subprocess.STDOUT)
+      subprocess.check_output(['git', 'clone', url, dest], stderr=subprocess.STDOUT)
 
       logging.info('Successfully cloned skill "%s"' % repo)
 
@@ -211,7 +210,7 @@ def update_skills(directory, stdout=None, *names):
       continue
 
     try:
-      subprocess.check_output(['git', 'pull'], shell=True, cwd=folder, stderr=subprocess.STDOUT)
+      subprocess.check_output(['git', 'pull'], cwd=folder, stderr=subprocess.STDOUT)
 
       install_dependencies_if_needed(folder, stdout)
 
