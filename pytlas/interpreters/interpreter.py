@@ -69,8 +69,10 @@ class Interpreter:
     self._logger.info('Merging skill training data from "%d" modules' % len(filtered_module_trainings))
 
     data = {}
+    sorted_trainings = sorted(filtered_module_trainings.items(), 
+      key=lambda x: x[0])
 
-    for (module, training_dsl) in filtered_module_trainings.items():
+    for (module, training_dsl) in sorted_trainings:
       if training_dsl:
         try:
           data = deep_update(data, parse(training_dsl))
