@@ -11,6 +11,10 @@ There's multiple way to install pytlas. You're free to pick the one that better 
 
   In the following examples, pytlas is installed with the extra require **snips** which is the official interpreter used by pytlas.
 
+.. warning::
+
+  On a Raspberry PI, you will have to follow the `instructions here <https://github.com/snipsco/snips-nlu-parsers/tree/develop/python#other-platforms>`_ to install `rust` and `setuptools_rust` before running below commands.
+
 From pypi
 ---------
 
@@ -42,10 +46,6 @@ snips
 ~~~~~
 
 The official interpreter supported use the fantastic `snips-nlu <https://github.com/snipsco/snips-nlu>`_ python library.
-
-.. warning::
-
-  On a Raspberry PI, you may have trouble getting `snips-nlu` to install correctly. A more complete docs will come soon for this particular case.
 
 Given the language you want your assistant to understand, you may need to `download additional resources <https://github.com/snipsco/snips-nlu#language-resources>`_ using the following command:
 
