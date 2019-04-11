@@ -13,7 +13,7 @@ There's multiple way to install pytlas. You're free to pick the one that better 
 
 .. warning::
 
-  On a Raspberry PI, you will have to follow the `instructions here <https://github.com/snipsco/snips-nlu-parsers/tree/develop/python#other-platforms>`_ to install `rust` and `setuptools_rust` before running below commands.
+  On a Raspberry PI, if you wish to install `snips`, you will have to follow the `instructions here <https://github.com/snipsco/snips-nlu-parsers/tree/develop/python#other-platforms>`_ to install `rust` and `setuptools_rust` before running below commands.
 
 From pypi
 ---------
