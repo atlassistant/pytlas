@@ -1,11 +1,11 @@
-pytlas |travis| |coveralls| |pypi| |rtd| |license|
-==================================================
+pytlas |travis| |cover| |pypi| |rtd| |license|
+==============================================
 
 .. |travis| image:: https://travis-ci.org/atlassistant/pytlas.svg?branch=master
     :target: https://travis-ci.org/atlassistant/pytlas
 
-.. |coveralls| image:: https://coveralls.io/repos/github/atlassistant/pytlas/badge.svg?branch=master
-    :target: https://coveralls.io/github/atlassistant/pytlas?branch=master
+.. |cover| image:: https://codecov.io/gh/atlassistant/pytlas/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/atlassistant/pytlas
 
 .. |pypi| image:: https://badge.fury.io/py/pytlas.svg
     :target: https://badge.fury.io/py/pytlas
