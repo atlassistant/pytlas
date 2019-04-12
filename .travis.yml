@@ -2,10 +2,10 @@ language: python
 python:
   - "3.6"
 install:
-  - pip install python-coveralls nosexcover
+  - pip install codecov nosexcover
   - pip install -e ."[snips,test]"
   - snips-nlu download en
 script:
   - python -m nose --with-doctest --with-xcoverage --cover-package=pytlas
 after_success:
-  - coveralls
+  - codecov
