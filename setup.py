@@ -25,7 +25,7 @@ setup(
     'transitions~=0.6.9',
     'fuzzywuzzy~=0.16.0',
     'colorlog~=3.1.4',
-    'pychatl~=1.2.6',
+    'pychatl~=1.2.7',
     'python-dateutil~=2.7.3',
     'Babel~=2.6.0',
     # requests is included because the remote training will need it
@@ -37,7 +37,7 @@ setup(
   extras_require={
     'snips': [
       # For snips, target a specific version since it may break sometimes
-      'snips-nlu==0.19.4',
+      'snips-nlu==0.19.5',
     ],
     'test': [
       'nose~=1.3.7',
