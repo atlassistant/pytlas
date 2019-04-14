@@ -19,6 +19,8 @@ pytlas |travis| |cover| |pypi| |rtd| |license|
 
 An open-source 🤖💬 python 3 assistant library built for people and made to be super easy to setup and understand.
 
+**pytlas** translates natural language sentence into python skills you can easily define yourself.
+
 I first started to develop `atlas <https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.
 
 Want to get your feet wet? Have a look at the `example/skills` folder to see how it works!
@@ -26,7 +28,15 @@ Want to get your feet wet? Have a look at the `example/skills` folder to see how
 Documentation
 -------------
 
-The documentation is hosted on readthedocs here `https://pytlas.readthedocs.io <https://pytlas.readthedocs.io>`_. It still needs some improvement so don't hesitate to help me!
+The documentation is hosted on readthedocs here `https://pytlas.readthedocs.io <https://pytlas.readthedocs.io>`_. It still needs some improvement so don't hesitate to help!
+
+Installation
+------------
+
+.. code-block:: bash
+
+  $ pip install -e .[snips] # Install pytlas and the snips interpreter backend
+  $ snips-nlu download en # Download additional language resources needed by snips
 
 Testing
 -------
