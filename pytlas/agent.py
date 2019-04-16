@@ -246,9 +246,10 @@ class Agent:
       - on_answer: Called when showing something to the user
       - on_thinking: Called when a skill has started working
       - on_done: Called when a skill has done its work
+      - on_context: Called when the current context has changed
 
     Args:
-      model (object): Object which will receive events
+      model (object): Object which will receive those events
 
     """
 
