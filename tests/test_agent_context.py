@@ -44,7 +44,7 @@ class TestAgentContext:
     }
 
     self.interpreter = Interpreter('test', 'en')
-    self.interpreter.intents = [i for i in self.handlers.keys() if STATE_FALLBACK not in i]
+    self.interpreter.intents = [i for i in self.handlers.keys() if STATE_FALLBACK not in i] + [STATE_CANCEL]
     self.agent = Agent(self.interpreter, handlers=self.handlers, model=self)
 
   def test_it_should_parse_scopes_correctly(self):
@@ -75,6 +75,27 @@ class TestAgentContext:
 
     expect(scope).to.have.length_of(2)
     expect(scope).to.contain(STATE_CANCEL)
+    expect(scope).to.contain('an intent/a sub intent/another one')
+
+  def test_it_should_not_contains_the_cancel_scope_if_interpreter_does_not_understand_it(self):
+    intents = ['an intent', 'an intent/a sub intent', 'an intent/a sub intent/another one', 'one more']
+
+    r = build_scopes(intents, include_cancel_state=False)
+
+    scope = r[None]
+
+    expect(scope).to.have.length_of(2)
+    expect(scope).to.contain('an intent')
+    expect(scope).to.contain('one more')
+
+    scope = r['an intent']
+
+    expect(scope).to.have.length_of(1)
+    expect(scope).to.contain('an intent/a sub intent')
+
+    scope = r['an intent/a sub intent']
+
+    expect(scope).to.have.length_of(1)
     expect(scope).to.contain('an intent/a sub intent/another one')
 
   def test_it_should_be_initialized_with_the_none_context(self):

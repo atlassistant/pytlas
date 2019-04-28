@@ -32,18 +32,17 @@ def is_builtin(state):
 
   return state.startswith(STATE_PREFIX) and state.endswith(STATE_SUFFIX) if state else False
 
-def build_scopes(intents):
+def build_scopes(intents, include_cancel_state=True):
   """Build all scopes given an intents list. It will create a dict which contains
   association between a context and available scopes.
 
   Scopes are intents which could be triggered from a particular context. They will be given
   to the interpreter to restrict the list of intents to be parsed. That's why STATE_CANCEL is
-  always added to every scopes.
-
-  Builtin nested scopes will be discarded they do not have specific meanings for the NLU.
+  always added to every scopes if include_cancel_state is set to True.
 
   Args:
     intents (list): List of intents
+    include_cancel_state (bool): Should builtin state cancel be always added?
 
   Returns:
     dict: Dictionary mapping each context to a list of available scopes
@@ -51,7 +50,8 @@ def build_scopes(intents):
   """
 
   scopes = {
-    None: [STATE_CANCEL], # represents the root scopes, ie. when not in a specific context
+    # represents the root scopes, ie. when not in a specific context
+    None: [STATE_CANCEL] if include_cancel_state else [], 
   }
 
   for intent in intents:
@@ -60,7 +60,7 @@ def build_scopes(intents):
       root = intent[:last_idx]
 
       if root not in scopes:
-        scopes[root] = [STATE_CANCEL] # Cancel is always present
+        scopes[root] = [STATE_CANCEL] if include_cancel_state else []
 
       scopes[root].append(intent)
     except:
@@ -149,7 +149,7 @@ class Agent:
     intents = [i for i in self._interpreter.intents if not is_builtin(i)]
     states = [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK, STATE_CANCEL] + intents
 
-    self._available_scopes = build_scopes(intents)
+    self._available_scopes = build_scopes(intents, STATE_CANCEL in self._interpreter.intents)
 
     MachineKlass = Machine
     kwargs = {} # Additional arguments to give to the machine

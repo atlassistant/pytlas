@@ -37,7 +37,7 @@ setup(
   extras_require={
     'snips': [
       # For snips, target a specific version since it may break sometimes
-      'snips-nlu==0.19.5',
+      'snips-nlu==0.19.6',
     ],
     'test': [
       'nose~=1.3.7',
