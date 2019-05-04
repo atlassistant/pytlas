@@ -26,11 +26,16 @@ SETTING_GRAPH_FILE = 'graph'
 SETTING_DEFAULT_REPO_URL = 'default_repo_url'
 DEFAULT_SETTING_DEFAULT_REPO_URL = 'https://github.com/'
 
-# Default parameters value
-config[DEFAULT_SECTION] = {
-  SETTING_SKILLS: DEFAULT_SETTING_SKILLS,
-  SETTING_DEFAULT_REPO_URL: DEFAULT_SETTING_DEFAULT_REPO_URL,
-}
+def reset():
+  """Resets the current settings.
+  """
+  config.clear()
+  config[DEFAULT_SECTION] = {
+    SETTING_SKILLS: DEFAULT_SETTING_SKILLS,
+    SETTING_DEFAULT_REPO_URL: DEFAULT_SETTING_DEFAULT_REPO_URL,
+  }
+
+reset() # Initialize the current configuration with some default values
 
 def write_to_settings(section=DEFAULT_SECTION):
   """Simple decorator used to write each argument value to the settings

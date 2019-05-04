@@ -3,11 +3,14 @@ from unittest.mock import patch, mock_open
 from configparser import NoOptionError
 from pytlas.settings import write_to_settings, config, DEFAULT_SECTION, SETTING_DEFAULT_REPO_URL, \
   SETTING_SKILLS, DEFAULT_SETTING_SKILLS, DEFAULT_SETTING_DEFAULT_REPO_URL, get, set as set_setting, \
-  load, getbool, getint, getfloat, getlist, getpath
+  load, reset, getbool, getint, getfloat, getlist, getpath
 import os
 
 class TestSettings:
 
+  def setUp(self):
+    reset()
+    
   def test_it_should_load_settings_from_a_path(self):
     conf = """
 [some_section]
