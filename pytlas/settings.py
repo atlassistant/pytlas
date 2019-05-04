@@ -50,9 +50,7 @@ def write_to_settings(section=DEFAULT_SECTION):
 
       # And read it if it exists
       if conf and os.path.isfile(conf):
-        global config_loaded_from_path
-        config_loaded_from_path = os.path.abspath(conf)
-        config.read(config_loaded_from_path)
+        load(conf)
 
       # And then, for each argument, write its value in the config object
       for (k, v) in kwargs.items():
@@ -119,6 +117,17 @@ def stringify(value):
     return ','.join(map(str, value))
 
   return str(value)
+
+def load(filepath):
+  """Read settings from the given filepath.
+
+  Args:
+    filepath (str): Filepath to be loaded
+  """
+
+  global config_loaded_from_path
+  config_loaded_from_path = os.path.abspath(filepath)
+  config.read(config_loaded_from_path)
 
 def set(setting, value, section=DEFAULT_SECTION):
   """Sets a setting value in the inner config.

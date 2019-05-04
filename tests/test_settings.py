@@ -1,11 +1,26 @@
 from sure import expect
+from unittest.mock import patch, mock_open
 from configparser import NoOptionError
 from pytlas.settings import write_to_settings, config, DEFAULT_SECTION, SETTING_DEFAULT_REPO_URL, \
   SETTING_SKILLS, DEFAULT_SETTING_SKILLS, DEFAULT_SETTING_DEFAULT_REPO_URL, get, set as set_setting, \
-  getbool, getint, getfloat, getlist, getpath
+  load, getbool, getint, getfloat, getlist, getpath
 import os
 
 class TestSettings:
+
+  def test_it_should_load_settings_from_a_path(self):
+    conf = """
+[some_section]
+some_key=some_value
+"""
+    conf_path = '/a/path/to/a/file.conf'
+
+    with patch('builtins.open', mock_open(read_data=conf)):
+      expect(get('some_key', section='some_section')).to.be.none
+
+      load(conf_path)
+
+      expect(get('some_key', section='some_section')).to.equal('some_value')
 
   def test_it_should_set_the_setting_even_if_the_section_does_not_exists_yet(self):
     set_setting('my_key', 'a value', section='my_section')
