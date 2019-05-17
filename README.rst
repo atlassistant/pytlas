@@ -28,7 +28,7 @@ Want to get your feet wet? Have a look at the `example/skills` folder to see how
 Documentation
 -------------
 
-The documentation is hosted on readthedocs here `https://pytlas.readthedocs.io <https://pytlas.readthedocs.io>`_. It still needs some improvement so don't hesitate to help!
+The documentation is hosted on readthedocs here `https://pytlas.readthedocs.io <https://pytlas.readthedocs.io>`_.
 
 Installation
 ------------
@@ -45,3 +45,26 @@ Testing
 
   $ pip install -e .[snips,test]
   $ python -m nose --with-doctest -v --with-coverage --cover-package=pytlas
+
+Contributing
+------------
+
+Contributions are **welcome**! **pytlas** is being developed on my spare time so every help is greatly appreciated to push this project further.
+
+I have ideas!
+~~~~~~~~~~~~~
+
+Don't hesitate to submit them in the repo and we'll see what can be done.
+
+I have skills & time!
+~~~~~~~~~~~~~~~~~~~~~
+
+Great, have a look at `NEXT.md <NEXT.md>`_ to see the big plans for upcoming releases or fix unresolved issues to start.
+
+I have money!
+~~~~~~~~~~~~~
+
+.. |liberapay| image:: https://liberapay.com/assets/widgets/donate.svg
+    :target: https://liberapay.com/YuukanOO/donate
+
+If you want to donate to help me find more time to work on **pytlas** and similar projects, you can support me on liberapay |liberapay|, thanks ❤️!
