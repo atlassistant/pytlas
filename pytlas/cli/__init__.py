@@ -35,9 +35,9 @@ def instantiate_agent_prompt(sentence=None): # pragma: no cover
 @click.option('-v', '--verbose', is_flag=True, help='Verbose output')
 @click.option('--debug', is_flag=True, help='Debug mode')
 @click.option('-l', '--lang', help='Lang of the interpreter to use', default=settings.DEFAULT_LANG)
-@click.option('-s', '--skills', type=click.Path(), help='Specifies the directory containing pytlas skills')
-@click.option('-c', '--cache', type=click.Path(), help='Path to the directory where engine cache will be outputted')
-@click.option('-g', '--graph', type=click.Path(), help='Output the transitions graph to the given path')
+@click.option('-s', '--skills_dir', type=click.Path(), help='Specifies the directory containing pytlas skills')
+@click.option('-c', '--cache_dir', type=click.Path(), help='Path to the directory where engine cache will be outputted')
+@click.option('-g', '--graph_file', type=click.Path(), help='Output the transitions graph to the given path')
 @settings.write_to_settings()
 def main(): # pragma: no cover
   """An open-source 🤖 assistant library built for people and made to be super easy to setup and understand.
