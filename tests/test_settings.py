@@ -1,6 +1,6 @@
 from sure import expect
-from pytlas.settings import SettingsStore, DEFAULT_SECTION, write_to_store, config
-from configparser import NoOptionError, ConfigParser
+from pytlas.settings import SettingsStore, write_to_store, config
+from configparser import ConfigParser
 import os
 
 class TestSettingsStore:
