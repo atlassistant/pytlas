@@ -66,7 +66,7 @@ class TestPam:
   def test_it_should_install_skill_from_relative_name(self):
     with patch('subprocess.check_output', return_value='') as subprocess_mock:
       with patch('pytlas.pam.install_dependencies_if_needed') as dep_mock:
-        r = install_skills('/home/pytlas/skills', None, 'atlassistant/weather')
+        r = install_skills('/home/pytlas/skills', 'https://github.com/', None, 'atlassistant/weather')
         
         expect(r).to.have.length_of(1)
         expect(r).to.contain('atlassistant/weather')
@@ -78,11 +78,27 @@ class TestPam:
         expect(cmd).to.contain('https://github.com/atlassistant/weather')
 
         dep_mock.assert_called_once()
+  
+  def test_it_should_install_skill_from_relative_name_with_custom_repo_url(self):
+    with patch('subprocess.check_output', return_value='') as subprocess_mock:
+      with patch('pytlas.pam.install_dependencies_if_needed') as dep_mock:
+        r = install_skills('/home/pytlas/skills', 'https://gitlab.com/', None, 'atlassistant/weather')
+        
+        expect(r).to.have.length_of(1)
+        expect(r).to.contain('atlassistant/weather')
+
+        cmd = subprocess_mock.call_args[0][0]
+
+        expect(cmd).to.contain('git')
+        expect(cmd).to.contain('clone')
+        expect(cmd).to.contain('https://gitlab.com/atlassistant/weather')
+
+        dep_mock.assert_called_once()
 
   def test_it_should_install_dependencies_if_needed_upon_installation(self):
     with patch('subprocess.check_output', return_value='') as subprocess_mock:
       with patch('os.path.isfile', return_value=True):
-        r = install_skills('/home/pytlas/skills', None, 'atlassistant/weather')
+        r = install_skills('/home/pytlas/skills', 'https://github.com/', None, 'atlassistant/weather')
         
         expect(r).to.have.length_of(1)
         expect(r).to.contain('atlassistant/weather')
@@ -99,7 +115,7 @@ class TestPam:
 
   def test_it_should_install_skill_from_absolute_url(self):
     with patch('subprocess.check_output', return_value='') as subprocess_mock:
-      r = install_skills('/home/pytlas/skills', None, 'https://git.somewhere/atlassistant/weather')
+      r = install_skills('/home/pytlas/skills', 'https://github.com/', None, 'https://git.somewhere/atlassistant/weather')
       
       expect(r).to.have.length_of(1)
       expect(r).to.contain('https://git.somewhere/atlassistant/weather')
@@ -114,7 +130,7 @@ class TestPam:
     with patch('subprocess.check_output', return_value='') as subprocess_mock:
       with patch('os.path.isdir', return_value=True):
         with patch('pytlas.pam.update_skills', return_value=['atlassistant/weather']) as update_mock:
-          r = install_skills('/home/pytlas/skills', None, 'atlassistant/weather')
+          r = install_skills('/home/pytlas/skills', 'https://github.com/', None, 'atlassistant/weather')
 
           expect(r).to.have.length_of(1)
           expect(r).to.contain('atlassistant/weather')

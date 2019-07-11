@@ -1,8 +1,5 @@
 from sure import expect
 from pytlas.training import register, training, module_trainings, get_training_data
-import pytlas.settings as settings
-
-settings.set(settings.SETTING_LANG, []) # Allow all languages to be loaded
 
 @training ('en', 'amodule')
 def en_data(): return """

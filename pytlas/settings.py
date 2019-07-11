@@ -3,22 +3,9 @@ from functools import wraps
 import os, re
 
 DEFAULT_SECTION = 'pytlas'
-DEFAULT_FILENAME = 'pytlas.conf'
 
-# Here are builtin settings used by the library/REPL
+# Here are builtin settings used by the library
 SETTING_ALLOWED_LANGUAGES = 'allowed_languages'
-SETTING_VERBOSE = 'verbose'
-SETTING_DEBUG = 'debug'
-SETTING_SKILLS = 'skills_dir'
-DEFAULT_SETTING_SKILLS = 'skills'
-SETTING_CACHE = 'cache_dir'
-SETTING_DRY = 'dry'
-SETTING_PARSE = 'parse'
-SETTING_WATCH = 'watch'
-SETTING_TRAINING_FILE = 'training_file'
-SETTING_GRAPH_FILE = 'graph_file'
-SETTING_DEFAULT_REPO_URL = 'default_repo_url'
-DEFAULT_SETTING_DEFAULT_REPO_URL = 'https://github.com/'
 
 env_sanitizer_re = re.compile('[^0-9a-zA-Z]+')
 
@@ -102,11 +89,6 @@ class SettingsStore:
       self.config = config
     else:
       self.config = ConfigParser()
-      # Let's set some default settings
-      self.config[DEFAULT_SECTION] = {
-        SETTING_SKILLS: DEFAULT_SETTING_SKILLS,
-        SETTING_DEFAULT_REPO_URL: DEFAULT_SETTING_DEFAULT_REPO_URL,
-      }
 
   def load_from_file(self, path):
     """Load settings from a file.
@@ -252,24 +234,27 @@ class SettingsStore:
 # Holds the global settings store of the application
 config = SettingsStore()
 
-def write_to_settings(section=DEFAULT_SECTION):
+def write_to_store(section=DEFAULT_SECTION, store=None):
   """Simple decorator used to write each argument value to the current settings store
-  if they're set and call the wrapped func without arguments.
+  if they're set.
 
   Args:
-    section (str): Section to write the settings
+    section (str): Section to write settings to
+    store (SettingsStore): Store to write to, default to the global one
 
   """
+
+  s = store or config
 
   def new(f):
     @wraps(f)
     def func(**kwargs):
-      # For each argument, write its value in the current config object
+      # For each argument, update the SettingsStore object if value is set
       for (k, v) in kwargs.items():
         if v:
-          config.set(k, v, section=section)
+          s.set(k, v, section)
 
-      return f()
+      return f(**kwargs)
     
     return func
   
