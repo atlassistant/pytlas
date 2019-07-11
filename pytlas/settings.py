@@ -75,7 +75,7 @@ class SettingsStore:
   methods to make things easier.
   """
 
-  def __init__(self, config=None, additional_lookup={}):
+  def __init__(self, config=None, additional_lookup=None):
     """Instantiates a new store.
 
     Args:
@@ -83,7 +83,7 @@ class SettingsStore:
       additional_lookup (dict): Dictionary with additional settings where keys are the same as when looking in OS envs
 
     """
-    self.additional_lookup = additional_lookup
+    self.additional_lookup = additional_lookup or {}
     
     if config:
       self.config = config
@@ -100,7 +100,8 @@ class SettingsStore:
     self.config.read(os.path.abspath(path))
 
   def set(self, setting, value, section=DEFAULT_SECTION):
-    """Sets a setting value in the inner ConfigParser of this store.
+    """Sets a setting value in the additional_lookup dictionary so it will take
+    precedence over all the others.
 
     Value will be stringified by this method (since all value can be read from env variables).
 
@@ -111,10 +112,7 @@ class SettingsStore:
 
     """
 
-    if section not in self.config:
-      self.config[section] = {}
-
-    self.config[section][setting] = stringify(value)
+    self.additional_lookup[to_env_key(section, setting)] = stringify(value)
 
   def get(self, setting, default=None, section=DEFAULT_SECTION):
     """Gets a setting value, if an environment variable is defined, it will take

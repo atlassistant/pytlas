@@ -1,5 +1,6 @@
 import logging, uuid
 from pytlas.request import Request
+from pytlas.settings import config, SettingsStore
 from pytlas.utils import get_package_name_from_module, keep_one, strip_format, find_match
 from pytlas.localization import get_translations
 from pytlas.interpreters.intent import Intent
@@ -119,6 +120,7 @@ class Agent:
     self.id = uuid.uuid4().hex
     self.model = model
     self.meta = meta
+    self.settings = SettingsStore(config=config.config, additional_lookup=self.meta)
     self.current_context = None
 
     self._machine = None

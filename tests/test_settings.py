@@ -49,7 +49,7 @@ class TestSettingsStore:
     s = SettingsStore()
     s.set('my_key', 'a value', section='my_section')
     expect(s.get('my_key', section='my_section')).to.equal('a value')
-    expect(s.config.get('my_section', 'my_key')).to.equal('a value')
+    expect(s.additional_lookup.get('MY_SECTION_MY_KEY')).to.equal('a value')
 
   def test_it_should_retrieve_a_string_value(self):
     s = SettingsStore()
