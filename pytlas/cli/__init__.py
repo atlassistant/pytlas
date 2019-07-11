@@ -59,18 +59,23 @@ def make_argname(name):
 @click.option('-c', '--config_file', type=click.Path(), help='Path to the configuration file')
 @click.option('-v', make_argname(VERBOSE), is_flag=True, help='Verbose output')
 @click.option(make_argname(DEBUG), is_flag=True, help='Debug mode')
-@click.option('-l', make_argname(LANGUAGE), help='Lang of the interpreter to use', default='en')
-@click.option('-s', make_argname(SKILLS_DIR), type=click.Path(), help='Specifies the directory containing pytlas skills', default='skills')
+@click.option('-l', make_argname(LANGUAGE), help='Lang of the interpreter to use')
+@click.option('-s', make_argname(SKILLS_DIR), type=click.Path(), help='Specifies the directory containing pytlas skills')
 @click.option(make_argname(CACHE_DIR), type=click.Path(), help='Path to the directory where engine cache will be outputted')
 @click.option('-g', make_argname(GRAPH_FILE), type=click.Path(), help='Output the transitions graph to the given path')
-@click.option(make_argname(REPO_URL), help='Repository URL to prepend when installing skills without an absolute URL', default='https://github.com/')
+@click.option(make_argname(REPO_URL), help='Repository URL to prepend when installing skills without an absolute URL')
 @write_to_store()
-def main(config_file, verbose, debug, **kwargs): # pragma: no cover
+def main(config_file, skills_dir, language, repo_url, **kwargs): # pragma: no cover
   """An open-source 🤖 assistant library built for people and made to be super easy to setup and understand.
   """
 
   if config_file:
     config.load_from_file(config_file)
+
+  # Sets default settings value if not given in args or config file
+  config.set(LANGUAGE, language or config.get(LANGUAGE, 'en'))
+  config.set(SKILLS_DIR, skills_dir or config.get(SKILLS_DIR, 'skills'))
+  config.set(REPO_URL, repo_url or config.get(REPO_URL, 'https://github.com/'))
   
   install_logs(config.get(VERBOSE), config.get(DEBUG))
 
