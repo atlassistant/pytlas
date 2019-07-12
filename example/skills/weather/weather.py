@@ -8,7 +8,7 @@ def register(_): return {
   'name': _('weather'),
   'description': _('Gives weather forecasts using the OpenWeather API'),
   'version': '1.0.0',
-  'settings': ['WEATHER_APPID', 'WEATHER_UNITS']
+  'settings': ['weather.appid', 'weather.units']
 }
 
 # This entity will be shared among training data since it's not language specific

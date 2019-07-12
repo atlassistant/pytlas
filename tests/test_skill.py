@@ -29,14 +29,16 @@ class TestMeta:
     expect(m.media).to.equal('https://somepic')
 
   def test_it_should_convert_settings_strings_to_setting_object_if_needed(self):
-    m = Meta('lights', settings=['LIGHTS_DEFAULT', Setting('LIGHTS_OTHER', int, 'A description')])
+    m = Meta('lights', settings=['lights.default', Setting('lights', 'other', int, 'A description')])
 
     expect(m.settings).to.have.length_of(2)
     expect(m.settings[0]).to.be.a(Setting)
-    expect(m.settings[0].name).to.equal('LIGHTS_DEFAULT')
+    expect(m.settings[0].section).to.equal('lights')
+    expect(m.settings[0].name).to.equal('default')
 
     expect(m.settings[1]).to.be.a(Setting)
-    expect(m.settings[1].name).to.equal('LIGHTS_OTHER')
+    expect(m.settings[1].section).to.equal('lights')
+    expect(m.settings[1].name).to.equal('other')
     expect(m.settings[1].type).to.equal(int)
     expect(m.settings[1].description).to.equal('A description')
 
@@ -47,13 +49,13 @@ class TestMeta:
       homepage='https://julien.leicher.me',
       media='https://somepic',
       version='1.0.0',
-      settings=[Setting('LIGHTS_DEFAULT')])
+      settings=[Setting('lights', 'default')])
     
     expect(str(m)).to.equal("""lights - v1.0.0
   description: Some lighting skill
   homepage: https://julien.leicher.me
   author: Julien LEICHER
-  settings: LIGHTS_DEFAULT (str)
+  settings: lights.default (str)
 """)
 
 class TestSkill:

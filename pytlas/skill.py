@@ -1,4 +1,5 @@
 import logging
+from pytlas.settings import DEFAULT_SECTION
 from pytlas.utils import get_caller_package_name
 
 handlers = {}
@@ -11,13 +12,51 @@ class Setting:
   """Represents a skill settings.
   """
 
-  def __init__(self, name, data_type=str, description='No description provided'):
+  def __init__(self, section, name, data_type=str, description='No description provided'):
+    """Instantiate a new setting.
+
+    Args:
+      section (str): Section in which this setting belongs
+      name (str): Name of the settings
+      data_type (type): Data type of the settings
+      description (str): Optional description for this setting
+
+    """
+
     self.name = name
+    self.section = section
     self.description = description
     self.type = data_type
 
+  @classmethod
+  def from_value(cls, value):
+    """Instantiate a setting from a string representation in the form section.name
+
+    Args:
+      value (str): String which represents the setting
+
+    Returns:
+      Setting: Setting instance
+
+    Examples:
+      >>> str(Setting.from_value('openweather.api_key'))
+      'openweather.api_key (str)'
+      >>> str(Setting.from_value('language'))
+      'pytlas.language (str)'
+      >>> Setting.from_value('pytlas.weather.api_key').section
+      'pytlas.weather'
+
+    """
+
+    try:
+      section, name = value.rsplit('.', 1)
+    except ValueError:
+      section, name = DEFAULT_SECTION, value
+
+    return Setting(section, name)
+
   def __str__(self):
-    return "%s (%s)" % (self.name, self.type.__name__)
+    return f'{self.section}.{self.name} ({self.type.__name__})'
 
 class Meta:
   """Represents a single skill metadata. It's used primarly for skill listing and
@@ -45,7 +84,7 @@ class Meta:
     self.version = version
     self.author = author
     self.homepage = homepage
-    self.settings = [setting if isinstance(setting, Setting) else Setting(setting) for setting in settings]
+    self.settings = [setting if isinstance(setting, Setting) else Setting.from_value(setting) for setting in settings]
 
   def __str__(self):
     data = self.__dict__
