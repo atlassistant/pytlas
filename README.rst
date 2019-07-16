@@ -36,7 +36,6 @@ Installation
 .. code-block:: bash
 
   $ pip install -e .[snips] # Install pytlas and the snips interpreter backend
-  $ snips-nlu download en # Download additional language resources needed by snips
 
 Testing
 -------
