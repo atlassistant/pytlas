@@ -87,7 +87,7 @@ class SnipsInterpreter(Interpreter):
 
     self._configure()
 
-  def _check_and_install_resources_package(self): # pragma: no cover
+  def _check_and_install_resources_package(self):
     resource_pkg_name = f'snips_nlu_{self.lang}'
 
     if not importlib.util.find_spec(resource_pkg_name):
