@@ -106,7 +106,7 @@ class SnipsInterpreter(Interpreter):
   def fit(self, data):
     data_lang = data.get('language')
 
-    if data_lang != self.lang:
+    if data_lang != self.lang: # pragma: no cover
       self._logger.warning(f'Training language "{data_lang}" and interpreter language "{self.lang}" do not match, things could go badly')
     
     self._logger.info(f'Fitting using "snips v{__version__}"')
@@ -128,7 +128,7 @@ class SnipsInterpreter(Interpreter):
       config = None
 
       try:
-        self._logger.info('Importing default configuration for language "%s"' % self.lang)
+        self._logger.info(f'Importing default configuration for language "{self.lang}"')
         config = getattr(snips_confs, 'CONFIG_%s' % self.lang.upper())
       except AttributeError:
         self._logger.warning('Could not import default configuration, it will use the generic one instead')
@@ -138,7 +138,7 @@ class SnipsInterpreter(Interpreter):
       self._engine = SnipsNLUEngine(config, resources=load_resources(resource_pkg_name))
       self._engine.fit(data)
 
-      if self.cache_directory:
+      if self.cache_directory: # pragma: no cover
         self._logger.info(f'Persisting trained engine to "{self.cache_directory}"')
         
         rmtree(self.cache_directory, ignore_errors=True)
