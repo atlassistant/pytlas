@@ -98,7 +98,7 @@ class SnipsInterpreter(Interpreter):
         self._logger.info(f'Successfuly downloaded "{resource_pkg_name}"!')
         # Reload resources (used by snips to determine if resources are installed)
         importlib.reload(pkg_resources)
-      except:
+      except: # pragma: no cover
         self._logger.warning(f'Looks like it fails, you may have to do it manually with: "python -m snips_nlu download {self.lang}"')
     
     return resource_pkg_name
