@@ -2,18 +2,29 @@ from pytlas import Agent, __version__
 from pytlas.cli.prompt import Prompt
 from pytlas.cli.utils import install_logs
 from pytlas.importers import import_skills
+from pytlas.settings import config, write_to_store
 from pytlas.pam import get_loaded_skills, install_skills, uninstall_skills, update_skills
-import click, logging, os, pytlas.settings as settings
+import click, logging, os
+
+SKILLS_DIR = 'skills_dir'
+CACHE_DIR = 'cache_dir'
+TRAINING_FILE = 'training_file'
+REPO_URL = 'repo_url'
+GRAPH_FILE = 'graph_file'
+WATCH = 'watch'
+LANGUAGE = 'language'
+VERBOSE = 'verbose'
+DEBUG = 'debug'
 
 def instantiate_and_fit_interpreter(): # pragma: no cover
-  import_skills(settings.getpath(settings.SETTING_SKILLS), settings.getbool(settings.SETTING_WATCH))
+  import_skills(config.getpath(SKILLS_DIR), config.getbool(WATCH))
 
   try:
     from pytlas.interpreters.snips import SnipsInterpreter
     
-    interpreter = SnipsInterpreter(settings.get(settings.SETTING_LANG), settings.getpath(settings.SETTING_CACHE))
+    interpreter = SnipsInterpreter(config.get(LANGUAGE), config.getpath(CACHE_DIR))
 
-    training_file = settings.getpath(settings.SETTING_TRAINING_FILE)
+    training_file = config.getpath(TRAINING_FILE)
 
     if training_file:
       interpreter.fit_from_file(training_file)
@@ -27,29 +38,52 @@ def instantiate_and_fit_interpreter(): # pragma: no cover
 def instantiate_agent_prompt(sentence=None): # pragma: no cover
   interpreter = instantiate_and_fit_interpreter()
 
-  Prompt(Agent(interpreter, transitions_graph_path=settings.getpath(settings.SETTING_GRAPH_FILE), **os.environ), parse_message=sentence).cmdloop()
+  Prompt(Agent(interpreter, transitions_graph_path=config.getpath(GRAPH_FILE)), parse_message=sentence).cmdloop()
+
+def make_argname(name):
+  """Tiny function to prepend "--" to a string.
+
+  Args:
+    name (str): Setting name
+
+  Examples:
+    >>> make_argname('language')
+    '--language'
+
+  """
+
+  return f'--{name}'
 
 @click.group()
 @click.version_option(__version__)
-@click.option('--config', default=settings.DEFAULT_FILENAME, help='Path to the configuration file')
-@click.option('-v', '--verbose', is_flag=True, help='Verbose output')
-@click.option('--debug', is_flag=True, help='Debug mode')
-@click.option('-l', '--lang', help='Lang of the interpreter to use', default=settings.DEFAULT_LANG)
-@click.option('-s', '--skills', type=click.Path(), help='Specifies the directory containing pytlas skills')
-@click.option('-c', '--cache', type=click.Path(), help='Path to the directory where engine cache will be outputted')
-@click.option('-g', '--graph', type=click.Path(), help='Output the transitions graph to the given path')
-@settings.write_to_settings()
-def main(): # pragma: no cover
+@click.option('-c', '--config_file', type=click.Path(), help='Path to the configuration file')
+@click.option('-v', make_argname(VERBOSE), is_flag=True, help='Verbose output')
+@click.option(make_argname(DEBUG), is_flag=True, help='Debug mode')
+@click.option('-l', make_argname(LANGUAGE), help='Lang of the interpreter to use')
+@click.option('-s', make_argname(SKILLS_DIR), type=click.Path(), help='Specifies the directory containing pytlas skills')
+@click.option(make_argname(CACHE_DIR), type=click.Path(), help='Path to the directory where engine cache will be outputted')
+@click.option('-g', make_argname(GRAPH_FILE), type=click.Path(), help='Output the transitions graph to the given path')
+@click.option(make_argname(REPO_URL), help='Repository URL to prepend when installing skills without an absolute URL')
+@write_to_store()
+def main(config_file, skills_dir, language, repo_url, **kwargs): # pragma: no cover
   """An open-source 🤖 assistant library built for people and made to be super easy to setup and understand.
   """
+
+  if config_file:
+    config.load_from_file(config_file)
+
+  # Sets default settings value if not given in args or config file
+  config.set(LANGUAGE, language or config.get(LANGUAGE, 'en'))
+  config.set(SKILLS_DIR, skills_dir or config.get(SKILLS_DIR, 'skills'))
+  config.set(REPO_URL, repo_url or config.get(REPO_URL, 'https://github.com/'))
   
-  install_logs(settings.getbool(settings.SETTING_VERBOSE), settings.getbool(settings.SETTING_DEBUG))
+  install_logs(config.get(VERBOSE), config.get(DEBUG))
 
 @main.group(invoke_without_command=True)
-@click.option('--watch', is_flag=True, help='Reload on skill files change')
-@click.argument('training_file', type=click.Path(), nargs=1, required=False)
-@settings.write_to_settings()
-def repl(): # pragma: no cover
+@click.option(make_argname(WATCH), is_flag=True, help='Reload on skill files change')
+@click.argument(make_argname(TRAINING_FILE), type=click.Path(), nargs=1, required=False)
+@write_to_store()
+def repl(**kwargs): # pragma: no cover
   """Start a REPL session to interact with your assistant.
   """
 
@@ -84,9 +118,9 @@ def list_skills(): # pragma: no cover
   """List installed skills for this instance.
   """
 
-  import_skills(settings.getpath(settings.SETTING_SKILLS))
+  import_skills(config.getpath(SKILLS_DIR))
 
-  for skill_data in get_loaded_skills(settings.getlist(settings.SETTING_LANG)[0]):
+  for skill_data in get_loaded_skills(config.get(LANGUAGE)):
     click.echo(skill_data)
 
 @skills.command('add')
@@ -95,7 +129,7 @@ def add_skills(skills): # pragma: no cover
   """Add given skills to your instance.
   """
 
-  install_skills(settings.getpath(settings.SETTING_SKILLS), click.echo, *skills)
+  install_skills(config.getpath(SKILLS_DIR), config.get(REPO_URL), click.echo, *skills)
 
 @skills.command('update')
 @click.argument('skills', nargs=-1)
@@ -103,7 +137,7 @@ def update_skills_command(skills): # pragma: no cover
   """Update given skills for this instance. If no skills are defined, they will be all updated.
   """
   
-  update_skills(settings.getpath(settings.SETTING_SKILLS), click.echo, *skills)
+  update_skills(config.getpath(SKILLS_DIR), click.echo, *skills)
 
 @skills.command('remove')
 @click.argument('skills', nargs=-1, required=True)
@@ -111,4 +145,4 @@ def remove_skills(skills): # pragma: no cover
   """Remove given skills from your instance.
   """
 
-  uninstall_skills(settings.getpath(settings.SETTING_SKILLS), click.echo, *skills)
+  uninstall_skills(config.getpath(SKILLS_DIR), click.echo, *skills)

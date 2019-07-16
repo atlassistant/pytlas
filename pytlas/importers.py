@@ -1,5 +1,6 @@
-import importlib, os, logging, sys, threading, pytlas.settings as settings
+import importlib, os, logging, sys, threading
 from types import ModuleType
+from pytlas.settings import config, SETTING_ALLOWED_LANGUAGES
 
 def should_load_resources(language_code):
   """Determines if resources for the given language should be loaded. It will help
@@ -13,7 +14,7 @@ def should_load_resources(language_code):
 
   """
 
-  langs = settings.getlist(settings.SETTING_LANG)
+  langs = config.getlist(SETTING_ALLOWED_LANGUAGES)
 
   return not langs or language_code in langs
 

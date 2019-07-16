@@ -1,7 +1,7 @@
 from pytlas.skill import handlers, module_metas, Meta
 from pytlas.localization import get_translations
 from pytlas.utils import get_package_name_from_module, rmtree
-import re, logging, os, subprocess, pytlas.settings as settings
+import re, logging, os, subprocess
 
 SKILL_FOLDER_SEPARATOR = '__'
 
@@ -112,11 +112,12 @@ def install_dependencies_if_needed(directory, stdout=None):
   elif stdout: # pragma: no cover
     stdout('  No requirements.txt available, skipping')
 
-def install_skills(directory, stdout=None, *names):
+def install_skills(directory, repo_url, stdout=None, *names):
   """Install or update given skills.
 
   Args:
     directory (str): Skills directory
+    repo_url (str): Base repo URL such as https://github.com/
     stdout (func): Function to call to output something
     names (list of str): list of skills to install
 
@@ -137,7 +138,7 @@ def install_skills(directory, stdout=None, *names):
     dest = os.path.abspath(os.path.join(directory, to_skill_folder(owner, repo)))
 
     if name.startswith(owner):
-      url =  settings.get(settings.SETTING_DEFAULT_REPO_URL) + name
+      url =  repo_url + name
 
     logging.info('Will download skill from "%s" to "%s"' % (url, dest))
 

@@ -6,6 +6,7 @@ from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.card import Card
 from pytlas.interpreters import Interpreter, Intent, SlotValue
 from pytlas.hooks import register, ON_AGENT_CREATED
+from pytlas.settings import config
 
 last_request = None
 
@@ -120,9 +121,22 @@ class TestAgent:
       STATE_FALLBACK: on_fallback,
     }
 
+    self.meta = {
+      'AGENT_KEY': 'an agent value',
+    }
+
     self.interpreter = Interpreter('test', 'en')
     self.interpreter.intents = list(self.handlers.keys()) + ['intent_without_handler']
-    self.agent = Agent(self.interpreter, model=self, handlers=self.handlers)
+    self.agent = Agent(self.interpreter, model=self, handlers=self.handlers, **self.meta)
+
+  def test_it_should_provide_settings(self):
+    expect(self.agent.settings.config).to.equal(config.config)
+    expect(self.agent.settings.get('key', section='agent')).to.equal('an agent value')
+
+    self.agent.settings.set('another agent key', 'agent value', section='agent')
+
+    expect(self.agent.settings.get('another agent key', section='agent')).to.equal('agent value')
+    expect(self.agent.meta.get('AGENT_ANOTHER_AGENT_KEY')).to.equal('agent value')
 
   def test_it_should_have_a_unique_id(self):
     agt1 = Agent(self.interpreter)
