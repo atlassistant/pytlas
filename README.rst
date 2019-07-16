@@ -43,7 +43,7 @@ Testing
 .. code-block:: bash
 
   $ pip install -e .[snips,test]
-  $ python -m nose --with-doctest -v --with-coverage --cover-package=pytlas
+  $ python -m nose --with-doctest --with-coverage --cover-package=pytlas
 
 Contributing
 ------------

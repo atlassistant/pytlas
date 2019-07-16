@@ -3,70 +3,9 @@ from functools import wraps
 import os, re
 
 DEFAULT_SECTION = 'pytlas'
-DEFAULT_FILENAME = 'pytlas.conf'
-DEFAULT_LANG = 'en'
-
-config = ConfigParser()
-
-# Needed to keep track of the settings file that has been loaded
-config_loaded_from_path = None
 
 # Here are builtin settings used by the library
-SETTING_VERBOSE = 'verbose'
-SETTING_DEBUG = 'debug'
-SETTING_LANG = 'lang'
-SETTING_SKILLS = 'skills'
-DEFAULT_SETTING_SKILLS = 'skills'
-SETTING_CACHE = 'cache'
-SETTING_DRY = 'dry'
-SETTING_PARSE = 'parse'
-SETTING_WATCH = 'watch'
-SETTING_TRAINING_FILE = 'training_file'
-SETTING_GRAPH_FILE = 'graph'
-SETTING_DEFAULT_REPO_URL = 'default_repo_url'
-DEFAULT_SETTING_DEFAULT_REPO_URL = 'https://github.com/'
-
-def reset():
-  """Resets the current settings.
-  """
-  config.clear()
-  config[DEFAULT_SECTION] = {
-    SETTING_SKILLS: DEFAULT_SETTING_SKILLS,
-    SETTING_DEFAULT_REPO_URL: DEFAULT_SETTING_DEFAULT_REPO_URL,
-  }
-
-reset() # Initialize the current configuration with some default values
-
-def write_to_settings(section=DEFAULT_SECTION):
-  """Simple decorator used to write each argument value to the settings
-  if they're set and call the wrapped func without arguments. If a keyword is named
-  `config`, the filepath represented by this keyword will be read in the config object.
-
-  Args:
-    section (str): Section to write the settings
-
-  """
-
-  def new(f):
-    @wraps(f)
-    def func(**kwargs):
-      # Config is a specific key used to read the config from a file
-      conf = kwargs.get('config')
-
-      # And read it if it exists
-      if conf and os.path.isfile(conf):
-        load(conf)
-
-      # And then, for each argument, write its value in the config object
-      for (k, v) in kwargs.items():
-        if v:
-          config.set(section, k, str(v))
-
-      return f()
-    
-    return func
-  
-  return new
+SETTING_ALLOWED_LANGUAGES = 'allowed_languages'
 
 env_sanitizer_re = re.compile('[^0-9a-zA-Z]+')
 
@@ -123,149 +62,198 @@ def stringify(value):
 
   return str(value)
 
-def load(filepath):
-  """Read settings from the given filepath.
+class SettingsStore:
+  """Hold application settings with an internal ConfigParser instance. It provides
+  a lot of utility methods to convert settings to particular representations.
 
-  Args:
-    filepath (str): Filepath to be loaded
-  """
-
-  global config_loaded_from_path
-  config_loaded_from_path = os.path.abspath(filepath)
-  config.read(config_loaded_from_path)
-
-def set(setting, value, section=DEFAULT_SECTION):
-  """Sets a setting value in the inner config.
-
-  Value will be stringified by this method (since all value can be read from env variables).
-
-  Args:
-    setting (str): Setting key to write
-    value (object): Value to write
-    section (str): Section to write to
-
-  """
-
-  if section not in config:
-    config[section] = {}
-
-  config[section][setting] = stringify(value)
-
-def get(setting, default=None, section=DEFAULT_SECTION, additional_lookup={}):
-  """Gets a setting value, if an environment variable is defined, it will take
-  precedence over the value hold in the inner config object.
-
-  For example, if you got a setting 'lang' in the 'pytlas' section, defining the
-  environment varialbe PYTLAS_LANG will take precedence.
-
-  Args:
-    setting (str): Name of the configuration option
-    default (str): Fallback value
-    section (str): Section to look in
-    additional_lookup (dict): Additional dictionary to look in
-
-  Returns:
-    str: Value of the setting
-
-  """
-
-  env_key = to_env_key(section, setting)
-
-  return additional_lookup.get(env_key, os.environ.get(env_key, config.get(section, setting, fallback=default)))
-
-def getbool(setting, default=False, section=DEFAULT_SECTION, additional_lookup={}):
-  """Gets a boolean value for a setting. It uses the `get` under the hood so the same
-  rules applies.
-
-  Args:
-    setting (str): Name of the configuration option
-    default (bool): Fallback value
-    section (str): Section to look in
-    additional_lookup (dict): Additional dictionary to look in
-
-  Returns:
-    bool: Value of the setting
-
-  """
-
-  v = get(setting, section=section, additional_lookup=additional_lookup)
-
-  return config._convert_to_boolean(v) if v else default
-
-def getint(setting, default=0, section=DEFAULT_SECTION, additional_lookup={}):
-  """Gets a int value for a setting. It uses the `get` under the hood so the same
-  rules applies.
-
-  Args:
-    setting (str): Name of the configuration option
-    default (int): Fallback value
-    section (str): Section to look in
-    additional_lookup (dict): Additional dictionary to look in
-
-  Returns:
-    int: Value of the setting
-
-  """
-
-  v = get(setting, section=section, additional_lookup=additional_lookup)
-
-  return int(v) if v else default
-
-def getfloat(setting, default=0.0, section=DEFAULT_SECTION, additional_lookup={}):
-  """Gets a float value for a setting. It uses the `get` under the hood so the same
-  rules applies.
-
-  Args:
-    setting (str): Name of the configuration option
-    default (float): Fallback value
-    section (str): Section to look in
-    additional_lookup (dict): Additional dictionary to look in
-
-  Returns:
-    float: Value of the setting
-
-  """
-
-  v = get(setting, section=section, additional_lookup=additional_lookup)
-
-  return float(v) if v else default
-
-def getlist(setting, default=[], section=DEFAULT_SECTION, additional_lookup={}):
-  """Gets a list for a setting. It will split values separated by a comma.
+  Why? You may ask. Because it starts by looking for the given settings into
+  an optional additional lookup dict, if its not found, it will look in the system
+  environment and finally, it will use the ConfigParser instance which is probably
+  loaded from a configuration file.
   
-  It uses the `get` under the hood so the same rules applies.
+  And since everything in the env are considered as strings, you can use the provided
+  methods to make things easier.
+  """
+
+  def __init__(self, config=None, additional_lookup=None):
+    """Instantiates a new store.
+
+    Args:
+      config (ConfigParser): Existing ConfigParser instance to use
+      additional_lookup (dict): Dictionary with additional settings where keys are the same as when looking in OS envs
+
+    """
+    self.additional_lookup = additional_lookup or {}
+    
+    if config:
+      self.config = config
+    else:
+      self.config = ConfigParser()
+
+  def load_from_file(self, path):
+    """Load settings from a file.
+
+    Args:
+      path (str): Name of the file to read
+
+    """
+    self.config.read(os.path.abspath(path))
+
+  def set(self, setting, value, section=DEFAULT_SECTION):
+    """Sets a setting value in the additional_lookup dictionary so it will take
+    precedence over all the others.
+
+    Value will be stringified by this method (since all value can be read from env variables).
+
+    Args:
+      setting (str): Setting key to write
+      value (object): Value to write
+      section (str): Section to write to
+
+    """
+
+    self.additional_lookup[to_env_key(section, setting)] = stringify(value)
+
+  def get(self, setting, default=None, section=DEFAULT_SECTION):
+    """Gets a setting value, if an environment variable is defined, it will take
+    precedence over the value hold in the inner config object.
+
+    For example, if you got a setting 'lang' in the 'pytlas' section, defining the
+    environment varialbe PYTLAS_LANG will take precedence.
+
+    Args:
+      setting (str): Name of the configuration option
+      default (str): Fallback value
+      section (str): Section to look in
+
+    Returns:
+      str: Value of the setting
+
+    """
+
+    env_key = to_env_key(section, setting)
+
+    return self.additional_lookup.get(env_key, 
+                        os.environ.get(env_key, 
+                        self.config.get(section, setting, fallback=default)))
+
+  def getbool(self, setting, default=False, section=DEFAULT_SECTION):
+    """Gets a boolean value for a setting. It uses the `get` under the hood so the same
+    rules applies.
+
+    Args:
+      setting (str): Name of the configuration option
+      default (bool): Fallback value
+      section (str): Section to look in
+
+    Returns:
+      bool: Value of the setting
+
+    """
+
+    v = self.get(setting, section=section)
+
+    return self.config._convert_to_boolean(v) if v else default
+
+  def getint(self, setting, default=0, section=DEFAULT_SECTION):
+    """Gets a int value for a setting. It uses the `get` under the hood so the same
+    rules applies.
+
+    Args:
+      setting (str): Name of the configuration option
+      default (int): Fallback value
+      section (str): Section to look in
+
+    Returns:
+      int: Value of the setting
+
+    """
+
+    v = self.get(setting, section=section)
+
+    return int(v) if v else default
+
+  def getfloat(self, setting, default=0.0, section=DEFAULT_SECTION):
+    """Gets a float value for a setting. It uses the `get` under the hood so the same
+    rules applies.
+
+    Args:
+      setting (str): Name of the configuration option
+      default (float): Fallback value
+      section (str): Section to look in
+
+    Returns:
+      float: Value of the setting
+
+    """
+
+    v = self.get(setting, section=section)
+
+    return float(v) if v else default
+
+  def getlist(self, setting, default=[], section=DEFAULT_SECTION):
+    """Gets a list for a setting. It will split values separated by a comma.
+    
+    It uses the `get` under the hood so the same rules applies.
+
+    Args:
+      setting (str): Name of the configuration option
+      default (list): Fallback value
+      section (str): Section to look in
+
+    Returns:
+      list: Value of the setting
+
+    """
+
+    v = self.get(setting, section=section)
+
+    return v.split(',') if v else default
+
+  def getpath(self, setting, default=None, section=DEFAULT_SECTION):
+    """Gets an absolute path for a setting.
+    
+    It uses the `get` under the hood so the same rules applies.
+
+    Args:
+      setting (str): Name of the configuration option
+      default (str): Fallback value
+      section (str): Section to look in
+
+    Returns:
+      str: Value of the setting
+
+    """
+
+    v = self.get(setting, default, section=section)
+
+    return os.path.abspath(v) if v else None
+
+# Holds the global settings store of the application
+config = SettingsStore()
+
+def write_to_store(section=DEFAULT_SECTION, store=None):
+  """Simple decorator used to write each argument value to the current settings store
+  if they're set.
 
   Args:
-    setting (str): Name of the configuration option
-    default (list): Fallback value
-    section (str): Section to look in
-    additional_lookup (dict): Additional dictionary to look in
-
-  Returns:
-    list: Value of the setting
+    section (str): Section to write settings to
+    store (SettingsStore): Store to write to, default to the global one
 
   """
 
-  v = get(setting, section=section, additional_lookup=additional_lookup)
+  s = store or config
 
-  return v.split(',') if v else default
+  def new(f):
+    @wraps(f)
+    def func(**kwargs):
+      # For each argument, update the SettingsStore object if value is set
+      for (k, v) in kwargs.items():
+        if v:
+          s.set(k, v, section)
 
-def getpath(setting, default=None, section=DEFAULT_SECTION, additional_lookup={}):
-  """Gets an absolute path for a setting.
+      return f(**kwargs)
+    
+    return func
   
-  It uses the `get` under the hood so the same rules applies.
-
-  Args:
-    setting (str): Name of the configuration option
-    default (str): Fallback value
-    section (str): Section to look in
-    additional_lookup (dict): Additional dictionary to look in
-
-  Returns:
-    str: Value of the setting
-
-  """
-
-  v = get(setting, default, section=section, additional_lookup=additional_lookup)
-
-  return os.path.abspath(v) if v else None
+  return new
