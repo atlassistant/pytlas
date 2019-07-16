@@ -45,18 +45,7 @@ in order to understand natural language, pytlas is backed by **interpreters** wh
 snips
 ~~~~~
 
-The official interpreter supported use the fantastic `snips-nlu <https://github.com/snipsco/snips-nlu>`_ python library.
+The official interpreter use the fantastic `snips-nlu <https://github.com/snipsco/snips-nlu>`_ python library.
 
-Given the language you want your assistant to understand, you may need to `download additional resources <https://github.com/snipsco/snips-nlu#language-resources>`_ using the following command:
+Given the language you want your assistant to understand, it will need to download additional resources. Fortunately, you don't have to do it manually, pytlas will automatically try to download them when fitting the interpreter with a language it doesn't know already.
 
-.. code:: bash
-
-  $ snips-nlu download en
-
-to download only needed english resources or:
-
-.. code:: bash
-
-  $ snips-nlu download-all-languages
-
-to download all language resources.

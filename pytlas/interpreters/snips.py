@@ -1,4 +1,4 @@
-import os
+import os, sys, subprocess, importlib, pkg_resources
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse as parse_date
 from pytlas.interpreters.interpreter import Interpreter, compute_checksum
@@ -81,19 +81,35 @@ class SnipsInterpreter(Interpreter):
     self.intents = list(self._slot_mappings.keys())
 
   def load_from_cache(self):
-    self._logger.info('Loading engine from "%s"' % self.cache_directory)
+    self._logger.info(f'Loading engine from "{self.cache_directory}"')
 
     self._engine = SnipsNLUEngine.from_path(self.cache_directory)
 
     self._configure()
 
+  def _check_and_install_resources_package(self):
+    resource_pkg_name = f'snips_nlu_{self.lang}'
+
+    if not importlib.util.find_spec(resource_pkg_name):
+      self._logger.info(f'Could not import resource package "{resource_pkg_name}", attempting installation')
+
+      try:
+        subprocess.run([sys.executable, '-m', 'snips_nlu', 'download', self.lang], check=True, stdout=subprocess.PIPE)
+        self._logger.info(f'Successfuly downloaded "{resource_pkg_name}"!')
+        # Reload resources (used by snips to determine if resources are installed)
+        importlib.reload(pkg_resources)
+      except: # pragma: no cover
+        self._logger.warning(f'Looks like it fails, you may have to do it manually with: "python -m snips_nlu download {self.lang}"')
+    
+    return resource_pkg_name
+
   def fit(self, data):
     data_lang = data.get('language')
 
-    if data_lang != self.lang:
-      self._logger.warning('Training language "%s" and interpreter language "%s" do not match, things could go badly' % (data_lang, self.lang))
+    if data_lang != self.lang: # pragma: no cover
+      self._logger.warning(f'Training language "{data_lang}" and interpreter language "{self.lang}" do not match, things could go badly')
     
-    self._logger.info('Fitting using "snips v%s"' % __version__)
+    self._logger.info(f'Fitting using "snips v{__version__}"')
 
     checksum = compute_checksum(data)
     cached_checksum = None
@@ -112,16 +128,18 @@ class SnipsInterpreter(Interpreter):
       config = None
 
       try:
-        self._logger.info('Importing default configuration for language "%s"' % self.lang)
+        self._logger.info(f'Importing default configuration for language "{self.lang}"')
         config = getattr(snips_confs, 'CONFIG_%s' % self.lang.upper())
       except AttributeError:
         self._logger.warning('Could not import default configuration, it will use the generic one instead')
 
-      self._engine = SnipsNLUEngine(config, resources=load_resources('snips_nlu_%s' % self.lang))
+      resource_pkg_name = self._check_and_install_resources_package()
+
+      self._engine = SnipsNLUEngine(config, resources=load_resources(resource_pkg_name))
       self._engine.fit(data)
 
-      if self.cache_directory:
-        self._logger.info('Persisting trained engine to "%s"' % self.cache_directory)
+      if self.cache_directory: # pragma: no cover
+        self._logger.info(f'Persisting trained engine to "{self.cache_directory}"')
         
         rmtree(self.cache_directory, ignore_errors=True)
 

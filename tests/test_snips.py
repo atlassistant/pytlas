@@ -1,7 +1,8 @@
-import datetime, os
+import datetime, os, sys
 from dateutil.parser import parse as dateParse
 from dateutil.relativedelta import relativedelta
 from sure import expect
+from unittest.mock import patch
 from pytlas.interpreters import Intent, SlotValue, SlotValues
 from pytlas.interpreters.slot import UnitValue
 
@@ -20,6 +21,25 @@ try:
   interpreters = [fitted_interpreter, cached_interpreter]
 
   class TestSnipsInterpreter:
+
+    def test_it_should_not_try_to_install_language_resources_if_already_installed(self):
+      i = SnipsInterpreter('doo')
+
+      with patch('importlib.util.find_spec', return_value=True):
+        with patch('subprocess.run') as subprocess_mock:
+          expect(i._check_and_install_resources_package()).to.equal('snips_nlu_doo')
+          subprocess_mock.assert_not_called()
+    
+    def test_it_should_install_language_resources_if_needed(self):
+      i = SnipsInterpreter('doo')
+
+      with patch('importlib.util.find_spec', return_value=False):
+          with patch('subprocess.run') as subprocess_mock:
+            pkg = i._check_and_install_resources_package()
+            expect(pkg).to.equal('snips_nlu_doo')
+
+            cmd = subprocess_mock.call_args[0][0]
+            expect(cmd).to.equal([sys.executable, '-m', 'snips_nlu', 'download', 'doo'])
 
     def test_it_should_returns_empty_results_when_not_fitted(self):
       i = SnipsInterpreter('en')
