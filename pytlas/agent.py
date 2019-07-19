@@ -6,7 +6,7 @@ from pytlas.localization import get_translations
 from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
 from pytlas.skill import handlers as skill_handlers
-from pytlas.hooks import trigger, ON_AGENT_CREATED, ON_AGENT_DESTROYED
+from pytlas.hooks import hooks, ON_AGENT_CREATED, ON_AGENT_DESTROYED
 from transitions import Machine, MachineError
 
 # Silent the transitions logger
@@ -78,7 +78,7 @@ class Agent:
 
   """
 
-  def __init__(self, interpreter, model=None, handlers=None, transitions_graph_path=None, **meta):
+  def __init__(self, interpreter, model=None, handlers=None, transitions_graph_path=None, hooks_store=None, **meta):
     """Initialize an agent.
 
     When skills ask or answer something to the client, they can send markdown formatted text
@@ -93,6 +93,7 @@ class Agent:
       model (object): Model which will receive events raised by this agent instance
       handlers (dict): Dictionary of intent: handler to use. If no one is provided, all handlers registered will be used instead.
       transitions_graph_path (str): If pygraphviz is installed, where to output the transitions graph
+      hooks_store (HooksStore): Optional hooks store to use for dispatching lifecycle events
       meta (dict): Every other properties will be made available through the self.meta property
 
     """
@@ -109,6 +110,7 @@ class Agent:
 
     self._handlers = handlers if handlers != None else skill_handlers
     self._translations = get_translations(self._interpreter.lang)
+    self._hooks = hooks_store or hooks
 
     self._intents_queue = []
     self._request = None
@@ -127,11 +129,11 @@ class Agent:
     self.build()
     self.context(None)
 
-    trigger(ON_AGENT_CREATED, self)
+    self._hooks.trigger(ON_AGENT_CREATED, self)
 
   def __del__(self):
     # Maybe we should use a finalizer instead
-    trigger(ON_AGENT_DESTROYED, self)
+    self._hooks.trigger(ON_AGENT_DESTROYED, self)
 
   def _build_is_in_context_lambda(self, ctx):
     return lambda _: self.current_context == ctx
