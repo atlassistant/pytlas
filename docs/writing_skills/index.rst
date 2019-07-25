@@ -3,7 +3,7 @@
 Writing skills
 ==============
 
-Writing a skill for **pytlas** is as easy as creating a python module, writing some code that use `pytlas` members and putting it in the skills directory of your instance.
+Writing a skill for **pytlas** is as easy as creating a python module, writing some code that use `pytlas` members and putting it in the skills directory of your instance (when :ref:`using_repl`).
 
 There's only two parts that your skill should always define to make it work, :ref:`training` and :ref:`handler`.
 

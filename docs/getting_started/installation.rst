@@ -60,3 +60,7 @@ to download only needed english resources or:
   $ snips-nlu download-all-languages
 
 to download all language resources.
+
+.. note::
+
+  On windows, it will complain about not being able to link packages. You can safely ignore this message.
