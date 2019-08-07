@@ -122,7 +122,16 @@ class Agent:
     self.id = uuid.uuid4().hex
     self.model = model
     self.meta = meta
-    self.settings = SettingsStore(config=config.config, additional_lookup=self.meta)
+
+    # Here we instantiate agent settings by extending the global ones with agent
+    # meta.
+    self.settings = SettingsStore(config=config.config)
+    # And since, by default, store such as the settings one will deepcopy initial
+    # data, we manually affect the inner data to reference the agent meta. With
+    # this tiny hack, agent settings and meta will be in sync because they share
+    # the same dict pointer.
+    self.settings._data = self.meta
+    
     self.current_context = None
 
     self._machine = None

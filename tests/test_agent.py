@@ -5,7 +5,7 @@ from pytlas import Agent
 from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.card import Card
 from pytlas.interpreters import Interpreter, Intent, SlotValue
-from pytlas.hooks import register, ON_AGENT_CREATED
+from pytlas.hooks import HooksStore, ON_AGENT_CREATED
 from pytlas.settings import config
 
 last_request = None
@@ -150,12 +150,13 @@ class TestAgent:
     expect(agt1.id).to_not.equal(agt2.id)
 
   def test_it_should_trigger_agent_created_hook_upon_creation(self):
+    h = HooksStore()
     self.on_agent_created = MagicMock()
     self.on_agent_created.__name__ = 'on_agent_created'
 
-    register(ON_AGENT_CREATED, self.on_agent_created)
+    h.register(ON_AGENT_CREATED, self.on_agent_created)
 
-    agt = Agent(self.interpreter, handlers=self.handlers)
+    agt = Agent(self.interpreter, handlers=self.handlers, hooks_store=h)
 
     self.on_agent_created.assert_called_once_with(agt)
 

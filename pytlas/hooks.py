@@ -1,10 +1,11 @@
 from pytlas.utils import get_caller_package_name
+from pytlas.store import Store
 import logging
 
 ON_AGENT_CREATED = 'on_agent_created'
 ON_AGENT_DESTROYED = 'on_agent_destroyed'
 
-class HooksStore:
+class HooksStore(Store):
   """Holds registered hooks and provide a way to trigger them.
   """
 
@@ -15,11 +16,10 @@ class HooksStore:
       data (dict): Optional initial data to use
 
     """
-    self._logger = logging.getLogger(self.__class__.__name__.lower())
-    self._data = data or {
+    super().__init__('hooks', data or {
       ON_AGENT_CREATED: [],
       ON_AGENT_DESTROYED: [],
-    }
+    })
 
   def register(self, name, func, package=None):
     """Register a new handler for the given hook.
