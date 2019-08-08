@@ -7,6 +7,7 @@ from pytlas.card import Card
 from pytlas.interpreters import Interpreter, Intent, SlotValue
 from pytlas.hooks import HooksStore, ON_AGENT_CREATED
 from pytlas.settings import config
+from pytlas.localization import TranslationsStore
 
 last_request = None
 
@@ -149,6 +150,10 @@ class TestAgent:
 
     expect(agt1.id).to_not.equal(agt2.id)
 
+  def test_it_should_expose_the_current_used_language(self):
+    a = Agent(self.interpreter)
+    expect(a.lang).to.equal(self.interpreter.lang)
+
   def test_it_should_trigger_agent_created_hook_upon_creation(self):
     h = HooksStore()
     self.on_agent_created = MagicMock()
@@ -159,6 +164,21 @@ class TestAgent:
     agt = Agent(self.interpreter, handlers=self.handlers, hooks_store=h)
 
     self.on_agent_created.assert_called_once_with(agt)
+
+  def test_it_should_use_provided_translations_store(self):
+    s = TranslationsStore()
+    s.register('en', lambda: {
+      'hi': 'Hello',
+      'bye': 'See ya!',
+    }, 'test_agent')
+
+    a = Agent(self.interpreter, translations_store=s)
+    expect(a._translations).to.equal({
+      'test_agent': {
+        'hi': 'Hello',
+        'bye': 'See ya!',
+      },
+    })
 
   def test_it_should_queue_string_as_intent(self):
     self.agent.queue_intent('greet')

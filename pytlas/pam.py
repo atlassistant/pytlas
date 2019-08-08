@@ -1,5 +1,5 @@
 from pytlas.skill import handlers, module_metas, Meta
-from pytlas.localization import get_translations
+from pytlas.localization import global_translations
 from pytlas.utils import get_package_name_from_module, rmtree
 import re, logging, os, subprocess
 
@@ -293,7 +293,7 @@ def get_loaded_skills(lang):
     meta_func = module_metas.get(pkg)
 
     if meta_func:
-      translations = get_translations(lang).get(pkg, {})
+      translations = global_translations.get(lang).get(pkg, {})
       meta = meta_func(lambda k: translations.get(k, k))
 
       if not isinstance(meta, Meta):

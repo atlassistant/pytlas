@@ -1,6 +1,6 @@
 from sure import expect
 from unittest.mock import MagicMock
-from pytlas.hooks import hooks, HooksStore, ON_AGENT_CREATED, ON_AGENT_DESTROYED, \
+from pytlas.hooks import global_hooks, HooksStore, ON_AGENT_CREATED, ON_AGENT_DESTROYED, \
   on_agent_created, on_agent_destroyed
 
 class TestHooks:
@@ -14,7 +14,7 @@ class TestHooks:
     self.on_destroyed2_handler = MagicMock()
 
   def teardown(self):
-    hooks.reset() # Resets global hooks just to be sure
+    global_hooks.reset() # Resets global hooks just to be sure
 
   def test_it_should_register_hooks_correctly_with_the_register_method(self):
     h = HooksStore()
@@ -52,11 +52,11 @@ class TestHooks:
     def other_func(*args, **kwargs):
       pass
 
-    expect(hooks._data[ON_AGENT_CREATED]).to.have.length_of(1)
-    expect(hooks._data[ON_AGENT_DESTROYED]).to.have.length_of(1)
+    expect(global_hooks._data[ON_AGENT_CREATED]).to.have.length_of(1)
+    expect(global_hooks._data[ON_AGENT_DESTROYED]).to.have.length_of(1)
 
-    expect(hooks._data[ON_AGENT_CREATED][0]).to.equal(my_func)
-    expect(hooks._data[ON_AGENT_DESTROYED][0]).to.equal(other_func)
+    expect(global_hooks._data[ON_AGENT_CREATED][0]).to.equal(my_func)
+    expect(global_hooks._data[ON_AGENT_DESTROYED][0]).to.equal(other_func)
 
   def test_it_should_call_handlers_with_arguments_when_hook_triggered(self):
     h = HooksStore()

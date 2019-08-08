@@ -1,6 +1,5 @@
 from pytlas.utils import get_caller_package_name
 from pytlas.store import Store
-import logging
 
 ON_AGENT_CREATED = 'on_agent_created'
 ON_AGENT_DESTROYED = 'on_agent_destroyed'
@@ -36,7 +35,7 @@ class HooksStore(Store):
       self._logger.warning(f'"{name}" doesn\'t look like a valid hook name, dismissing')
     else:
       self._data[name].append(func)
-      logging.info(f'Registered "{pkg}.{func.__name__}" handler for hook "{name}"')
+      self._logger.info(f'Registered "{pkg}.{func.__name__}" handler for hook "{name}"')
   
   def trigger(self, name, *args, **kwargs):
     """Trigger a hook with given arguments.
@@ -54,7 +53,7 @@ class HooksStore(Store):
         handler(*args, **kwargs)
 
 # Contains global hooks handlers
-hooks = HooksStore() 
+global_hooks = HooksStore() 
 
 def on_agent_created(store=None, package=None):
   """Decorator applied to a function that should be called when an agent is created
@@ -64,7 +63,7 @@ def on_agent_created(store=None, package=None):
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
 
   """
-  s = store or hooks
+  s = store or global_hooks
 
   def new(func):
     s.register(ON_AGENT_CREATED, func, package or get_caller_package_name() or func.__module__)
@@ -80,7 +79,7 @@ def on_agent_destroyed(store=None, package=None):
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
 
   """
-  s = store or hooks
+  s = store or global_hooks
 
   def new(func):
     s.register(ON_AGENT_DESTROYED, func, package or get_caller_package_name() or func.__module__)
