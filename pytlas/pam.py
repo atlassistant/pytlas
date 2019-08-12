@@ -1,4 +1,4 @@
-from pytlas.skill import handlers, module_metas, Meta
+from pytlas.skill import global_handlers, global_metas, Meta
 from pytlas.localization import global_translations
 from pytlas.utils import get_package_name_from_module, rmtree
 import re, logging, os, subprocess
@@ -285,22 +285,11 @@ def get_loaded_skills(lang):
 
   """
 
-  unique_pkgs = list(set(get_package_name_from_module(v.__module__) for v in handlers.values()))
+  unique_pkgs = list(set(get_package_name_from_module(v.__module__) for v in global_handlers._data.values()))
   skills_meta = []
 
   for pkg in unique_pkgs:
-    meta = {}
-    meta_func = module_metas.get(pkg)
-
-    if meta_func:
-      translations = global_translations.get(lang).get(pkg, {})
-      meta = meta_func(lambda k: translations.get(k, k))
-
-      if not isinstance(meta, Meta):
-        meta = Meta(**meta)
-    else:
-      meta = Meta(from_skill_folder(pkg))
-
+    meta = global_metas.get(lang, pkg) or Meta(from_skill_folder(pkg))
     skills_meta.append(meta)
 
   return skills_meta

@@ -7,6 +7,7 @@ from pytlas.card import Card
 from pytlas.interpreters import Interpreter, Intent, SlotValue
 from pytlas.hooks import HooksStore, ON_AGENT_CREATED
 from pytlas.settings import config
+from pytlas.skill import HandlersStore
 from pytlas.localization import TranslationsStore
 
 last_request = None
@@ -112,7 +113,7 @@ class TestAgent:
     self.on_done = MagicMock()
     self.on_thinking = MagicMock()
 
-    self.handlers = {
+    self.handlers = HandlersStore({
       'greet': on_greet,
       'get_forecast': on_get_forecast,
       'lights_on': on_lights_on,
@@ -120,15 +121,15 @@ class TestAgent:
       'with_meta': on_with_meta,
       STATE_CANCEL: on_cancel,
       STATE_FALLBACK: on_fallback,
-    }
+    })
 
     self.meta = {
       'AGENT_KEY': 'an agent value',
     }
 
     self.interpreter = Interpreter('test', 'en')
-    self.interpreter.intents = list(self.handlers.keys()) + ['intent_without_handler']
-    self.agent = Agent(self.interpreter, model=self, handlers=self.handlers, **self.meta)
+    self.interpreter.intents = list(self.handlers._data.keys()) + ['intent_without_handler']
+    self.agent = Agent(self.interpreter, model=self, handlers_store=self.handlers, **self.meta)
 
   def test_it_should_provide_settings(self):
     expect(self.agent.settings.config).to.equal(config.config)
@@ -161,7 +162,7 @@ class TestAgent:
 
     h.register(ON_AGENT_CREATED, self.on_agent_created)
 
-    agt = Agent(self.interpreter, handlers=self.handlers, hooks_store=h)
+    agt = Agent(self.interpreter, hooks_store=h)
 
     self.on_agent_created.assert_called_once_with(agt)
 

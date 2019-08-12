@@ -124,15 +124,15 @@ class TestCreateSkillAgent:
     agt = create_skill_agent(get_skill_folder('alpha'))
 
     expect(agt).to.be.an(Agent)
-    expect(agt._handlers).to.have.length_of(1)
-    expect(agt._handlers).to.contain('alpha')
+    expect(agt._handlers._data).to.have.length_of(1)
+    expect(agt._handlers._data).to.contain('alpha')
     expect(agt._interpreter.intents).to.have.length_of(1)
     expect(agt._interpreter.intents).to.contain('alpha')
 
     agt = create_skill_agent(get_skill_folder('bravo'))
 
-    expect(agt._handlers).to.have.length_of(1)
-    expect(agt._handlers).to.contain('bravo')
+    expect(agt._handlers._data).to.have.length_of(1)
+    expect(agt._handlers._data).to.contain('bravo')
     expect(agt._interpreter.intents).to.have.length_of(1)
     expect(agt._interpreter.intents).to.contain('bravo')
 
@@ -143,9 +143,9 @@ class TestCreateSkillAgent:
 
     agt = create_skill_agent(get_skill_folder('alpha'), additional_skills=['bravo'])
 
-    expect(agt._handlers).to.have.length_of(2)
-    expect(agt._handlers).to.contain('alpha')
-    expect(agt._handlers).to.contain('bravo')
+    expect(agt._handlers._data).to.have.length_of(2)
+    expect(agt._handlers._data).to.contain('alpha')
+    expect(agt._handlers._data).to.contain('bravo')
 
     expect(agt._interpreter.intents).to.have.length_of(2)
     expect(agt._interpreter.intents).to.contain('alpha')

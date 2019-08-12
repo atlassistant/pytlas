@@ -1,15 +1,7 @@
 from sure import expect
-from pytlas.skill import intent, register, handlers, meta, register_metadata, module_metas, \
-  Meta, Setting
-
-@intent('an_intent')
-def a_handler(r):
-  return r.agent.done()
-
-@meta('pkg')
-def some_meta(): return {
-  'name': 'a skill',
-}
+from pytlas.localization import TranslationsStore
+from pytlas.skill import intent, meta, global_handlers, global_metas, \
+  HandlersStore, MetasStore, Meta, Setting
 
 class TestMeta:
 
@@ -58,34 +50,132 @@ class TestMeta:
   settings: lights.default (str)
 """)
 
-class TestSkill:
+class TestHandlers:
 
-  def test_it_should_be_imported_with_the_decorator(self):
-    expect(handlers).to.have.key('an_intent')
-    expect(handlers['an_intent']).to.equal(a_handler)
+  def teardown(self):
+    global_handlers.reset()
 
-  def test_it_should_be_imported_with_the_register_function(self):
+  def test_it_should_register_handlers_correctly(self):
+    s = HandlersStore()
 
+    def on_lights_on():
+      pass
+
+    s.register('lights_on', on_lights_on)
+
+    expect(s._data).to.equal({
+      'lights_on': on_lights_on,
+    })
+
+  def test_it_should_register_with_the_decorator_in_the_provided_store(self):
+    s = HandlersStore()
+
+    @intent('an_intent', store=s)
+    def a_handler(r):
+      return r.agent.done()
+
+    expect(s._data).to.equal({
+      'an_intent': a_handler,
+    })
+
+  def test_it_should_register_with_the_decorator_in_the_global_store(self):
+    @intent('another_intent')
     def another_handler(r):
       return r.agent.done()
 
-    register('another_intent', another_handler)
+    expect(global_handlers._data).to.equal({
+      'another_intent': another_handler,
+    })
+  
+  def test_it_should_retrieve_an_handler_with_an_intent(self):
+    s = HandlersStore()
 
-    expect(handlers).to.have.key('another_intent')
-    expect(handlers['another_intent']).to.equal(another_handler)
-
-  def test_it_should_have_meta_imported_with_the_decorator(self):
-    expect(module_metas).to.have.key('pkg')
-    expect(module_metas['pkg']).to.equal(some_meta)
-
-  def test_it_should_have_meta_imported_with_the_register_function(self):
+    @intent('an_intent', store=s)
+    def a_handler(r):
+      return r.agent.done()
     
-    def another_meta():
-      return {
-        'name': 'another skill',
-      }
-    
-    register_metadata(another_meta, 'another_pkg')
+    @intent('another_intent', store=s)
+    def another_handler(r):
+      return r.agent.done()
 
-    expect(module_metas).to.have.key('another_pkg')
-    expect(module_metas['another_pkg']).to.equal(another_meta)
+    expect(s.get('an_intent')).to.equal(a_handler)
+    expect(s.get('another_intent')).to.equal(another_handler)
+
+class TestMetas:
+
+  def teardown(self):
+    global_metas.reset()
+
+  def test_it_should_register_metas_correctly(self):
+    s = MetasStore()
+
+    def module_meta():
+      pass
+
+    s.register(module_meta, 'amodule')
+
+    expect(s._data).to.equal({
+      'amodule': module_meta,
+    })
+
+  def test_it_should_register_with_the_decorator_in_the_provided_store(self):
+    s = MetasStore()
+
+    @meta(store=s, package='amodule')
+    def meta_handler():
+      pass
+
+    expect(s._data).to.equal({
+      'amodule': meta_handler,
+    })
+
+  def test_it_should_register_with_the_decorator_in_the_global_store(self):
+    @meta(package='amodule')
+    def meta_handler():
+      pass
+
+    expect(global_metas._data).to.equal({
+      'amodule': meta_handler,
+    })
+
+  def test_it_should_get_and_translate_meta_from_dict(self):
+    s = MetasStore()
+    s.register(lambda _: {
+      'name': _('my module'),
+      'version': '1.0.0',
+    }, package='mymodule')
+
+    t = TranslationsStore({
+      'mymodule': {
+        'fr': lambda: {
+          'my module': 'mon module',
+          'another key': 'here',
+        },
+      },
+    })
+
+    meta = s.get('en', 'mymodule', translations_store=t)
+    expect(meta.name).to.equal('my module')
+
+    meta = s.get('fr', 'mymodule', translations_store=t)
+    expect(meta.name).to.equal('mon module')
+
+  def test_it_should_get_and_translate_meta_from_Meta(self):
+    s = MetasStore()
+    s.register(lambda _: Meta(_('my module')), package='mymodule')
+
+    t = TranslationsStore({
+      'mymodule': {
+        'fr': lambda: {
+          'my module': 'mon module',
+          'another key': 'here',
+        },
+      },
+    })
+
+    meta = s.get('en', 'mymodule', translations_store=t)
+    expect(meta.name).to.equal('my module')
+
+    meta = s.get('fr', 'mymodule', translations_store=t)
+    expect(meta.name).to.equal('mon module')
+

@@ -1,12 +1,7 @@
-import logging
 from pytlas.settings import DEFAULT_SECTION
 from pytlas.utils import get_caller_package_name
-
-handlers = {}
-
-# Contains module metadatas functions. Why functions? Because we want to be able
-# to translate them in the user language.
-module_metas = {}
+from pytlas.store import Store
+from pytlas.localization import global_translations
 
 class Setting:
   """Represents a skill settings.
@@ -97,53 +92,119 @@ class Meta:
   settings: {settings}
 """.format(**data)
 
-def register_metadata(func, package=None):
-  """Register skill package metadata
-
-  Args:
-    func (func): Function which will be called with a function to translate strings using the package translations at runtime
-    package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
-
+class MetasStore(Store):
+  """Hold skill metadatas.
   """
 
-  package = package or get_caller_package_name()
+  def __init__(self, data=None):
+    """Instantiates a new store.
 
-  module_metas[package] = func
+    Args:
+      data (dict): Optional initial data to use
 
-  logging.info('Registered "%s.%s" metadata' % (package, func.__name__))
+    """
+    super().__init__('meta', data or {})
 
-def meta(package=None):
+  def get(self, lang, skill, translations_store=None):
+    """Retrieve a meta for the given skill.
+
+    Args:
+      lang (str): Lang for which you want to retrieve the skill Meta
+      skill (str): Skill name to retrieve
+      translations_store (TranslationsStore): Optional store to use to extract translations
+
+    Returns:
+      Meta: Meta instance or None if not found
+
+    """
+    meta_func = self._data.get(skill)
+
+    if not meta_func:
+      return None
+
+    translations = (translations_store or global_translations).get(lang).get(skill, {})
+    result = meta_func(lambda k: translations.get(k, k))
+
+    if not isinstance(result, Meta):
+      result = Meta(**result)
+
+    return result
+
+  def register(self, func, package=None):
+    """Register skill package metadata
+  
+    Args:
+      func (func): Function which will be called with a function to translate strings using the package translations at runtime
+      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+  
+    """
+    package = package or get_caller_package_name()
+  
+    self._data[package] = func
+    self._logger.info(f'Registered "{package}.{func.__name__}" metadata')
+
+# Global skill metadata store
+global_metas = MetasStore()
+
+def meta(store=None, package=None):
   """Decorator used to register skill metadata.
 
   Args:
+    store (MetasStore): Store to use for registration, defaults to the global one
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
 
   """
+  s = store or global_metas
 
   def new(func):
-    register_metadata(func, package or get_caller_package_name() or func.__module__)
-
+    s.register(func, package or get_caller_package_name() or func.__module__)
     return func
-    
+
   return new
 
-def register(intent, handler, package=None):
-  """Register an intent handler.
-
-  Args:
-    intent (str): Name of the intent to handle
-    handler (func): Handler to be called when the intent is triggered
-    package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
-
+class HandlersStore(Store):
+  """Holds skill handlers.
   """
 
-  package = package or get_caller_package_name() or handler.__module__
+  def __init__(self, data=None):
+    """Instantiates a new store.
 
-  logging.info('Registered "%s.%s" which should handle "%s" intent' % (package, handler.__name__, intent))
+    Args:
+      data (dict): Optional initial data to use
 
-  handlers[intent] = handler
+    """
+    super().__init__('handl', data or {})
 
-def intent(intent_name, package=None):
+  def get(self, intent):
+    """Try to retrieve the handler associated with a particular intent.
+
+    Args:
+      intent (str): Intent to search
+
+    Returns:
+      callable: Handler if found, None otherwise
+
+    """
+    return self._data.get(intent)
+
+  def register(self, intent, func, package=None):
+    """Register an intent handler.
+
+    Args:
+      intent (str): Name of the intent to handle
+      func (callable): Handler to be called when the intent is triggered
+      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+
+    """
+    package = package or get_caller_package_name() or func.__module__
+
+    self._data[intent] = func
+    self._logger.info(f'Registered "{package}.{func.__name__}" which should handle "{intent}" intent')
+
+# Global handlers store
+global_handlers = HandlersStore()
+
+def intent(intent_name, store=None, package=None):
   """Decorator used to register an intent handler.
 
   Args:
@@ -151,10 +212,10 @@ def intent(intent_name, package=None):
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
   
   """
+  s = store or global_handlers
   
   def new(func):
-    register(intent_name, func, package or get_caller_package_name() or func.__module__)
-
+    s.register(intent_name, func, package or get_caller_package_name() or func.__module__)
     return func
     
   return new

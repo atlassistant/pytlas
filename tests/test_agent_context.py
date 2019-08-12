@@ -2,6 +2,7 @@ from sure import expect
 from unittest.mock import MagicMock
 from pytlas.interpreters import Interpreter, Intent, SlotValue
 from pytlas.agent import Agent, build_scopes, STATE_CANCEL, STATE_FALLBACK, STATE_ASLEEP
+from pytlas.skill import HandlersStore
 
 def on_manage_list(r):
   r.agent.context('manage_list')
@@ -34,18 +35,18 @@ class TestAgentContext:
   def setup(self):
     self.on_context = MagicMock()
 
-    self.handlers = {
+    self.handlers = HandlersStore({
       'manage_list': on_manage_list,
       'manage_list/rename': on_rename_list,
       'manage_list/close': on_close_list,
       'manage_list/' + STATE_FALLBACK: on_list_fallback,
       'open_context': on_open_context,
       'open_context/nested': MagicMock(),
-    }
+    })
 
     self.interpreter = Interpreter('test', 'en')
-    self.interpreter.intents = [i for i in self.handlers.keys() if STATE_FALLBACK not in i] + [STATE_CANCEL]
-    self.agent = Agent(self.interpreter, handlers=self.handlers, model=self)
+    self.interpreter.intents = [i for i in self.handlers._data.keys() if STATE_FALLBACK not in i] + [STATE_CANCEL]
+    self.agent = Agent(self.interpreter, handlers_store=self.handlers, model=self)
 
   def test_it_should_parse_scopes_correctly(self):
     intents = ['an intent', 'an intent/a sub intent', 'an intent/a sub intent/another one', 'one more']
@@ -190,14 +191,14 @@ class TestAgentContext:
     expect(self.agent.meta['list']).to.contain('Buy milk too')
 
   def test_it_should_not_be_able_to_transition_to_nested_state_if_not_in_the_context(self):
-    self.handlers['manage_list/rename'] = MagicMock()
+    self.handlers._data['manage_list/rename'] = MagicMock()
 
     self.agent.go('manage_list/rename', intent=Intent('manage_list/rename'))
-    self.handlers['manage_list/rename'].assert_not_called()
+    self.handlers._data['manage_list/rename'].assert_not_called()
 
     self.agent.go('manage_list', intent=Intent('manage_list'))
     self.agent.go('manage_list/rename', intent=Intent('manage_list/rename'))
-    self.handlers['manage_list/rename'].assert_called_once()
+    self.handlers._data['manage_list/rename'].assert_called_once()
 
   def test_it_should_create_attribute_on_the_agent_to_check_if_right_context(self):
     expect(callable(self.agent.is_in_manage_list_context)).to.be.true

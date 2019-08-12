@@ -5,7 +5,7 @@ from pytlas.utils import get_package_name_from_module, keep_one, strip_format, f
 from pytlas.localization import global_translations
 from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
-from pytlas.skill import handlers as skill_handlers
+from pytlas.skill import global_handlers
 from pytlas.hooks import global_hooks, ON_AGENT_CREATED, ON_AGENT_DESTROYED
 from transitions import Machine, MachineError
 
@@ -78,7 +78,7 @@ class Agent:
 
   """
 
-  def __init__(self, interpreter, model=None, handlers=None, transitions_graph_path=None, 
+  def __init__(self, interpreter, model=None, handlers_store=None, transitions_graph_path=None, 
     hooks_store=None, translations_store=None, **meta):
     """Initialize an agent.
 
@@ -92,7 +92,7 @@ class Agent:
     Args:
       interpreter (Interpreter): Interpreter used to convert human language to intents and extract slots
       model (object): Model which will receive events raised by this agent instance
-      handlers (dict): Dictionary of intent: handler to use. If no one is provided, all handlers registered will be used instead.
+      handlers_store (HandlersStore): Handlers store to use. If no one is provided, all handlers registered will be used instead.
       transitions_graph_path (str): If pygraphviz is installed, where to output the transitions graph
       hooks_store (HooksStore): Optional hooks store to use for dispatching lifecycle events
       transations_store (TranslationsStore): Optional translations store to use for translations
@@ -110,7 +110,7 @@ class Agent:
     self._on_context = None
 
     # Extract stores data
-    self._handlers = handlers if handlers != None else skill_handlers
+    self._handlers = handlers_store or global_handlers
     # Maybe we should evaluate it everytime when creating the request instead
     # of caching translations here :/
     self._translations = (translations_store or global_translations).get(self.lang)
@@ -390,7 +390,7 @@ class Agent:
     # If we are in a context and the intent is a builtin one, check if the skill has a specific
     # handler registered, else fallback to the generic one
     if self.current_context and is_builtin(intent.name):
-      handler = self._handlers.get(self.current_context + CONTEXT_SEPARATOR + intent.name, handler)
+      handler = self._handlers.get(self.current_context + CONTEXT_SEPARATOR + intent.name) or handler
     
     if not handler:
       self._logger.warning('No handler found for the intent "%s"' % intent.name)

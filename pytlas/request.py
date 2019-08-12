@@ -35,7 +35,7 @@ class Request:
     self.intent = intent
     self.id = uuid.uuid4().hex
     self.agent = AgentProxy(self, agent)
-    self.lang = agent._interpreter.lang
+    self.lang = agent.lang
 
     self._module_translations = module_translations
 

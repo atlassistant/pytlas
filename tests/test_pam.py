@@ -1,6 +1,6 @@
 from sure import expect
 from unittest.mock import patch
-from pytlas.skill import register, register_metadata, Meta
+from pytlas.skill import global_handlers, global_metas, Meta
 from pytlas.localization import global_translations
 from pytlas.pam import get_loaded_skills, install_skills, update_skills, uninstall_skills
 
@@ -8,9 +8,11 @@ class TestPam:
 
   def teardown(self):
     global_translations.reset()
+    global_handlers.reset()
+    global_metas.reset()
 
   def test_it_should_retrieve_installed_skills_from_handlers(self):
-    register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather1')
+    global_handlers.register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather1')
 
     with patch('pytlas.pam.get_package_name_from_module', return_value='atlassistant__weather1'):
       r = get_loaded_skills('fr')
@@ -30,8 +32,8 @@ class TestPam:
       'version': '1.0.0',
     }
 
-    register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather2')
-    register_metadata(get_meta, 'atlassistant__weather2')
+    global_handlers.register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather2')
+    global_metas.register(get_meta, 'atlassistant__weather2')
 
     with patch('pytlas.pam.get_package_name_from_module', return_value='atlassistant__weather2'):
       r = get_loaded_skills('fr')
@@ -50,8 +52,8 @@ class TestPam:
       'name': _('weather'),
     }
 
-    register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather3')
-    register_metadata(get_meta, 'atlassistant__weather3')
+    global_handlers.register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather3')
+    global_metas.register(get_meta, 'atlassistant__weather3')
     global_translations.register('fr', lambda: {
       'weather': 'météo',
     }, 'atlassistant__weather3')
