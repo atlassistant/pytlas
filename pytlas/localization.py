@@ -1,4 +1,3 @@
-import os
 from pytlas.utils import get_caller_package_name
 from pytlas.importers import should_load_resources
 from pytlas.store import Store
@@ -14,7 +13,7 @@ class TranslationsStore(Store):
       data (dict): Optional initial data to use
 
     """
-    return super().__init__('translations', data)
+    super().__init__('trans', data)
 
   def get(self, lang):
     """Retrieve all translations for the given language.

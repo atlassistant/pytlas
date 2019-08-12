@@ -15,13 +15,11 @@ class TestLocalization:
       'bye': 'au revoir',
     }
 
-    expect(s._data).to.have.key('amodule')
-    expect(s._data['amodule']).to.have.key('fr')
-
-    r = s._data['amodule']['fr']()
-
-    expect(r['hi']).to.equal('bonjour')
-    expect(r['bye']).to.equal('au revoir')
+    expect(s._data).to.equal({
+      'amodule': {
+        'fr': some_translations,
+      },
+    })
 
   def test_it_should_be_imported_with_the_decorator_in_the_global_store_if_not_provided(self):
     @translations ('fr', package='amodule')
@@ -30,13 +28,11 @@ class TestLocalization:
       'bye': 'au revoir',
     }
 
-    expect(global_translations._data).to.have.key('amodule')
-    expect(global_translations._data['amodule']).to.have.key('fr')
-
-    r = global_translations._data['amodule']['fr']()
-
-    expect(r['hi']).to.equal('bonjour')
-    expect(r['bye']).to.equal('au revoir')
+    expect(global_translations._data).to.equal({
+      'amodule': {
+        'fr': some_translations,
+      },
+    })
 
   def test_it_should_register_translations_correctly(self):
     s = TranslationsStore()

@@ -1,6 +1,6 @@
 import logging, hashlib, os, json
 from pytlas.interpreters.slot import SlotValue
-from pytlas.training import get_training_data
+from pytlas.training import global_trainings
 from pychatl.utils import deep_update
 from pychatl import parse
 import pychatl.postprocess as postprocessors
@@ -53,15 +53,15 @@ class Interpreter:
 
     pass
 
-  def fit_from_skill_data(self, skills=None):
+  def fit_from_skill_data(self, skills=None, store=None):
     """Fit the interpreter with every training data registered in the system.
 
     Args:
       skills (list of str): Optional list of skill names from which we should retrieve training data.
+      store (TrainingsStore): Store to use for registration, defaults to the global one
     
     """
-
-    filtered_module_trainings = get_training_data(self.lang)
+    filtered_module_trainings = (store or global_trainings).get(self.lang)
 
     if skills:
       filtered_module_trainings = { k: v for (k, v) in filtered_module_trainings.items() if k in skills }

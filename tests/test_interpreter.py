@@ -1,7 +1,7 @@
 from sure import expect
 from unittest.mock import MagicMock
 from pytlas.interpreters import Interpreter
-from pytlas.training import register
+from pytlas.training import TrainingsStore, global_trainings
 
 class TestInterpreter:
 
@@ -9,17 +9,20 @@ class TestInterpreter:
     self.interpreter = Interpreter('snips', 'en')
     self.interpreter.fit = MagicMock()
 
-    register('en', lambda: """
+    global_trainings.register('en', lambda: """
 @[interpreter_module1_entity]
   an entity
   another entity
 """, 'interpreter_module1')
 
-    register('en', lambda: """
+    global_trainings.register('en', lambda: """
 @[interpreter_module2_entity]
   an entity
   another entity
 """, 'interpreter_module2')
+
+  def teardown(self):
+    global_trainings.reset()
 
   def test_it_should_returns_nothing_when_parsing(self):
     expect(self.interpreter.parse('A message')).to.be.empty
@@ -45,3 +48,17 @@ class TestInterpreter:
 
     expect(data['entities']).to.not_have.key('interpreter_module1_entity')
     expect(data['entities']).to.have.key('interpreter_module2_entity')
+
+  def test_it_should_use_the_provided_store_if_any(self):
+    s = TrainingsStore()
+    s.register('en', lambda: """
+%[an intent]
+  and some data
+""", 'amodule')
+    self.interpreter.fit_from_skill_data(store=s)
+    data = self.interpreter.fit.call_args[0][0]
+
+    expect(data['intents']).to.have.key('an intent')
+    expect(data['entities']).to.not_have.key('interpreter_module1_entity')
+    expect(data['entities']).to.not_have.key('interpreter_module2_entity')
+    expect(data['entities']).to.be.empty
