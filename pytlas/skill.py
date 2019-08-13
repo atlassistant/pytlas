@@ -81,6 +81,11 @@ class Meta:
     self.homepage = homepage
     self.settings = [setting if isinstance(setting, Setting) else Setting.from_value(setting) for setting in settings]
 
+  def __eq__(self, value):
+    if not isinstance(value, self.__class__):
+      return False
+    return self.__dict__ == value.__dict__
+
   def __str__(self):
     data = self.__dict__
     data['settings'] = ', '.join([ str(s) for s in data['settings'] ])
@@ -96,39 +101,62 @@ class MetasStore(Store):
   """Hold skill metadatas.
   """
 
-  def __init__(self, data=None):
+  def __init__(self, translations_store=None, data=None):
     """Instantiates a new store.
 
     Args:
+      translations_store (TranslationsStore): Optional translations store to use
       data (dict): Optional initial data to use
 
     """
     super().__init__('meta', data or {})
+    self._translations = translations_store or global_translations
 
-  def get(self, lang, skill, translations_store=None):
-    """Retrieve a meta for the given skill.
-
-    Args:
-      lang (str): Lang for which you want to retrieve the skill Meta
-      skill (str): Skill name to retrieve
-      translations_store (TranslationsStore): Optional store to use to extract translations
-
-    Returns:
-      Meta: Meta instance or None if not found
-
-    """
-    meta_func = self._data.get(skill)
-
-    if not meta_func:
-      return None
-
-    translations = (translations_store or global_translations).get(lang).get(skill, {})
-    result = meta_func(lambda k: translations.get(k, k))
+  def _apply_meta_func(self, func, translations):
+    result = func(lambda k: translations.get(k, k))
 
     if not isinstance(result, Meta):
       result = Meta(**result)
 
     return result
+
+  def all(self, lang):
+    """Retrieve all registered meta in the given language.
+
+    Args:
+      lang (str): Language to use
+
+    Returns:
+      list of Meta: Registered Meta
+
+    """
+    metas = []
+    translations = self._translations.all(lang)
+
+    for pkg, meta_func in self._data.items():
+      pkg_translations = translations.get(pkg, {})
+      metas.append(self._apply_meta_func(meta_func, pkg_translations))
+    
+    return metas
+
+  def get(self, package, lang):
+    """Retrieve a meta for the given package.
+
+    Args:
+      package (str): Package name to retrieve
+      lang (str): Lang for which you want to retrieve the skill Meta
+
+    Returns:
+      Meta: Meta instance or None if not found
+
+    """
+    meta_func = self._data.get(package)
+
+    if not meta_func:
+      return None
+
+    translations = self._translations.get(package, lang)
+    return self._apply_meta_func(meta_func, translations)
 
   def register(self, func, package=None):
     """Register skill package metadata

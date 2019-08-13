@@ -85,7 +85,7 @@ class TestTraining:
   with some value
 """, 'amodule')
 
-    expect(s.get('it')).to.equal({
+    expect(s.all('it')).to.equal({
       'amodule': """
 %[some_intent]
   con dati di allenamento
@@ -97,3 +97,26 @@ class TestTraining:
   con un certo valore
 """,
     })
+
+  def test_it_should_retrieve_trainings_for_a_particular_package(self):
+    s = TrainingsStore()
+    s.register('en', lambda: """
+%[get_weather]
+  what's the weather like
+""", 'mymodule')
+    s.register('en', lambda: """
+%[some_intent]
+  with training data
+
+%[another one]
+  with another data
+
+@[and_entity]
+  with some value
+""", 'amodule')
+
+    expect(s.get('mymodule', 'en')).to.equal("""
+%[get_weather]
+  what's the weather like
+""")
+    expect(s.get('mymodule', 'it')).to.be.none

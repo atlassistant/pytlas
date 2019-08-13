@@ -15,17 +15,30 @@ class TranslationsStore(Store):
     """
     super().__init__('trans', data)
 
-  def get(self, lang):
-    """Retrieve all translations for the given language.
+  def all(self, lang):
+    """Retrieve all translations for all packages in the given language.
 
     Args:
       lang (str): Language for which we want translations
     
     Returns:
-      dict: Dictionary of module => translations dict
+      dict: Dictionary of package => translations dict in the given language
 
     """
     return { k: v.get(lang, lambda: {})() for k, v in self._data.items()}
+
+  def get(self, package, lang):
+    """Retrieve all translations for a particular package.
+
+    Args:
+      package (str): Name of the package
+      lang (str): Language to retrieve
+    
+    Returns:
+      dict: Translations dictionary
+
+    """
+    return self._data.get(package, {}).get(lang, lambda: {})()
 
   def register(self, lang, func, package=None):
     """Register translations into the store.

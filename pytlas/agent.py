@@ -113,7 +113,7 @@ class Agent:
     self._handlers = handlers_store or global_handlers
     # Maybe we should evaluate it everytime when creating the request instead
     # of caching translations here :/
-    self._translations = (translations_store or global_translations).get(self.lang)
+    self._translations = (translations_store or global_translations).all(self.lang)
     self._hooks = hooks_store or global_hooks
 
     self._intents_queue = []

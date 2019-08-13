@@ -289,7 +289,7 @@ def get_loaded_skills(lang):
   skills_meta = []
 
   for pkg in unique_pkgs:
-    meta = global_metas.get(lang, pkg) or Meta(from_skill_folder(pkg))
+    meta = global_metas.get(pkg, lang) or Meta(from_skill_folder(pkg))
     skills_meta.append(meta)
 
   return skills_meta

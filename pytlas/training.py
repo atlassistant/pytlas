@@ -15,19 +15,34 @@ class TrainingsStore(Store):
     """
     super().__init__('train', data or {})
 
-  def get(self, lang):
-    """Retrieve all training data for the given language.
-  
+  def all(self, lang):
+    """Retrieve all training data in the given language.
+
     It will evaluate all register functions for the given language.
-  
+
     Args:
       lang (str): Language to get
-  
+
     Returns:
       dict: Dictionary with package name as key and training DSL string as value
-  
+
     """
     return { k: v.get(lang, lambda: None)() for k, v in self._data.items()}
+
+  def get(self, package, lang):
+    """Retrieve all training data for a particular package in the given language.
+
+    It will evaluate all register functions for the given language.
+
+    Args:
+      package (str): Pacjage
+      lang (str): Language to get
+
+    Returns:
+      str: Training data
+
+    """
+    return self._data.get(package, {}).get(lang, lambda: None)()
 
   def register(self, lang, func, package=None):
     """Register training data written using the chatl DSL language into the system.

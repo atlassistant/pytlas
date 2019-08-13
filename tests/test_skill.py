@@ -34,6 +34,23 @@ class TestMeta:
     expect(m.settings[1].type).to.equal(int)
     expect(m.settings[1].description).to.equal('A description')
 
+  def test_it_should_provide_eq_operator(self):
+    a = Meta('aname', description='a desc', version='1.0.0', author='John doe')
+    b = Meta('anothername', description='another desc', version='1.1.1', author='Bob')
+    expect(a).to_not.equal(b)
+
+    b.name = a.name
+    expect(a).to_not.equal(b)
+
+    b.description = a.description
+    expect(a).to_not.equal(b)
+
+    b.version = a.version
+    expect(a).to_not.equal(b)
+
+    b.author = a.author
+    expect(a).to.equal(b)
+
   def test_it_should_print_correctly(self):
     m = Meta('lights', 
       description='Some lighting skill',
@@ -138,44 +155,71 @@ class TestMetas:
       'amodule': meta_handler,
     })
 
-  def test_it_should_get_and_translate_meta_from_dict(self):
+  def test_it_should_provides_all_meta(self):
     s = MetasStore()
     s.register(lambda _: {
       'name': _('my module'),
       'version': '1.0.0',
     }, package='mymodule')
+    s.register(lambda _: {
+      'name': _('a module'),
+      'version': '1.0.0',
+    }, package='amodule')
 
+    expect(s.all('fr')).to.equal([
+      Meta(name='my module', version='1.0.0'),
+      Meta(name='a module', version='1.0.0'),
+    ])
+
+  def test_it_should_provides_all_meta_and_translate_them_with_a_translations_store(self):
     t = TranslationsStore({
-      'mymodule': {
-        'fr': lambda: {
-          'my module': 'mon module',
-          'another key': 'here',
-        },
-      },
+      'mymodule': { 'fr': lambda: { 'my module': 'mon module' } },
+      'amodule': { 'fr': lambda: { 'a module': 'un module' } },
     })
+    s = MetasStore(translations_store=t)
+    s.register(lambda _: {
+      'name': _('my module'),
+      'version': '1.0.0',
+    }, package='mymodule')
+    s.register(lambda _: {
+      'name': _('a module'),
+      'version': '1.0.0',
+    }, package='amodule')
 
-    meta = s.get('en', 'mymodule', translations_store=t)
-    expect(meta.name).to.equal('my module')
+    expect(s.all('fr')).to.equal([
+      Meta(name='mon module', version='1.0.0'),
+      Meta(name='un module', version='1.0.0'),
+    ])
 
-    meta = s.get('fr', 'mymodule', translations_store=t)
-    expect(meta.name).to.equal('mon module')
-
-  def test_it_should_get_and_translate_meta_from_Meta(self):
+  def test_it_should_retrieve_a_particular_package_meta(self):
     s = MetasStore()
-    s.register(lambda _: Meta(_('my module')), package='mymodule')
+    s.register(lambda _: {
+      'name': _('my module'),
+      'version': '1.0.0',
+    }, package='mymodule')
+    s.register(lambda _: {
+      'name': _('a module'),
+      'version': '1.0.0',
+    }, package='amodule')
 
+    expect(s.get('amodule', 'fr')).to.equal(Meta(name='a module', version='1.0.0'))
+    expect(s.get('anunknownmodule', 'fr')).to.be.none
+
+  def test_it_should_retrieve_a_particular_package_meta_and_translate_it(self):
     t = TranslationsStore({
-      'mymodule': {
-        'fr': lambda: {
-          'my module': 'mon module',
-          'another key': 'here',
-        },
-      },
+      'mymodule': { 'fr': lambda: { 'my module': 'mon module' } },
+      'amodule': { 'fr': lambda: { 'a module': 'un module' } },
     })
+    s = MetasStore(translations_store=t)
+    s.register(lambda _: {
+      'name': _('my module'),
+      'version': '1.0.0',
+    }, package='mymodule')
+    s.register(lambda _: {
+      'name': _('a module'),
+      'version': '1.0.0',
+    }, package='amodule')
 
-    meta = s.get('en', 'mymodule', translations_store=t)
-    expect(meta.name).to.equal('my module')
-
-    meta = s.get('fr', 'mymodule', translations_store=t)
-    expect(meta.name).to.equal('mon module')
-
+    expect(s.get('mymodule', 'fr')).to.equal(Meta(name='mon module', version='1.0.0'))
+    expect(s.get('amodule', 'fr')).to.equal(Meta(name='un module', version='1.0.0'))
+    
