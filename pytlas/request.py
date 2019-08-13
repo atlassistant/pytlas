@@ -17,14 +17,24 @@ class AgentProxy:
     self._request = request
     self._agent = agent
 
+  def unwrap(self):
+    """Retrieve the underlying agent for this proxy. Use it with caution since the
+    proxy is here to silent cancelled requests.
+
+    Returns:
+      Agent: wrapped agent for this proxy
+
+    """
+    return self._agent
+
   def empty_func(self, *args, **kwargs):
-    pass
+    pass # pragma: no cover
 
   def __getattr__(self, attr):
     if self._agent._is_current_request(self._request) or attr not in AGENT_SILENTED_METHODS:
       return getattr(self._agent, attr)
 
-    logging.debug('Silented "%s" call from the stub' % attr)
+    logging.debug(f'Silented "{attr}" call from the stub')
     return self.empty_func
 
 class Request:
@@ -52,7 +62,6 @@ class Request:
       str: Localized string representing the date
 
     """
-
     func = format_date if date_only else format_time if time_only else format_datetime
 
     return func(date, locale=self.lang, **options)
@@ -67,5 +76,4 @@ class Request:
       str: Translated text or source text if no translation has been found
 
     """
-
     return self._module_translations.get(text, text)

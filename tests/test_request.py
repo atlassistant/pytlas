@@ -10,9 +10,6 @@ class TestRequest:
     self.interpreter = Interpreter('test', 'fr')
     self.agent = Agent(self.interpreter)
 
-  def teardown(self):
-    pass
-
   def test_it_should_have_a_unique_id(self):
     r = Request(self.agent, None)
     r2 = Request(self.agent, None)
@@ -69,3 +66,7 @@ class TestRequest:
     expect(r.agent.context).to.equal(self.agent.context)
     expect(r.agent.answer).to.equal(self.agent.answer)
     expect(r.agent.meta).to.equal(self.agent.meta)
+
+  def test_it_should_provide_the_underlying_agent_with_the_unwrap_method(self):
+    r = Request(self.agent, None)
+    expect(r.agent.unwrap()).to.equal(self.agent)

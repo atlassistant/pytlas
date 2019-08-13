@@ -102,6 +102,9 @@ def on_get_forecast(r):
 
   return r.agent.done()
 
+def on_raise_exception(r):
+  raise Exception('An error occured!')
+
 class TestAgent:
   """For those tests, the interpreter.parse is always mocked because there is no interpreter
   such as snips. It only tests transitions and state management.
@@ -119,6 +122,7 @@ class TestAgent:
       'lights_on': on_lights_on,
       'block': on_block,
       'with_meta': on_with_meta,
+      'raise_exception': on_raise_exception,
       STATE_CANCEL: on_cancel,
       STATE_FALLBACK: on_fallback,
     })
@@ -275,6 +279,12 @@ class TestAgent:
     expect(lights_intent.meta).to.equal({ 'latitude': 49.44, 'longitude': 1.09 })
     expect(last_request.intent.meta).to.equal({ 'latitude': 49.44, 'longitude': 1.09 })
   
+  def test_it_should_go_back_to_the_asleep_state_if_an_exception_occurs_in_a_skill(self):
+    self.interpreter.parse = MagicMock(return_value=[Intent('raise_exception')])
+    self.agent.parse('will raise an exception')
+    self.on_done.assert_called_once_with(False)
+    expect(self.agent.state).to.equal(STATE_ASLEEP)
+
   def test_it_should_do_nothing_and_returns_to_the_asleep_state_when_no_handler_was_found(self):
     self.interpreter.parse = MagicMock(return_value=[Intent('intent_without_handler')])
 
