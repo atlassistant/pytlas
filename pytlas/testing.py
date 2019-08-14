@@ -1,10 +1,10 @@
 import os, sys
 from unittest.mock import MagicMock
-from pytlas.importers import import_or_reload
-from pytlas.agent import Agent
-from pytlas.skill import global_handlers, HandlersStore
+from pytlas.conversing import Agent
+from pytlas.handling.importers import import_or_reload
+from pytlas.handling.skill import global_handlers, HandlersStore
+from pytlas.understanding.snips import SnipsInterpreter
 from pytlas.utils import get_root_package_name
-from pytlas.interpreters.snips import SnipsInterpreter
 
 class AttrDict(dict):
   """Simple object to access dict keys like attributes.

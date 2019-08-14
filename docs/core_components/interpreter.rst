@@ -28,6 +28,6 @@ If you wish to implement your own interpreter, you must at least extends from `p
 
   When creating `SlotValue` instance to represent a slot, always remember to sets a value in a meaningfull python representation. See :ref:`retrieving_slots` to see what's expected by developers.
 
-.. automethod:: pytlas.interpreters.Interpreter.fit
-.. automethod:: pytlas.interpreters.Interpreter.parse
-.. automethod:: pytlas.interpreters.Interpreter.parse_slot
+.. automethod:: pytlas.understanding.Interpreter.fit
+.. automethod:: pytlas.understanding.Interpreter.parse
+.. automethod:: pytlas.understanding.Interpreter.parse_slot

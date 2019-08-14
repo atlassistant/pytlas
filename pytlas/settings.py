@@ -27,7 +27,6 @@ def to_env_key(section, setting):
     'PYTLAS_A_SKILL_PASSWORD'
 
   """
-
   return env_sanitizer_re.sub('_', '%s_%s' % (section, setting)).upper()
 
 def stringify(value):
@@ -54,7 +53,6 @@ def stringify(value):
     '1,2,3.2'
   
   """
-
   if isinstance(value, str):
     return value
 

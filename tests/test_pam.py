@@ -1,7 +1,7 @@
 from sure import expect
 from unittest.mock import patch
-from pytlas.skill import global_handlers, global_metas, Meta
-from pytlas.localization import global_translations
+from pytlas.handling.skill import global_handlers, global_metas, Meta
+from pytlas.handling.localization import global_translations
 from pytlas.pam import get_loaded_skills, install_skills, update_skills, uninstall_skills
 
 class TestPam:

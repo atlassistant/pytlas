@@ -7,16 +7,16 @@ For each stores, there's a global property in the associated file used by decora
 
 Here is the list of actual stores used in pytlas:
 
-.. autoclass:: pytlas.skill.MetasStore
+.. autoclass:: pytlas.handling.skill.MetasStore
   :members:
 
-.. autoclass:: pytlas.skill.HandlersStore
+.. autoclass:: pytlas.handling.skill.HandlersStore
   :members:
 
-.. autoclass:: pytlas.training.TrainingsStore
+.. autoclass:: pytlas.understanding.training.TrainingsStore
   :members:
 
-.. autoclass:: pytlas.localization.TranslationsStore
+.. autoclass:: pytlas.handling.localization.TranslationsStore
   :members:
 
 .. autoclass:: pytlas.settings.SettingsStore

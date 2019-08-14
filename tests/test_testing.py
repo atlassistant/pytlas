@@ -1,6 +1,6 @@
 from sure import expect
-from pytlas.agent import Agent
-from pytlas.card import Card
+from pytlas.conversing import Agent
+from pytlas.handling import Card
 from pytlas.testing import AttrDict, ModelMock, AgentModelMock, create_skill_agent
 import os
 
@@ -116,7 +116,7 @@ class TestAgentModelMock:
     m.on_thinking.assert_not_called()
 
 def get_skill_folder(skill_name):
-  return os.path.join(os.path.dirname(__file__), 'skills', skill_name)
+  return os.path.join(os.path.dirname(__file__), '__skills', skill_name)
 
 class TestCreateSkillAgent:
 

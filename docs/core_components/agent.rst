@@ -10,7 +10,7 @@ The agent is the entry point which will take raw user inputs with its `parse` me
 Entry point
 -----------
 
-.. automethod:: pytlas.agent.Agent.parse
+.. automethod:: pytlas.conversing.Agent.parse
 
 .. note::
 
@@ -23,7 +23,7 @@ From a skill
 
 From a skill perspective, here are the method you will use.
 
-.. automethod:: pytlas.agent.Agent.answer
-.. automethod:: pytlas.agent.Agent.ask
-.. automethod:: pytlas.agent.Agent.done
-.. automethod:: pytlas.agent.Agent.context
+.. automethod:: pytlas.conversing.Agent.answer
+.. automethod:: pytlas.conversing.Agent.ask
+.. automethod:: pytlas.conversing.Agent.done
+.. automethod:: pytlas.conversing.Agent.context

@@ -28,7 +28,7 @@ Here is a snippet which cover the basics of using pytlas inside your own program
   # ask for user inputs if they need to.
 
   from pytlas import Agent, intent, training
-  from pytlas.interpreters.snips import SnipsInterpreter
+  from pytlas.understanding.snips import SnipsInterpreter
   import os
   
   # Here, we register a sentence as training data for the specified language

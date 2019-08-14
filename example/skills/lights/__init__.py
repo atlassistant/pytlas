@@ -1,5 +1,5 @@
-from pytlas.training import global_trainings
-from pytlas.localization import global_translations
+from pytlas.understanding.training import global_trainings
+from pytlas.handling.localization import global_translations
 from pytlas.utils import read_file
 from .skill import *
 import json

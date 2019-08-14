@@ -3,6 +3,7 @@ from shutil import rmtree as shrmtree
 from fuzzywuzzy import process
 from markdown import markdown
 from bs4 import BeautifulSoup
+from pytlas.settings import config, SETTING_ALLOWED_LANGUAGES
 
 def get_root_package_name(name):
   """Get the root package name of a nested module one.
@@ -174,3 +175,18 @@ def rmtree(path, ignore_errors=False):
   """
 
   shrmtree(path, ignore_errors=ignore_errors, onerror=_onerror)
+
+def should_load_resources(language_code):
+  """Determines if resources for the given language should be loaded. It will help
+  keep only necessary stuff and avoid allocating space for unneeded resources.
+
+  Args:
+    language_code (str): Language to check
+
+  Returns:
+    bool: True if it should be loaded, false otherwise
+
+  """
+  langs = config.getlist(SETTING_ALLOWED_LANGUAGES)
+
+  return not langs or language_code in langs
