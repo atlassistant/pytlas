@@ -10,9 +10,7 @@ The agent is the entry point which will take raw user inputs with its `parse` me
 Entry point
 -----------
 
-.. py:function:: parse(msg, **meta)
-
-   This method will use the agent :ref:`interpreter` to extract intents and slots from the raw message given by the user.
+.. automethod:: pytlas.agent.Agent.parse
 
 .. note::
 
@@ -25,18 +23,7 @@ From a skill
 
 From a skill perspective, here are the method you will use.
 
-.. py:function:: answer(text, cards=None, **meta)
-
-  Answer something to the user.
-
-.. py:function:: ask(slot, text, choices=None, **meta)
-
-  Ask for a slot value to the user.
-
-.. py:function:: done(require_input=False)
-
-  Inform the agent that a skill has done its work and it should returns in its asleep state.
-
-.. py:function:: context(context_name)
-
-  Change the current :ref:`context`.
+.. automethod:: pytlas.agent.Agent.answer
+.. automethod:: pytlas.agent.Agent.ask
+.. automethod:: pytlas.agent.Agent.done
+.. automethod:: pytlas.agent.Agent.context

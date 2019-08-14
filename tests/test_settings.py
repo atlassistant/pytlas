@@ -34,7 +34,7 @@ class TestSettingsStore:
     })
 
     expect(s.get('a key', section='priority')).to.equal('from additional data')
-    del s.additional_lookup['PRIORITY_A_KEY']
+    del s._data['PRIORITY_A_KEY']
     expect(s.get('a key', section='priority')).to.equal('from env')
     del os.environ['PRIORITY_A_KEY']
     expect(s.get('a key', section='priority')).to.equal('from config')
@@ -49,7 +49,7 @@ class TestSettingsStore:
     s = SettingsStore()
     s.set('my_key', 'a value', section='my_section')
     expect(s.get('my_key', section='my_section')).to.equal('a value')
-    expect(s.additional_lookup.get('MY_SECTION_MY_KEY')).to.equal('a value')
+    expect(s._data.get('MY_SECTION_MY_KEY')).to.equal('a value')
 
   def test_it_should_retrieve_a_string_value(self):
     s = SettingsStore()
@@ -78,7 +78,7 @@ class TestSettingsStore:
     expect(r).to.be.a(bool)
     expect(r).to.be.true
 
-    s.additional_lookup['BOOLS_ANOTHER_KEY'] = 'True'
+    s._data['BOOLS_ANOTHER_KEY'] = 'True'
     expect(s.getbool('another key', section='bools')).to.be.true
 
   def test_it_should_returns_an_int_when_asked_to(self):
@@ -93,7 +93,7 @@ class TestSettingsStore:
     expect(r).to.be.a(int)
     expect(r).to.equal(1337)
 
-    s.additional_lookup['INTS_A_KEY'] = '42'
+    s._data['INTS_A_KEY'] = '42'
     expect(s.getint('a key', section='ints')).to.equal(42)
 
   def test_it_should_returns_a_float_when_asked_to(self):
@@ -108,7 +108,7 @@ class TestSettingsStore:
     expect(r).to.be.a(float)
     expect(r).to.equal(1337.2)
 
-    s.additional_lookup['FLOATS_A_KEY'] = '42.2'
+    s._data['FLOATS_A_KEY'] = '42.2'
     expect(s.getfloat('a key', section='floats')).to.equal(42.2)
 
   def test_it_should_returns_a_list_of_str_when_asked_to(self):
@@ -123,7 +123,7 @@ class TestSettingsStore:
     expect(r).to.be.a(list)
     expect(r).to.equal(['one', 'two'])
 
-    s.additional_lookup['LISTS_A_KEY'] = 'a,b,c'
+    s._data['LISTS_A_KEY'] = 'a,b,c'
     expect(s.getlist('a key', section='lists')).to.equal(['a', 'b', 'c'])
 
   def test_it_should_returns_an_absolute_path_when_asked_to(self):
@@ -139,10 +139,13 @@ class TestSettingsStore:
     r = s.getpath('a key', section='paths')
     expect(r).to.equal(os.path.abspath('something'))
 
-    s.additional_lookup['PATHS_A_KEY'] = 'var/data'
+    s._data['PATHS_A_KEY'] = 'var/data'
     expect(s.getpath('a key', section='paths')).to.equal(os.path.abspath('var/data'))
 
 class TestWriteToStore:
+
+  def teardown(self):
+    config.reset()
 
   def test_it_should_write_args_to_global_store(self):
     @write_to_store()

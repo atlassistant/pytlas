@@ -1,58 +1,86 @@
-import logging, os
 from pytlas.utils import get_caller_package_name
 from pytlas.importers import should_load_resources
+from pytlas.store import Store
 
-# Training data per module / lang => func
-module_trainings = {}
-
-def get_training_data(lang):
-  """Retrieve all training data for the given language.
-
-  It will evaluate all register functions for the given language.
-
-  Args:
-    lang (str): Language to get
-
-  Returns:
-    dict: Dictionary with package name as key and training DSL string as value
-
+class TrainingsStore(Store):
+  """Contains training data.
   """
 
-  return { k: v.get(lang, lambda: None)() for k, v in module_trainings.items()}
+  def __init__(self, data=None):
+    """Instantiates a new store.
 
-def register(lang, func, package=None):
-  """Register training data written using the chatl DSL language into the system.
+    Args:
+      data (dict): Optional initial data to use
 
-  Args:
-    lang (str): Language for which the training has been made for
-    func (func): Function to call to return training data written using the chatl DSL
-    package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+    """
+    super().__init__('train', data or {})
 
-  """
+  def all(self, lang):
+    """Retrieve all training data in the given language.
 
-  package = package or get_caller_package_name()
+    It will evaluate all register functions for the given language.
 
-  if not should_load_resources(lang):
-    return logging.debug('Skipped "%s" training data for language "%s"' % (package, lang))
+    Args:
+      lang (str): Language to get
 
-  if package not in module_trainings:
-    module_trainings[package] = {}
+    Returns:
+      dict: Dictionary with package name as key and training DSL string as value
 
-  module_trainings[package][lang] = func
+    """
+    return { k: v.get(lang, lambda: None)() for k, v in self._data.items()}
 
-  logging.info('Registered "%s.%s" training data for the lang "%s"' % (package, func.__name__, lang))
+  def get(self, package, lang):
+    """Retrieve all training data for a particular package in the given language.
 
-def training(lang, package=None):
+    It will evaluate all register functions for the given language.
+
+    Args:
+      package (str): Pacjage
+      lang (str): Language to get
+
+    Returns:
+      str: Training data
+
+    """
+    return self._data.get(package, {}).get(lang, lambda: None)()
+
+  def register(self, lang, func, package=None):
+    """Register training data written using the chatl DSL language into the system.
+  
+    Args:
+      lang (str): Language for which the training has been made for
+      func (func): Function to call to return training data written using the chatl DSL
+      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+  
+    """
+    package = package or get_caller_package_name()
+  
+    if not should_load_resources(lang):
+      return self._logger.debug(f'Skipped "{package}" training data for language "{lang}"')
+  
+    if package not in self._data:
+      self._data[package] = {}
+  
+    self._data[package][lang] = func
+  
+    self._logger.info(f'Registered "{package}.{func.__name__}" training data for the lang "{lang}"')
+
+# Global trainings store
+global_trainings = TrainingsStore()
+
+def training(lang, store=None, package=None):
   """Decorator applied to a function that returns DSL data to register training data.
 
   Args:
     lang (str): Lang of the training data
+    store (TrainingsStore): Store to use for registration, defaults to the global one
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
 
   """
+  s = store or global_trainings
 
   def new(func):
-    register(lang, func, package or get_caller_package_name() or func.__module__)
+    s.register(lang, func, package or get_caller_package_name() or func.__module__)
     return func
 
   return new

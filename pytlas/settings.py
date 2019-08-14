@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 from functools import wraps
+from pytlas.store import Store
 import os, re
 
 DEFAULT_SECTION = 'pytlas'
@@ -62,7 +63,7 @@ def stringify(value):
 
   return str(value)
 
-class SettingsStore:
+class SettingsStore(Store):
   """Hold application settings with an internal ConfigParser instance. It provides
   a lot of utility methods to convert settings to particular representations.
 
@@ -83,8 +84,8 @@ class SettingsStore:
       additional_lookup (dict): Dictionary with additional settings where keys are the same as when looking in OS envs
 
     """
-    self.additional_lookup = additional_lookup or {}
-    
+    super().__init__('settings', additional_lookup or {})
+
     if config:
       self.config = config
     else:
@@ -97,10 +98,12 @@ class SettingsStore:
       path (str): Name of the file to read
 
     """
-    self.config.read(os.path.abspath(path))
+    abspath = os.path.abspath(path)
+    self._logger.info(f'Loading configuration from "{abspath}"')
+    self.config.read(abspath)
 
   def set(self, setting, value, section=DEFAULT_SECTION):
-    """Sets a setting value in the additional_lookup dictionary so it will take
+    """Sets a setting value in the `_data` dictionary so it will take
     precedence over all the others.
 
     Value will be stringified by this method (since all value can be read from env variables).
@@ -111,8 +114,7 @@ class SettingsStore:
       section (str): Section to write to
 
     """
-
-    self.additional_lookup[to_env_key(section, setting)] = stringify(value)
+    self._data[to_env_key(section, setting)] = stringify(value)
 
   def get(self, setting, default=None, section=DEFAULT_SECTION):
     """Gets a setting value, if an environment variable is defined, it will take
@@ -130,12 +132,11 @@ class SettingsStore:
       str: Value of the setting
 
     """
-
     env_key = to_env_key(section, setting)
 
-    return self.additional_lookup.get(env_key, 
-                        os.environ.get(env_key, 
-                        self.config.get(section, setting, fallback=default)))
+    return self._data.get(env_key, 
+                os.environ.get(env_key, 
+                self.config.get(section, setting, fallback=default)))
 
   def getbool(self, setting, default=False, section=DEFAULT_SECTION):
     """Gets a boolean value for a setting. It uses the `get` under the hood so the same
@@ -150,7 +151,6 @@ class SettingsStore:
       bool: Value of the setting
 
     """
-
     v = self.get(setting, section=section)
 
     return self.config._convert_to_boolean(v) if v else default
@@ -168,7 +168,6 @@ class SettingsStore:
       int: Value of the setting
 
     """
-
     v = self.get(setting, section=section)
 
     return int(v) if v else default
@@ -186,7 +185,6 @@ class SettingsStore:
       float: Value of the setting
 
     """
-
     v = self.get(setting, section=section)
 
     return float(v) if v else default
@@ -205,7 +203,6 @@ class SettingsStore:
       list: Value of the setting
 
     """
-
     v = self.get(setting, section=section)
 
     return v.split(',') if v else default
@@ -224,7 +221,6 @@ class SettingsStore:
       str: Value of the setting
 
     """
-
     v = self.get(setting, default, section=section)
 
     return os.path.abspath(v) if v else None

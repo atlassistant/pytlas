@@ -59,16 +59,16 @@ class SnipsInterpreter(Interpreter):
   """Wraps the snips-nlu stuff to provide valuable informations to an agent.
   """
 
-  def __init__(self, lang, cache_directory=None):
+  def __init__(self, lang, cache_directory=None, trainings_store=None):
     """Instantiates a new Snips interpreter.
 
     Args:
       lang (str): Language used for this interpreter (ie. en, fr, ...)
       cache_directory (str): Path where training and trained files are placed
+      trainings_store (TrainingsStore): Optional trainings store used when fitting the engine
 
     """
-
-    super(SnipsInterpreter, self).__init__('snips', lang, cache_directory)
+    super(SnipsInterpreter, self).__init__('snips', lang, cache_directory, trainings_store)
 
     self._engine = None
     self._slot_mappings = {}
@@ -104,6 +104,8 @@ class SnipsInterpreter(Interpreter):
     return resource_pkg_name
 
   def fit(self, data):
+    super().fit(data)
+    
     data_lang = data.get('language')
 
     if data_lang != self.lang: # pragma: no cover

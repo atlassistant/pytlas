@@ -2,7 +2,7 @@ import os, sys
 from unittest.mock import MagicMock
 from pytlas.importers import import_or_reload
 from pytlas.agent import Agent
-from pytlas.skill import handlers
+from pytlas.skill import global_handlers, HandlersStore
 from pytlas.utils import get_root_package_name
 from pytlas.interpreters.snips import SnipsInterpreter
 
@@ -120,6 +120,6 @@ def create_skill_agent(skill_folder, lang='en', additional_skills=[]):
   interpreter.fit_from_skill_data(skills_to_load)
 
   # Filter handlers for targeted skill only
-  valid_handlers = { k: v for (k, v) in handlers.items() if get_root_package_name(v.__module__) in skills_to_load }
+  handlers = HandlersStore({ k: v for (k, v) in global_handlers._data.items() if get_root_package_name(v.__module__) in skills_to_load })
 
-  return Agent(interpreter, model=AgentModelMock(), handlers=valid_handlers)
+  return Agent(interpreter, model=AgentModelMock(), handlers_store=handlers)

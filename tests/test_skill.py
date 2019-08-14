@@ -1,15 +1,7 @@
 from sure import expect
-from pytlas.skill import intent, register, handlers, meta, register_metadata, module_metas, \
-  Meta, Setting
-
-@intent('an_intent')
-def a_handler(r):
-  return r.agent.done()
-
-@meta('pkg')
-def some_meta(): return {
-  'name': 'a skill',
-}
+from pytlas.localization import TranslationsStore
+from pytlas.skill import intent, meta, global_handlers, global_metas, \
+  HandlersStore, MetasStore, Meta, Setting
 
 class TestMeta:
 
@@ -42,6 +34,23 @@ class TestMeta:
     expect(m.settings[1].type).to.equal(int)
     expect(m.settings[1].description).to.equal('A description')
 
+  def test_it_should_provide_eq_operator(self):
+    a = Meta('aname', description='a desc', version='1.0.0', author='John doe')
+    b = Meta('anothername', description='another desc', version='1.1.1', author='Bob')
+    expect(a).to_not.equal(b)
+
+    b.name = a.name
+    expect(a).to_not.equal(b)
+
+    b.description = a.description
+    expect(a).to_not.equal(b)
+
+    b.version = a.version
+    expect(a).to_not.equal(b)
+
+    b.author = a.author
+    expect(a).to.equal(b)
+
   def test_it_should_print_correctly(self):
     m = Meta('lights', 
       description='Some lighting skill',
@@ -58,34 +67,159 @@ class TestMeta:
   settings: lights.default (str)
 """)
 
-class TestSkill:
+class TestHandlers:
 
-  def test_it_should_be_imported_with_the_decorator(self):
-    expect(handlers).to.have.key('an_intent')
-    expect(handlers['an_intent']).to.equal(a_handler)
+  def teardown(self):
+    global_handlers.reset()
 
-  def test_it_should_be_imported_with_the_register_function(self):
+  def test_it_should_register_handlers_correctly(self):
+    s = HandlersStore()
 
+    def on_lights_on():
+      pass
+
+    s.register('lights_on', on_lights_on)
+
+    expect(s._data).to.equal({
+      'lights_on': on_lights_on,
+    })
+
+  def test_it_should_register_with_the_decorator_in_the_provided_store(self):
+    s = HandlersStore()
+
+    @intent('an_intent', store=s)
+    def a_handler(r):
+      return r.agent.done()
+
+    expect(s._data).to.equal({
+      'an_intent': a_handler,
+    })
+
+  def test_it_should_register_with_the_decorator_in_the_global_store(self):
+    @intent('another_intent')
     def another_handler(r):
       return r.agent.done()
 
-    register('another_intent', another_handler)
+    expect(global_handlers._data).to.equal({
+      'another_intent': another_handler,
+    })
+  
+  def test_it_should_retrieve_an_handler_with_an_intent(self):
+    s = HandlersStore()
 
-    expect(handlers).to.have.key('another_intent')
-    expect(handlers['another_intent']).to.equal(another_handler)
-
-  def test_it_should_have_meta_imported_with_the_decorator(self):
-    expect(module_metas).to.have.key('pkg')
-    expect(module_metas['pkg']).to.equal(some_meta)
-
-  def test_it_should_have_meta_imported_with_the_register_function(self):
+    @intent('an_intent', store=s)
+    def a_handler(r):
+      return r.agent.done()
     
-    def another_meta():
-      return {
-        'name': 'another skill',
-      }
-    
-    register_metadata(another_meta, 'another_pkg')
+    @intent('another_intent', store=s)
+    def another_handler(r):
+      return r.agent.done()
 
-    expect(module_metas).to.have.key('another_pkg')
-    expect(module_metas['another_pkg']).to.equal(another_meta)
+    expect(s.get('an_intent')).to.equal(a_handler)
+    expect(s.get('another_intent')).to.equal(another_handler)
+
+class TestMetas:
+
+  def teardown(self):
+    global_metas.reset()
+
+  def test_it_should_register_metas_correctly(self):
+    s = MetasStore()
+
+    def module_meta():
+      pass
+
+    s.register(module_meta, 'amodule')
+
+    expect(s._data).to.equal({
+      'amodule': module_meta,
+    })
+
+  def test_it_should_register_with_the_decorator_in_the_provided_store(self):
+    s = MetasStore()
+
+    @meta(store=s, package='amodule')
+    def meta_handler():
+      pass
+
+    expect(s._data).to.equal({
+      'amodule': meta_handler,
+    })
+
+  def test_it_should_register_with_the_decorator_in_the_global_store(self):
+    @meta(package='amodule')
+    def meta_handler():
+      pass
+
+    expect(global_metas._data).to.equal({
+      'amodule': meta_handler,
+    })
+
+  def test_it_should_provides_all_meta(self):
+    s = MetasStore()
+    s.register(lambda _: {
+      'name': _('my module'),
+      'version': '1.0.0',
+    }, package='mymodule')
+    s.register(lambda _: {
+      'name': _('a module'),
+      'version': '1.0.0',
+    }, package='amodule')
+
+    expect(s.all('fr')).to.equal([
+      Meta(name='my module', version='1.0.0'),
+      Meta(name='a module', version='1.0.0'),
+    ])
+
+  def test_it_should_provides_all_meta_and_translate_them_with_a_translations_store(self):
+    t = TranslationsStore({
+      'mymodule': { 'fr': lambda: { 'my module': 'mon module' } },
+      'amodule': { 'fr': lambda: { 'a module': 'un module' } },
+    })
+    s = MetasStore(translations_store=t)
+    s.register(lambda _: {
+      'name': _('my module'),
+      'version': '1.0.0',
+    }, package='mymodule')
+    s.register(lambda _: {
+      'name': _('a module'),
+      'version': '1.0.0',
+    }, package='amodule')
+
+    expect(s.all('fr')).to.equal([
+      Meta(name='mon module', version='1.0.0'),
+      Meta(name='un module', version='1.0.0'),
+    ])
+
+  def test_it_should_retrieve_a_particular_package_meta(self):
+    s = MetasStore()
+    s.register(lambda _: {
+      'name': _('my module'),
+      'version': '1.0.0',
+    }, package='mymodule')
+    s.register(lambda _: {
+      'name': _('a module'),
+      'version': '1.0.0',
+    }, package='amodule')
+
+    expect(s.get('amodule', 'fr')).to.equal(Meta(name='a module', version='1.0.0'))
+    expect(s.get('anunknownmodule', 'fr')).to.be.none
+
+  def test_it_should_retrieve_a_particular_package_meta_and_translate_it(self):
+    t = TranslationsStore({
+      'mymodule': { 'fr': lambda: { 'my module': 'mon module' } },
+      'amodule': { 'fr': lambda: { 'a module': 'un module' } },
+    })
+    s = MetasStore(translations_store=t)
+    s.register(lambda _: {
+      'name': _('my module'),
+      'version': '1.0.0',
+    }, package='mymodule')
+    s.register(lambda _: {
+      'name': _('a module'),
+      'version': '1.0.0',
+    }, package='amodule')
+
+    expect(s.get('mymodule', 'fr')).to.equal(Meta(name='mon module', version='1.0.0'))
+    expect(s.get('amodule', 'fr')).to.equal(Meta(name='un module', version='1.0.0'))
+    
