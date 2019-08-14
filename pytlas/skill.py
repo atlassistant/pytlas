@@ -80,14 +80,17 @@ class Meta:
     self.author = author
     self.homepage = homepage
     self.settings = [setting if isinstance(setting, Setting) else Setting.from_value(setting) for setting in settings]
+    self.package = None # Represents the module which defines this meta
 
   def __eq__(self, value):
     if not isinstance(value, self.__class__):
       return False
-    return self.__dict__ == value.__dict__
+    return self.name == value.name and self.media == value.media \
+      and self.description == value.description and self.version == value.version \
+        and self.author == value.author and self.homepage == value.homepage
 
   def __str__(self):
-    data = self.__dict__
+    data = self.__dict__.copy()
     data['settings'] = ', '.join([ str(s) for s in data['settings'] ])
 
     return """{name} - v{version}
@@ -112,11 +115,13 @@ class MetasStore(Store):
     super().__init__('meta', data or {})
     self._translations = translations_store or global_translations
 
-  def _apply_meta_func(self, func, translations):
+  def _apply_meta_func(self, package, func, translations):
     result = func(lambda k: translations.get(k, k))
 
     if not isinstance(result, Meta):
       result = Meta(**result)
+
+    result.package = package
 
     return result
 
@@ -135,7 +140,7 @@ class MetasStore(Store):
 
     for pkg, meta_func in self._data.items():
       pkg_translations = translations.get(pkg, {})
-      metas.append(self._apply_meta_func(meta_func, pkg_translations))
+      metas.append(self._apply_meta_func(pkg, meta_func, pkg_translations))
     
     return metas
 
@@ -156,7 +161,7 @@ class MetasStore(Store):
       return None
 
     translations = self._translations.get(package, lang)
-    return self._apply_meta_func(meta_func, translations)
+    return self._apply_meta_func(package, meta_func, translations)
 
   def register(self, func, package=None):
     """Register skill package metadata
