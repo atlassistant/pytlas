@@ -17,14 +17,24 @@ class AgentProxy:
     self._request = request
     self._agent = agent
 
+  def unwrap(self):
+    """Retrieve the underlying agent for this proxy. Use it with caution since the
+    proxy is here to silent cancelled requests.
+
+    Returns:
+      Agent: wrapped agent for this proxy
+
+    """
+    return self._agent
+
   def empty_func(self, *args, **kwargs):
-    pass
+    pass # pragma: no cover
 
   def __getattr__(self, attr):
     if self._agent._is_current_request(self._request) or attr not in AGENT_SILENTED_METHODS:
       return getattr(self._agent, attr)
 
-    logging.debug('Silented "%s" call from the stub' % attr)
+    logging.debug(f'Silented "{attr}" call from the stub')
     return self.empty_func
 
 class Request:
@@ -33,9 +43,13 @@ class Request:
   
   def __init__(self, agent, intent, module_translations={}):
     self.intent = intent
+    """Intent associated with the request"""
     self.id = uuid.uuid4().hex
+    """Unique id of the request"""
     self.agent = AgentProxy(self, agent)
-    self.lang = agent._interpreter.lang
+    """Agent proxy used to communicate back with the agent"""
+    self.lang = agent.lang
+    """Request language as extracted from the agent"""
 
     self._module_translations = module_translations
 
@@ -46,13 +60,12 @@ class Request:
       date (datetime): Date to format accordingly to the user language
       date_only (bool): Only format the date part
       time_only (bool): Only format the time part
-      options (dict): Additional options such as `format` to given to Babel
+      options (dict): Additional options such as `format` to give to Babel
 
     Returns:
       str: Localized string representing the date
 
     """
-
     func = format_date if date_only else format_time if time_only else format_datetime
 
     return func(date, locale=self.lang, **options)
@@ -67,5 +80,4 @@ class Request:
       str: Translated text or source text if no translation has been found
 
     """
-
     return self._module_translations.get(text, text)

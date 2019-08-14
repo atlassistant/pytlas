@@ -38,7 +38,7 @@ From source
 Choosing your interpreter
 -------------------------
 
-in order to understand natural language, pytlas is backed by **interpreters** which may need additional installation steps.
+In order to understand natural language, pytlas is backed by :ref:`interpreter` which may need additional installation steps.
 
 .. _installation_snips:
 
@@ -47,5 +47,4 @@ snips
 
 The official interpreter use the fantastic `snips-nlu <https://github.com/snipsco/snips-nlu>`_ python library.
 
-Given the language you want your assistant to understand, it will need to download additional resources. Fortunately, you don't have to do it manually, pytlas will automatically try to download them when fitting the interpreter with a language it doesn't know already.
-
+Given the language you want your assistant to understand, it will need to download additional resources. Fortunately, you don't have to do it manually since `v5.0.0`, pytlas will automatically try to download them when fitting the interpreter with a language it doesn't know already.

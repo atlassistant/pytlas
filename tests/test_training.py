@@ -1,36 +1,70 @@
 from sure import expect
-from pytlas.training import register, training, module_trainings, get_training_data
-
-@training ('en', 'amodule')
-def en_data(): return """
-%[get_forecast]
-  will it rain in @[city]
-
-@[city]
-  paris
-  london
-"""
+from pytlas.training import global_trainings, TrainingsStore, training
 
 class TestTraining:
 
-  def test_it_should_be_imported_with_the_decorator(self):
-    expect(module_trainings).to.have.key('amodule')
-    expect(module_trainings['amodule']).to.have.key('en')
+  def teardown(self):
+    global_trainings.reset()
 
-    r = module_trainings['amodule']['en']()
+  def test_it_should_register_funcs(self):
+    s = TrainingsStore()
 
-    expect(r).to.equal("""
+    def en_data(): return """
 %[get_forecast]
   will it rain in @[city]
 
 @[city]
   paris
   london
-""")
+"""
 
-  def test_it_should_evaluate_translations_correctly(self):
+    s.register('en', en_data, 'amodule')
 
-    def it_training_data(): return """
+    expect(s._data).to.equal({
+      'amodule': {
+        'en': en_data,
+      },
+    })
+
+  def test_it_should_be_registered_with_the_decorator_in_the_given_store(self):
+    s = TrainingsStore()
+
+    @training ('en', store=s, package='amodule')
+    def en_data(): return """
+%[get_forecast]
+  will it rain in @[city]
+
+@[city]
+  paris
+  london
+"""
+
+    expect(s._data).to.equal({
+      'amodule': {
+        'en': en_data,
+      },
+    })
+  
+  def test_it_should_be_registered_with_the_decorator_in_the_global_store(self):
+    @training ('en', package='amodule')
+    def en_data(): return """
+%[get_forecast]
+  will it rain in @[city]
+
+@[city]
+  paris
+  london
+"""
+
+    expect(global_trainings._data).to.equal({
+      'amodule': {
+        'en': en_data,
+      },
+    })
+
+  def test_it_should_retrieve_trainings_for_a_given_language(self):
+    s = TrainingsStore()
+    s.register('it', lambda: """
 %[some_intent]
   con dati di allenamento
 
@@ -39,14 +73,20 @@ class TestTraining:
 
 @[and_entity]
   con un certo valore
-"""
+""", 'amodule')
+    s.register('en', lambda: """
+%[some_intent]
+  with training data
 
-    register('it', it_training_data, 'amodule')
+%[another one]
+  with another data
 
-    t = get_training_data('it')
+@[and_entity]
+  with some value
+""", 'amodule')
 
-    expect(t).to.have.key('amodule')
-    expect(t['amodule']).to.equal("""
+    expect(s.all('it')).to.equal({
+      'amodule': """
 %[some_intent]
   con dati di allenamento
 
@@ -55,11 +95,16 @@ class TestTraining:
 
 @[and_entity]
   con un certo valore
-""")
+""",
+    })
 
-  def test_it_should_be_imported_with_the_register_function(self):
-
-    def fr_training_data(): return """
+  def test_it_should_retrieve_trainings_for_a_particular_package(self):
+    s = TrainingsStore()
+    s.register('en', lambda: """
+%[get_weather]
+  what's the weather like
+""", 'mymodule')
+    s.register('en', lambda: """
 %[some_intent]
   with training data
 
@@ -68,23 +113,10 @@ class TestTraining:
 
 @[and_entity]
   with some value
-"""
+""", 'amodule')
 
-    register('fr', fr_training_data, 'amodule')
-
-    expect(module_trainings).to.have.key('amodule')
-    expect(module_trainings['amodule']).to.have.key('fr')
-
-    r = module_trainings['amodule']['fr']()
-
-    expect(r).to.equal("""
-%[some_intent]
-  with training data
-
-%[another one]
-  with another data
-
-@[and_entity]
-  with some value
+    expect(s.get('mymodule', 'en')).to.equal("""
+%[get_weather]
+  what's the weather like
 """)
-
+    expect(s.get('mymodule', 'it')).to.be.none

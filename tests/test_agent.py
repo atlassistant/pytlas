@@ -5,8 +5,10 @@ from pytlas import Agent
 from pytlas.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.card import Card
 from pytlas.interpreters import Interpreter, Intent, SlotValue
-from pytlas.hooks import register, ON_AGENT_CREATED
+from pytlas.hooks import HooksStore, ON_AGENT_CREATED
 from pytlas.settings import config
+from pytlas.skill import HandlersStore
+from pytlas.localization import TranslationsStore
 
 last_request = None
 
@@ -100,6 +102,9 @@ def on_get_forecast(r):
 
   return r.agent.done()
 
+def on_raise_exception(r):
+  raise Exception('An error occured!')
+
 class TestAgent:
   """For those tests, the interpreter.parse is always mocked because there is no interpreter
   such as snips. It only tests transitions and state management.
@@ -111,23 +116,24 @@ class TestAgent:
     self.on_done = MagicMock()
     self.on_thinking = MagicMock()
 
-    self.handlers = {
+    self.handlers = HandlersStore({
       'greet': on_greet,
       'get_forecast': on_get_forecast,
       'lights_on': on_lights_on,
       'block': on_block,
       'with_meta': on_with_meta,
+      'raise_exception': on_raise_exception,
       STATE_CANCEL: on_cancel,
       STATE_FALLBACK: on_fallback,
-    }
+    })
 
     self.meta = {
       'AGENT_KEY': 'an agent value',
     }
 
     self.interpreter = Interpreter('test', 'en')
-    self.interpreter.intents = list(self.handlers.keys()) + ['intent_without_handler']
-    self.agent = Agent(self.interpreter, model=self, handlers=self.handlers, **self.meta)
+    self.interpreter.intents = list(self.handlers._data.keys()) + ['intent_without_handler']
+    self.agent = Agent(self.interpreter, model=self, handlers_store=self.handlers, **self.meta)
 
   def test_it_should_provide_settings(self):
     expect(self.agent.settings.config).to.equal(config.config)
@@ -149,15 +155,35 @@ class TestAgent:
 
     expect(agt1.id).to_not.equal(agt2.id)
 
+  def test_it_should_expose_the_current_used_language(self):
+    a = Agent(self.interpreter)
+    expect(a.lang).to.equal(self.interpreter.lang)
+
   def test_it_should_trigger_agent_created_hook_upon_creation(self):
+    h = HooksStore()
     self.on_agent_created = MagicMock()
     self.on_agent_created.__name__ = 'on_agent_created'
 
-    register(ON_AGENT_CREATED, self.on_agent_created)
+    h.register(ON_AGENT_CREATED, self.on_agent_created)
 
-    agt = Agent(self.interpreter, handlers=self.handlers)
+    agt = Agent(self.interpreter, hooks_store=h)
 
     self.on_agent_created.assert_called_once_with(agt)
+
+  def test_it_should_use_provided_translations_store(self):
+    s = TranslationsStore()
+    s.register('en', lambda: {
+      'hi': 'Hello',
+      'bye': 'See ya!',
+    }, 'test_agent')
+
+    a = Agent(self.interpreter, translations_store=s)
+    expect(a._translations).to.equal({
+      'test_agent': {
+        'hi': 'Hello',
+        'bye': 'See ya!',
+      },
+    })
 
   def test_it_should_queue_string_as_intent(self):
     self.agent.queue_intent('greet')
@@ -253,6 +279,12 @@ class TestAgent:
     expect(lights_intent.meta).to.equal({ 'latitude': 49.44, 'longitude': 1.09 })
     expect(last_request.intent.meta).to.equal({ 'latitude': 49.44, 'longitude': 1.09 })
   
+  def test_it_should_go_back_to_the_asleep_state_if_an_exception_occurs_in_a_skill(self):
+    self.interpreter.parse = MagicMock(return_value=[Intent('raise_exception')])
+    self.agent.parse('will raise an exception')
+    self.on_done.assert_called_once_with(False)
+    expect(self.agent.state).to.equal(STATE_ASLEEP)
+
   def test_it_should_do_nothing_and_returns_to_the_asleep_state_when_no_handler_was_found(self):
     self.interpreter.parse = MagicMock(return_value=[Intent('intent_without_handler')])
 

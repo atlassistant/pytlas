@@ -3,7 +3,7 @@ Settings
 
 Settings provides a facility to enable developers to retrieve settings value.
 
-The `pytlas.settings` module exposes a `SettingsStore` class and a global instance of this class with the `config` property.
+The `pytlas.settings` module exposes a `SettingsStore` class and a global instance of this class in its `config` property.
 
 The `SettingsStore` read settings from 3 sources:
 

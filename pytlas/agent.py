@@ -2,11 +2,11 @@ import logging, uuid
 from pytlas.request import Request
 from pytlas.settings import config, SettingsStore
 from pytlas.utils import get_package_name_from_module, keep_one, strip_format, find_match
-from pytlas.localization import get_translations
+from pytlas.localization import global_translations
 from pytlas.interpreters.intent import Intent
 from pytlas.interpreters.slot import SlotValue
-from pytlas.skill import handlers as skill_handlers
-from pytlas.hooks import trigger, ON_AGENT_CREATED, ON_AGENT_DESTROYED
+from pytlas.skill import global_handlers
+from pytlas.hooks import global_hooks, ON_AGENT_CREATED, ON_AGENT_DESTROYED
 from transitions import Machine, MachineError
 
 # Silent the transitions logger
@@ -78,7 +78,8 @@ class Agent:
 
   """
 
-  def __init__(self, interpreter, model=None, handlers=None, transitions_graph_path=None, **meta):
+  def __init__(self, interpreter, model=None, handlers_store=None, transitions_graph_path=None, 
+    hooks_store=None, translations_store=None, **meta):
     """Initialize an agent.
 
     When skills ask or answer something to the client, they can send markdown formatted text
@@ -89,14 +90,15 @@ class Agent:
     `raw_text` and contains the text without any formatting.
 
     Args:
-      interpreter (Interpreter): Interpreter used to convert human language to intents
+      interpreter (Interpreter): Interpreter used to convert human language to intents and extract slots
       model (object): Model which will receive events raised by this agent instance
-      handlers (dict): Dictionary of intent: handler to use. If no one is provided, all handlers registered will be used instead.
+      handlers_store (HandlersStore): Handlers store to use. If no one is provided, all handlers registered will be used instead.
       transitions_graph_path (str): If pygraphviz is installed, where to output the transitions graph
+      hooks_store (HooksStore): Optional hooks store to use for dispatching lifecycle events
+      transations_store (TranslationsStore): Optional translations store to use for translations
       meta (dict): Every other properties will be made available through the self.meta property
 
     """
-
     self._logger = logging.getLogger(self.__class__.__name__.lower())
     self._interpreter = interpreter
     self._transitions_graph_path = transitions_graph_path
@@ -107,8 +109,12 @@ class Agent:
     self._on_thinking = None
     self._on_context = None
 
-    self._handlers = handlers if handlers != None else skill_handlers
-    self._translations = get_translations(self._interpreter.lang)
+    # Extract stores data
+    self._handlers = handlers_store or global_handlers
+    # Maybe we should evaluate it everytime when creating the request instead
+    # of caching translations here :/
+    self._translations = (translations_store or global_translations).all(self.lang)
+    self._hooks = hooks_store or global_hooks
 
     self._intents_queue = []
     self._request = None
@@ -120,18 +126,27 @@ class Agent:
     self.id = uuid.uuid4().hex
     self.model = model
     self.meta = meta
-    self.settings = SettingsStore(config=config.config, additional_lookup=self.meta)
+
+    # Here we instantiate agent settings by extending the global ones with agent
+    # meta.
+    self.settings = SettingsStore(config=config.config)
+    # And since, by default, store such as the settings one will deepcopy initial
+    # data, we manually affect the inner data to reference the agent meta. With
+    # this tiny hack, agent settings and meta will be in sync because they share
+    # the same dict pointer.
+    self.settings._data = self.meta
+    
     self.current_context = None
 
     self._machine = None
     self.build()
     self.context(None)
 
-    trigger(ON_AGENT_CREATED, self)
+    self._hooks.trigger(ON_AGENT_CREATED, self)
 
   def __del__(self):
     # Maybe we should use a finalizer instead
-    trigger(ON_AGENT_DESTROYED, self)
+    self._hooks.trigger(ON_AGENT_DESTROYED, self)
 
   def _build_is_in_context_lambda(self, ctx):
     return lambda _: self.current_context == ctx
@@ -227,6 +242,16 @@ class Agent:
     if self._transitions_graph_path and getattr(self._machine, 'get_graph', None): # pragma: no cover
       self._logger.info('Writing graph to "%s"' % self._transitions_graph_path)
       self._machine.get_graph().draw(self._transitions_graph_path, prog='dot')
+
+  @property
+  def lang(self):
+    """Retrieve the language understood by this agent.
+
+    Returns:
+      str: Current language
+
+    """
+    return self._interpreter.lang
 
   @property
   def model(self):
@@ -365,7 +390,7 @@ class Agent:
     # If we are in a context and the intent is a builtin one, check if the skill has a specific
     # handler registered, else fallback to the generic one
     if self.current_context and is_builtin(intent.name):
-      handler = self._handlers.get(self.current_context + CONTEXT_SEPARATOR + intent.name, handler)
+      handler = self._handlers.get(self.current_context + CONTEXT_SEPARATOR + intent.name) or handler
     
     if not handler:
       self._logger.warning('No handler found for the intent "%s"' % intent.name)
@@ -471,10 +496,13 @@ class Agent:
 
   def done(self, require_input=False):
     """Done should be called by skills when they are done with their stuff. It enables
-    threaded scenarii. When asking something to the user, you should not call this method!
+    threaded scenarii. When asking something to the user, you should not call this method
+    since `ask` end the skill immediately.
+
+    Args:
+      require_input (bool): True if additional informations are needed (mostly use to trigger client input)
 
     """
-
     self.go(STATE_ASLEEP, require_input=require_input)
 
   def context(self, context_name):

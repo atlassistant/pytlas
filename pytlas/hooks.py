@@ -1,71 +1,88 @@
 from pytlas.utils import get_caller_package_name
-import logging
+from pytlas.store import Store
 
 ON_AGENT_CREATED = 'on_agent_created'
 ON_AGENT_DESTROYED = 'on_agent_destroyed'
 
-# Contains hooks handlers
-hooks = {
-  ON_AGENT_CREATED: [],
-  ON_AGENT_DESTROYED: [],
-}
+class HooksStore(Store):
+  """Holds registered hooks and provide a way to trigger them.
+  """
 
-def trigger(hook, *args, **kwargs):
-  """Trigger a hook with given arguments.
+  def __init__(self, data=None):
+    """Instantiates a new store.
 
-  Args:
-    hook (str): Hook name to trigger
+    Args:
+      data (dict): Optional initial data to use
+
+    """
+    super().__init__('hooks', data or {
+      ON_AGENT_CREATED: [],
+      ON_AGENT_DESTROYED: [],
+    })
+
+  def register(self, name, func, package=None):
+    """Register a new handler for the given hook.
+
+    Args:
+      name (str): Name of the hook to register to
+      func (callable): Function to call upon hook trigger
+      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+
+    """
+    pkg = package or get_caller_package_name()
+
+    if name not in self._data:
+      self._logger.warning(f'"{name}" doesn\'t look like a valid hook name, dismissing')
+    else:
+      self._data[name].append(func)
+      self._logger.info(f'Registered "{pkg}.{func.__name__}" handler for hook "{name}"')
   
-  """
+  def trigger(self, name, *args, **kwargs):
+    """Trigger a hook with given arguments.
 
-  handlers = hooks.get(hook)
+    Args:
+      name (str): Hook name to trigger
+      args (any): Variadic args
+      kwargs (dict): Keyword args
+    
+    """
+    handlers = self._data.get(name)
 
-  if handlers:
-    for handler in handlers:
-      handler(*args, **kwargs)
+    if handlers:
+      for handler in handlers:
+        handler(*args, **kwargs)
 
-def register(name, func, package=None):
-  """Register a hook handler.
+# Contains global hooks handlers
+global_hooks = HooksStore() 
 
-  Args:
-    name (str): Hook name to listen for
-    func (func): Function to call upon hook trigger
-    package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
-
-  """
-
-  package = package or get_caller_package_name()
-
-  if name not in hooks:
-    logging.warning('Not a valid hook name: "%s"' % name)
-  else:
-    hooks[name].append(func)
-    logging.info('Registered "%s.%s" handler for hook "%s"' % (package, func.__name__, name))
-
-def on_agent_created(package=None):
+def on_agent_created(store=None, package=None):
   """Decorator applied to a function that should be called when an agent is created
 
   Args:
+    store (HooksStore): Store to use for registration, defaults to the global one
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
 
   """
+  s = store or global_hooks
 
   def new(func):
-    register(ON_AGENT_CREATED, func, package or get_caller_package_name() or func.__module__)
+    s.register(ON_AGENT_CREATED, func, package or get_caller_package_name() or func.__module__)
     return func
 
   return new
 
-def on_agent_destroyed(package=None):
+def on_agent_destroyed(store=None, package=None):
   """Decorator applied to a function that should be called when an agent is destroyed
 
   Args:
+    store (HooksStore): Store to use for registration, defaults to the global one
     package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
 
   """
+  s = store or global_hooks
 
   def new(func):
-    register(ON_AGENT_DESTROYED, func, package or get_caller_package_name() or func.__module__)
+    s.register(ON_AGENT_DESTROYED, func, package or get_caller_package_name() or func.__module__)
     return func
 
   return new

@@ -1,7 +1,7 @@
 Translations
 ============
 
-Translating a skill is pretty easy. It works the same as training data. You'll just have to use the decorator on a method which returns a dictionary representing keys and associated translations.
+Translating a skill is pretty easy. It works the same way as training data. You'll just have to use the decorator on a method which returns a dictionary representing keys and associated translations.
 
 .. code-block:: python
 

@@ -3,7 +3,7 @@
 Training
 ========
 
-You should always start by defining example sentence of how a user might trigger your code.
+You should always start by defining example sentences of how a user might trigger your code. The :ref:`interpreter` will use them to train and extract meaningful content on unknown inputs.
 
 It allows your skill to define which sentences will trigger specific intents so you must provide enough data for it to understand patterns.
 

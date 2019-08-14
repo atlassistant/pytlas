@@ -1,6 +1,6 @@
 import logging, hashlib, os, json
 from pytlas.interpreters.slot import SlotValue
-from pytlas.training import get_training_data
+from pytlas.training import global_trainings
 from pychatl.utils import deep_update
 from pychatl import parse
 import pychatl.postprocess as postprocessors
@@ -29,8 +29,18 @@ class Interpreter:
 
   """
 
-  def __init__(self, name, lang, cache_directory=None):
+  def __init__(self, name, lang, cache_directory=None, trainings_store=None):
+    """Instantiates a new interpreter.
+
+    Args:
+      name (str): Name of the interpreter
+      lang (str): Language understood by this interpreter
+      cache_directory (str): Optional directory to put cache data
+      trainings_store (TrainingsStore): Optional trainings store used when fitting the engine
+
+    """
     self._logger = logging.getLogger(name)
+    self._trainings = trainings_store or global_trainings
     
     self.lang = lang
     self.name = name
@@ -40,7 +50,6 @@ class Interpreter:
   def load_from_cache(self):
     """Loads the interpreter from the cache directory.
     """
-
     pass
 
   def fit(self, data):
@@ -50,23 +59,21 @@ class Interpreter:
       data (dict): Training data
 
     """
-
-    pass
+    self._logger.debug(data)
 
   def fit_from_skill_data(self, skills=None):
-    """Fit the interpreter with every training data registered in the system.
+    """Fit the interpreter with every training data registered in the inner TrainingsStore.
 
     Args:
-      skills (list of str): Optional list of skill names from which we should retrieve training data.
+      skills (list of str): Optional list of skill names from which we should retrieve training data. Used to handle context understanding.
     
     """
-
-    filtered_module_trainings = get_training_data(self.lang)
+    filtered_module_trainings = self._trainings.all(self.lang)
 
     if skills:
       filtered_module_trainings = { k: v for (k, v) in filtered_module_trainings.items() if k in skills }
 
-    self._logger.info('Merging skill training data from "%d" modules' % len(filtered_module_trainings))
+    self._logger.info(f'Merging skill training data from "{len(filtered_module_trainings)}" modules')
 
     data = {}
     sorted_trainings = sorted(filtered_module_trainings.items(), 
@@ -77,9 +84,9 @@ class Interpreter:
         try:
           data = deep_update(data, parse(training_dsl))
         except Exception as e:
-          self._logger.error('Could not parse "%s" training data: "%s"' % (module, e))
+          self._logger.error(f'Could not parse "{module}" training data: "{e}"')
       else:
-        self._logger.warning('No training data found for "%s"' % module)
+        self._logger.warning(f'No training data found for "{module}"')
       
     try:
       data = getattr(postprocessors, self.name)(data, language=self.lang)
@@ -96,7 +103,7 @@ class Interpreter:
 
     """
 
-    self._logger.info('Training interpreter with file "%s"' % path)
+    self._logger.info(f'Training interpreter with file "{path}"')
 
     with open(path, encoding='utf-8') as f:
       self.fit(json.load(f))
