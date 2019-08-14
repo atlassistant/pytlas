@@ -65,7 +65,7 @@ class Interpreter:
     """Fit the interpreter with every training data registered in the inner TrainingsStore.
 
     Args:
-      skills (list of str): Optional list of skill names from which we should retrieve training data.
+      skills (list of str): Optional list of skill names from which we should retrieve training data. Used to handle context understanding.
     
     """
     filtered_module_trainings = self._trainings.all(self.lang)

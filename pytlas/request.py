@@ -43,9 +43,13 @@ class Request:
   
   def __init__(self, agent, intent, module_translations={}):
     self.intent = intent
+    """Intent associated with the request"""
     self.id = uuid.uuid4().hex
+    """Unique id of the request"""
     self.agent = AgentProxy(self, agent)
+    """Agent proxy used to communicate back with the agent"""
     self.lang = agent.lang
+    """Request language as extracted from the agent"""
 
     self._module_translations = module_translations
 
@@ -56,7 +60,7 @@ class Request:
       date (datetime): Date to format accordingly to the user language
       date_only (bool): Only format the date part
       time_only (bool): Only format the time part
-      options (dict): Additional options such as `format` to given to Babel
+      options (dict): Additional options such as `format` to give to Babel
 
     Returns:
       str: Localized string representing the date

@@ -28,15 +28,6 @@ If you wish to implement your own interpreter, you must at least extends from `p
 
   When creating `SlotValue` instance to represent a slot, always remember to sets a value in a meaningfull python representation. See :ref:`retrieving_slots` to see what's expected by developers.
 
-.. py:function:: fit(data)
-
-  Fit the interpreter with training data.
-
-.. py:function:: parse(msg, scopes=None)
-  :noindex:
-
-  Parse a raw message and returns an intents list. *scopes* is an optional list of allowed intent names.
-
-.. py:function:: parse_slot(intent, slot, msg)
-
-  Parse a slot for a given context.
+.. automethod:: pytlas.interpreters.Interpreter.fit
+.. automethod:: pytlas.interpreters.Interpreter.parse
+.. automethod:: pytlas.interpreters.Interpreter.parse_slot

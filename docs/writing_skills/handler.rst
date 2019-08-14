@@ -31,7 +31,7 @@ Here the basic code you need to have. Calling `request.agent.done` is mandatory 
 Retrieving slots
 ----------------
 
-Remember, slots are like function arguments that has been extracted by the interpreter.
+Remember, slots are like function arguments that has been extracted by the :ref:`interpreter`.
 
 .. note::
 
@@ -92,7 +92,7 @@ When you need to show something to the user, you should use the `answer` method.
 Asking
 ------
 
-When you need some informations or slot have not been extracted in the original sentence, you can ask the user to fill them.
+When you need some informations or slot have not been extracted in the original sentence, you can ask the user to fill them. One filled by the user, your handler will be called again with the updated slots.
 
 .. code-block:: python
 

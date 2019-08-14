@@ -19,3 +19,4 @@ The general command flow looks like this:
   skill
   client
   meta
+  stores

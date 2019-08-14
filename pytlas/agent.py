@@ -496,10 +496,13 @@ class Agent:
 
   def done(self, require_input=False):
     """Done should be called by skills when they are done with their stuff. It enables
-    threaded scenarii. When asking something to the user, you should not call this method!
+    threaded scenarii. When asking something to the user, you should not call this method
+    since `ask` end the skill immediately.
+
+    Args:
+      require_input (bool): True if additional informations are needed (mostly use to trigger client input)
 
     """
-
     self.go(STATE_ASLEEP, require_input=require_input)
 
   def context(self, context_name):
