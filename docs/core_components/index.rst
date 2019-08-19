@@ -14,9 +14,8 @@ The general command flow looks like this:
   :maxdepth: 2
   :caption: Going deeper
 
-  agent
-  interpreter
-  skill
-  client
+  understanding
+  handling
+  conversing
+  settings
   meta
-  stores
