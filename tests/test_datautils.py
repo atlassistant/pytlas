@@ -1,7 +1,7 @@
 import os
 from sure import expect
 from unittest.mock import patch, mock_open
-from pytlas.datautils import find_match, keep_one, should_load_resources
+from pytlas.datautils import find_match, keep_one, should_load_resources, strip_format
 from pytlas.settings import config, SETTING_ALLOWED_LANGUAGES
 
 class TestFindMatch:

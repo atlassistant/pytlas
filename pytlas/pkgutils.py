@@ -12,8 +12,13 @@ def get_root_package_name(name):
   Returns:
     str: The root package name
 
-  """
+  Examples:
+    >>> get_root_package_name('weather.nested.file')
+    'weather'
+    >>> get_root_package_name('weather')
+    'weather'
 
+  """
   return name.split('.')[0] if name else name
 
 def get_package_name_from_module(module_name):
@@ -26,7 +31,6 @@ def get_package_name_from_module(module_name):
     str: The package in which this module was defined
 
   """
-
   return get_root_package_name(sys.modules[module_name].__package__)
 
 def get_caller_package_name():
@@ -36,7 +40,6 @@ def get_caller_package_name():
     str: Package name of the caller
 
   """
-
   return get_root_package_name(inspect.currentframe().f_back.f_back.f_globals['__name__'])
 
 def get_module_path(module_name):
@@ -50,7 +53,6 @@ def get_module_path(module_name):
     str: Path where the module is defined
 
   """
-
   try:
     return sys.modules[module_name].__path__[0]
   except (AttributeError, KeyError):

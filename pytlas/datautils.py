@@ -17,7 +17,6 @@ def keep_one(value):
     str: Random value in the given list if it's a list, else the given value
 
   """
-
   if isinstance(value, list):
     return random.choice(value)
 
@@ -42,7 +41,6 @@ def strip_format(value):
     >>> strip_format(None)
 
   """
-
   if not value:
     return None
 
@@ -65,7 +63,6 @@ def find_match(choices, value):
     str: matched text in given choices
 
   """
-
   match = process.extractOne(value, choices, score_cutoff=60)
 
   return match[0] if match else None
