@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 from pytlas.understanding import Interpreter, Intent, SlotValue
 from pytlas.conversing import Agent
 from pytlas.conversing.agent import build_scopes, STATE_CANCEL, STATE_FALLBACK, STATE_ASLEEP
-from pytlas.handling.skill import HandlersStore
+from pytlas.handling import HandlersStore
 
 def on_manage_list(r):
   r.agent.context('manage_list')

@@ -2,7 +2,7 @@ from sure import expect
 from unittest.mock import patch
 from pytlas.handling.skill import global_handlers, global_metas, Meta
 from pytlas.handling.localization import global_translations
-from pytlas.pam import get_loaded_skills, install_skills, update_skills, uninstall_skills
+from pytlas.supporting import get_loaded_skills, install_skills, update_skills, uninstall_skills
 
 class TestPam:
 
@@ -14,7 +14,7 @@ class TestPam:
   def test_it_should_retrieve_installed_skills_from_handlers(self):
     global_handlers.register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather1')
 
-    with patch('pytlas.pam.get_package_name_from_module', return_value='atlassistant__weather1'):
+    with patch('pytlas.supporting.pam.get_package_name_from_module', return_value='atlassistant__weather1'):
       r = get_loaded_skills('fr')
 
       expect(r).to.have.length_of(1)
@@ -35,7 +35,7 @@ class TestPam:
     global_handlers.register('get_weather', lambda r: r.agent.done(), 'atlassistant__weather2')
     global_metas.register(get_meta, 'atlassistant__weather2')
 
-    with patch('pytlas.pam.get_package_name_from_module', return_value='atlassistant__weather2'):
+    with patch('pytlas.supporting.pam.get_package_name_from_module', return_value='atlassistant__weather2'):
       r = get_loaded_skills('fr')
 
       expect(r).to.have.length_of(1)
@@ -58,7 +58,7 @@ class TestPam:
       'weather': 'météo',
     }, 'atlassistant__weather3')
 
-    with patch('pytlas.pam.get_package_name_from_module', return_value='atlassistant__weather3'):
+    with patch('pytlas.supporting.pam.get_package_name_from_module', return_value='atlassistant__weather3'):
       r = get_loaded_skills('fr')
 
       expect(r).to.have.length_of(1)
@@ -70,7 +70,7 @@ class TestPam:
 
   def test_it_should_install_skill_from_relative_name(self):
     with patch('subprocess.check_output', return_value='') as subprocess_mock:
-      with patch('pytlas.pam.install_dependencies_if_needed') as dep_mock:
+      with patch('pytlas.supporting.pam.install_dependencies_if_needed') as dep_mock:
         r = install_skills('/home/pytlas/skills', 'https://github.com/', None, 'atlassistant/weather')
         
         expect(r).to.have.length_of(1)
@@ -86,7 +86,7 @@ class TestPam:
   
   def test_it_should_install_skill_from_relative_name_with_custom_repo_url(self):
     with patch('subprocess.check_output', return_value='') as subprocess_mock:
-      with patch('pytlas.pam.install_dependencies_if_needed') as dep_mock:
+      with patch('pytlas.supporting.pam.install_dependencies_if_needed') as dep_mock:
         r = install_skills('/home/pytlas/skills', 'https://gitlab.com/', None, 'atlassistant/weather')
         
         expect(r).to.have.length_of(1)
@@ -134,7 +134,7 @@ class TestPam:
   def test_it_should_update_skill_when_already_available(self):
     with patch('subprocess.check_output', return_value='') as subprocess_mock:
       with patch('os.path.isdir', return_value=True):
-        with patch('pytlas.pam.update_skills', return_value=['atlassistant/weather']) as update_mock:
+        with patch('pytlas.supporting.pam.update_skills', return_value=['atlassistant/weather']) as update_mock:
           r = install_skills('/home/pytlas/skills', 'https://github.com/', None, 'atlassistant/weather')
 
           expect(r).to.have.length_of(1)
@@ -157,7 +157,7 @@ class TestPam:
   def test_it_should_update_correctly_a_skill(self):
     with patch('subprocess.check_output', return_value='') as subprocess_mock:
       with patch('os.path.isdir', return_value=True):
-        with patch('pytlas.pam.install_dependencies_if_needed') as dep_mock:
+        with patch('pytlas.supporting.pam.install_dependencies_if_needed') as dep_mock:
           r = update_skills('/home/pytlas/skills', None, 'atlassistant/weather')
 
           expect(r).to.have.length_of(1)
@@ -172,7 +172,7 @@ class TestPam:
 
   def test_it_should_uninstall_skill_correctly(self):
     with patch('os.path.isdir', return_value=True):
-      with patch('pytlas.pam.rmtree', return_value='') as rm_mock:
+      with patch('pytlas.supporting.pam.rmtree', return_value='') as rm_mock:
         r = uninstall_skills('/home/pytlas/skills', None, 'atlassistant/weather')
         
         expect(r).to.have.length_of(1)

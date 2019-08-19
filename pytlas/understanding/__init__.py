@@ -5,4 +5,4 @@ register training data and extract meaning from raw sentences.
 from pytlas.understanding.intent import Intent
 from pytlas.understanding.slot import SlotValue, SlotValues, UnitValue
 from pytlas.understanding.interpreter import Interpreter
-from pytlas.understanding.training import training
+from pytlas.understanding.training import training, TrainingsStore

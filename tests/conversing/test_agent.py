@@ -4,11 +4,9 @@ from unittest.mock import MagicMock
 from pytlas.conversing import Agent
 from pytlas.conversing.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.understanding import Interpreter, Intent, SlotValue
-from pytlas.handling import Card
+from pytlas.handling import Card, HandlersStore, TranslationsStore
 from pytlas.settings import config
 from pytlas.handling.hooks import HooksStore, ON_AGENT_CREATED
-from pytlas.handling.skill import HandlersStore
-from pytlas.handling.localization import TranslationsStore
 
 last_request = None
 

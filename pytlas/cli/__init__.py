@@ -3,7 +3,7 @@ from pytlas.cli.prompt import Prompt
 from pytlas.cli.utils import install_logs
 from pytlas.handling.importers import import_skills
 from pytlas.settings import config, write_to_store
-from pytlas.pam import get_loaded_skills, install_skills, uninstall_skills, update_skills
+from pytlas.supporting import get_loaded_skills, install_skills, uninstall_skills, update_skills
 import click, logging, os
 
 SKILLS_DIR = 'skills_dir'

@@ -1,7 +1,7 @@
 from sure import expect
 from unittest.mock import MagicMock
-from pytlas.understanding import Interpreter
-from pytlas.understanding.training import TrainingsStore, global_trainings
+from pytlas.understanding import Interpreter, TrainingsStore
+from pytlas.understanding.training import global_trainings
 
 class TestInterpreter:
 
