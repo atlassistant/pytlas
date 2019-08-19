@@ -4,7 +4,7 @@ from dateutil.parser import parse as parse_date
 from pytlas.understanding.intent import Intent
 from pytlas.understanding.slot import SlotValue, SlotValues, UnitValue
 from pytlas.understanding.interpreter import Interpreter, compute_checksum
-from pytlas.utils import read_file, rmtree
+from pytlas.ioutils import read_file, rmtree
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.constants import ENTITIES, AUTOMATICALLY_EXTENSIBLE, RESOLVED_VALUE, \
   ENTITY_KIND, ENTITY, RES_VALUE, RES_RAW_VALUE, RES_INTENT, RES_INTENT_NAME, RES_SLOTS, \

@@ -1,5 +1,5 @@
 import os, sys
-from pytlas.utils import get_root_package_name
+from pytlas.pkgutils import get_root_package_name
 from pytlas.conversing import Agent
 from pytlas.handling import HandlersStore
 from pytlas.handling.skill import global_handlers

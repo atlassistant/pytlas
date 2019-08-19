@@ -5,7 +5,8 @@ from pytlas.handling.skill import global_handlers
 from pytlas.handling.hooks import global_hooks, ON_AGENT_CREATED, ON_AGENT_DESTROYED
 from pytlas.understanding import Intent, SlotValue
 from pytlas.settings import config, SettingsStore
-from pytlas.utils import get_package_name_from_module, keep_one, strip_format, find_match
+from pytlas.pkgutils import get_package_name_from_module
+from pytlas.datautils import keep_one, strip_format, find_match
 from transitions import Machine, MachineError
 
 # Silent the transitions logger

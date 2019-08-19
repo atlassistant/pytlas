@@ -1,6 +1,7 @@
 from pytlas.handling.skill import global_handlers, global_metas, Meta
 from pytlas.handling.localization import global_translations
-from pytlas.utils import get_package_name_from_module, rmtree
+from pytlas.pkgutils import get_package_name_from_module
+from pytlas.ioutils import rmtree
 import re, logging, os, subprocess
 
 SKILL_FOLDER_SEPARATOR = '__'

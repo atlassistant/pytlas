@@ -1,5 +1,5 @@
 from pytlas.settings import DEFAULT_SECTION
-from pytlas.utils import get_caller_package_name
+from pytlas.pkgutils import get_caller_package_name
 from pytlas.store import Store
 from pytlas.handling.localization import global_translations
 

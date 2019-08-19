@@ -1,4 +1,4 @@
-from pytlas.utils import strip_format
+from pytlas.datautils import strip_format
 
 class Card:
   

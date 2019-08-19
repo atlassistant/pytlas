@@ -1,4 +1,5 @@
-from pytlas.utils import get_caller_package_name, should_load_resources
+from pytlas.pkgutils import get_caller_package_name
+from pytlas.datautils import should_load_resources
 from pytlas.store import Store
 
 class TrainingsStore(Store):
