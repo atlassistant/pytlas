@@ -15,7 +15,7 @@ From code
 
 .. code-block:: python
 
-  from pytlas.pam import install_skills
+  from pytlas.supporting import install_skills
   
   # The first parameter is the skills directory
   # The second parameter is a function to print output messages

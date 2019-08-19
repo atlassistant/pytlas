@@ -1,9 +1,9 @@
 from pytlas import Agent, __version__
 from pytlas.cli.prompt import Prompt
 from pytlas.cli.utils import install_logs
-from pytlas.importers import import_skills
+from pytlas.handling.importers import import_skills
 from pytlas.settings import config, write_to_store
-from pytlas.pam import get_loaded_skills, install_skills, uninstall_skills, update_skills
+from pytlas.supporting import get_loaded_skills, install_skills, uninstall_skills, update_skills
 import click, logging, os
 
 SKILLS_DIR = 'skills_dir'
@@ -20,7 +20,7 @@ def instantiate_and_fit_interpreter(): # pragma: no cover
   import_skills(config.getpath(SKILLS_DIR), config.getbool(WATCH))
 
   try:
-    from pytlas.interpreters.snips import SnipsInterpreter
+    from pytlas.understanding.snips import SnipsInterpreter
     
     interpreter = SnipsInterpreter(config.get(LANGUAGE), config.getpath(CACHE_DIR))
 

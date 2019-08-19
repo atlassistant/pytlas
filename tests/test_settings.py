@@ -42,7 +42,7 @@ class TestSettingsStore:
   def test_it_should_load_settings_from_a_path(self):
     s = SettingsStore()
     expect(s.get('some_key', section='some_section')).to.be.none
-    s.load_from_file(os.path.join(os.path.dirname(__file__), 'test.conf'))
+    s.load_from_file(os.path.join(os.path.dirname(__file__), '__test.conf'))
     expect(s.get('some_key', section='some_section')).to.equal('some_value')
 
   def test_it_should_set_the_setting_even_if_the_section_does_not_exists_yet(self):

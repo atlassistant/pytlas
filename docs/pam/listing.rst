@@ -15,7 +15,7 @@ From code
 
 .. code-block:: python
 
-  from pytlas.pam import get_loaded_skills
+  from pytlas.supporting import get_loaded_skills
 
   # Will returns an array of `pytlas.skill.Meta`
   skills = get_loaded_skills('en')
