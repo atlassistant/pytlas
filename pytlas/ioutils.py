@@ -29,7 +29,7 @@ def read_file(path, ignore_errors=False, relative_to_file=None):
 
     return None
 
-def _onerror(func, path, exc_info):
+def _onerror(func, path, exc_info): # pragma: no cover
   """Error handler for ``shutil.rmtree``.
 
   If the error is due to an access error (read only file)
@@ -56,5 +56,4 @@ def rmtree(path, ignore_errors=False):
     ignore_errors (bool): Should we ignore errors
 
   """
-
   shrmtree(path, ignore_errors=ignore_errors, onerror=_onerror)
