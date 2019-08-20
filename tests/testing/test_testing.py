@@ -26,14 +26,14 @@ class TestModelMock:
     m(1, 2, three=3)
     m(4, 5, three=6)
 
-    call = m.get_call()
+    call = m.get_call(0)
 
     expect(call).to.be.a(AttrDict)
     expect(call.one).to.equal(1)
     expect(call.two).to.equal(2)
     expect(call.three).to.equal(3)
 
-    call = m.get_call(1)
+    call = m.get_call()
 
     expect(call).to.be.a(AttrDict)
     expect(call.one).to.equal(4)

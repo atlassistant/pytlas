@@ -22,7 +22,6 @@ def create_skill_agent(skill_folder, lang='en', additional_skills=[]):
     Agent: Agent with a specific mock model to make assertions simplier
 
   """
-
   import_path = os.path.dirname(skill_folder)
   skill_name = os.path.basename(skill_folder)
 
