@@ -3,7 +3,7 @@ from pytlas.cli.prompt import Prompt
 from pytlas.cli.utils import install_logs
 from pytlas.handling.importers import import_skills
 from pytlas.settings import config, write_to_store
-from pytlas.supporting import get_loaded_skills, install_skills, uninstall_skills, update_skills
+from pytlas.supporting import SkillsManager
 import click, logging, os
 
 SKILLS_DIR = 'skills_dir'
@@ -39,6 +39,10 @@ def instantiate_agent_prompt(sentence=None): # pragma: no cover
   interpreter = instantiate_and_fit_interpreter()
 
   Prompt(Agent(interpreter, transitions_graph_path=config.getpath(GRAPH_FILE)), parse_message=sentence).cmdloop()
+
+def instantiate_skill_manager(): # pragma: no cover
+  return SkillsManager(config.getpath(SKILLS_DIR), config.get(LANGUAGE),
+    default_git_url=config.get(REPO_URL))
 
 def make_argname(name):
   """Tiny function to prepend "--" to a string.
@@ -117,32 +121,48 @@ def skills(): # pragma: no cover
 def list_skills(): # pragma: no cover
   """List installed skills for this instance.
   """
-
   import_skills(config.getpath(SKILLS_DIR))
 
-  for skill_data in get_loaded_skills(config.get(LANGUAGE)):
-    click.echo(skill_data)
+  metas = instantiate_skill_manager().get()
+
+  for meta in metas:
+    click.echo(meta)
 
 @skills.command('add')
 @click.argument('skills', nargs=-1, required=True)
 def add_skills(skills): # pragma: no cover
   """Add given skills to your instance.
   """
+  succeeded, failed = instantiate_skill_manager().install(*skills)
 
-  install_skills(config.getpath(SKILLS_DIR), config.get(REPO_URL), click.echo, *skills)
+  if succeeded:
+    click.echo(f'Successfully installed skills: {", ".join(succeeded)}')
+
+  if failed:
+    click.echo(f'Failed to install skills, launch with the -v flag to see why: {", ".join(failed)}')
 
 @skills.command('update')
 @click.argument('skills', nargs=-1)
 def update_skills_command(skills): # pragma: no cover
   """Update given skills for this instance. If no skills are defined, they will be all updated.
   """
-  
-  update_skills(config.getpath(SKILLS_DIR), click.echo, *skills)
+  succeeded, failed = instantiate_skill_manager().install(*skills)
+
+  if succeeded:
+    click.echo(f'Successfully updated skills: {", ".join(succeeded)}')
+
+  if failed:
+    click.echo(f'Failed to update skills, launch with the -v flag to see why: {", ".join(failed)}')
 
 @skills.command('remove')
 @click.argument('skills', nargs=-1, required=True)
 def remove_skills(skills): # pragma: no cover
   """Remove given skills from your instance.
   """
+  succeeded, failed = instantiate_skill_manager().uninstall(*skills)
 
-  uninstall_skills(config.getpath(SKILLS_DIR), click.echo, *skills)
+  if succeeded:
+    click.echo(f'Successfully uninstalled skills: {", ".join(succeeded)}')
+
+  if failed:
+    click.echo(f'Failed to uninstall skills, launch with the -v flag to see why: {", ".join(failed)}')
