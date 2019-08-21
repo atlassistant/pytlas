@@ -8,12 +8,12 @@ Using the pytlas CLI
 
 pytlas include a basic CLI interface to interact with the system that you may use when developping skills.
 
-This line will start the pytlas REPL with skills located in the example/skills/ directory (in the git repository). It will load all data and fit the engine before starting the interactive prompt. The `--cache_dir cache/` lets the interpreter save its trained data to this folder to speed up the loading at the next launch if training data has not changed since.
+After cloning the git repository, this line will start the pytlas REPL by using the configuration file `example/pytlas.conf`. It will load all data and fit the engine before starting the interactive prompt.
 
 .. code:: bash
 
   $ cd example
-  $ pytlas --cache_dir cache/ repl
+  $ pytlas -c pytlas.conf repl
 
 Using the library
 -----------------

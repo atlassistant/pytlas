@@ -3,20 +3,23 @@ from pytlas.handling.skill import global_metas, global_handlers, Meta
 from pytlas.pkgutils import get_package_name_from_module
 from pytlas.ioutils import rmtree
 
-def skill_parts_from_name(path):
-  """Retrieve the skill namespace and repository.
+def extract_repo_data(path):
+  """Retrieve the skill owner and repository.
 
   Args:
     path (str): Relative or absolute path of a git repository
 
+  Returns:
+    (str, str): Respectively, owner and repository extracted
+
   Examples:
-    >>> skill_parts_from_name('atlassistant/weather')
+    >>> extract_repo_data('atlassistant/weather')
     ('atlassistant', 'weather')
 
-    >>> skill_parts_from_name('https://github.com/atlassistant/weather')
+    >>> extract_repo_data('https://github.com/atlassistant/weather')
     ('atlassistant', 'weather')
 
-    >>> skill_parts_from_name('git@github.com:atlassistant/weather.git')
+    >>> extract_repo_data('git@github.com:atlassistant/weather.git')
     ('atlassistant', 'weather')
 
   """
@@ -44,6 +47,25 @@ def skill_parts_from_name(path):
     pass
   
   return (owner, repo)
+
+DISPLAY_NAME_SEPARATOR = '/'
+
+def to_display_name(owner, repo):
+  """Returns the display name for the given owner and repo.
+
+  Args:
+    owner (str): Owner of the repository
+    repo (str): Repository
+
+  Returns:
+    str: Display name
+
+  Examples:
+    >>> to_display_name('atlassistant', 'weather')
+    'atlassistant/weather'
+
+  """
+  return owner + DISPLAY_NAME_SEPARATOR + repo
 
 SKILL_FOLDER_SEPARATOR = '__'
 
@@ -84,33 +106,35 @@ def from_skill_folder(folder):
   parts = folder.split(SKILL_FOLDER_SEPARATOR)
 
   if len(parts) > 1:
-    return f'{parts[0]}/{parts[1]}'
+    return to_display_name(parts[0], parts[1])
 
   return parts[0]
 
-def name_to_skill_folder(name):
+def path_to_skill_folder(path):
   """Convert a skill name to a folder representation for pytlas.
 
   Args:
-    name (str): Name of a skill in absolute or relative url
+    path (str): Path of a skill in absolute or relative url
 
   Returns:
-    str: Folder name on the skill folder
+    str: Folder name in the skill folder
 
   Examples:
-    >>> name_to_skill_folder('atlassistant/weather')
+    >>> path_to_skill_folder('atlassistant/weather')
     'atlassistant__weather'
-    >>> name_to_skill_folder('weather')
+    >>> path_to_skill_folder('https://gitlab.com/atlassistant/weather')
+    'atlassistant__weather'
+    >>> path_to_skill_folder('weather')
     'weather'
-    >>> name_to_skill_folder('atlassistant__weather')
+    >>> path_to_skill_folder('atlassistant__weather')
     'atlassistant__weather'
 
   """
   try:
-    owner, repo = skill_parts_from_name(name)
+    owner, repo = extract_repo_data(path)
     return to_skill_folder(owner, repo)
   except:
-    return name
+    return path
 
 class SkillsManager:
   """The SkillsManager handles skill installation, updates, listing and removal.
@@ -169,8 +193,8 @@ class SkillsManager:
 
     for name in names:
       url = name
-      owner, repo = skill_parts_from_name(name)
-      display_name = f'{owner}/{repo}'
+      owner, repo = extract_repo_data(name)
+      display_name = to_display_name(owner, repo)
       
       if name.startswith(owner): # Relative name, prepend the default git url
         url =  self._default_git_url + name
@@ -213,7 +237,7 @@ class SkillsManager:
     failed = []
 
     for name in to_proceed:
-      folder_name = name_to_skill_folder(name)      
+      folder_name = path_to_skill_folder(name)      
       display_name = from_skill_folder(folder_name)
       self._logger.info(f'Updating "{display_name}"')
       folder = os.path.abspath(os.path.join(self._directory, folder_name))
@@ -250,7 +274,7 @@ class SkillsManager:
     failed = []
 
     for name in names:      
-      folder_name = name_to_skill_folder(name)            
+      folder_name = path_to_skill_folder(name)            
       display_name = from_skill_folder(folder_name)
       folder = os.path.abspath(os.path.join(self._directory, folder_name))
 
