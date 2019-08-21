@@ -78,7 +78,7 @@ def main(config_file, skills_dir, language, repo_url, **kwargs): # pragma: no co
 
   # Sets default settings value if not given in args or config file
   config.set(LANGUAGE, language or config.get(LANGUAGE, 'en'))
-  config.set(SKILLS_DIR, skills_dir or config.get(SKILLS_DIR, 'skills'))
+  config.set(SKILLS_DIR, skills_dir or config.get(SKILLS_DIR, os.getcwd()))
   config.set(REPO_URL, repo_url or config.get(REPO_URL, 'https://github.com/'))
   
   install_logs(config.get(VERBOSE), config.get(DEBUG))
@@ -139,20 +139,20 @@ def add_skills(skills): # pragma: no cover
     click.echo(f'Successfully installed skills: {", ".join(succeeded)}')
 
   if failed:
-    click.echo(f'Failed to install skills, launch with the -v flag to see why: {", ".join(failed)}')
+    click.echo(f'Failed to install skills: {", ".join(failed)}')
 
 @skills.command('update')
 @click.argument('skills', nargs=-1)
 def update_skills_command(skills): # pragma: no cover
   """Update given skills for this instance. If no skills are defined, they will be all updated.
   """
-  succeeded, failed = instantiate_skill_manager().install(*skills)
+  succeeded, failed = instantiate_skill_manager().update(*skills)
 
   if succeeded:
     click.echo(f'Successfully updated skills: {", ".join(succeeded)}')
 
   if failed:
-    click.echo(f'Failed to update skills, launch with the -v flag to see why: {", ".join(failed)}')
+    click.echo(f'Failed to update skills: {", ".join(failed)}')
 
 @skills.command('remove')
 @click.argument('skills', nargs=-1, required=True)
@@ -165,4 +165,4 @@ def remove_skills(skills): # pragma: no cover
     click.echo(f'Successfully uninstalled skills: {", ".join(succeeded)}')
 
   if failed:
-    click.echo(f'Failed to uninstall skills, launch with the -v flag to see why: {", ".join(failed)}')
+    click.echo(f'Failed to uninstall skills: {", ".join(failed)}')
