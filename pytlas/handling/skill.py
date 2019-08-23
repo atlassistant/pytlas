@@ -1,7 +1,9 @@
+# pylint: disable=C0111
+
 from pytlas.settings import DEFAULT_SECTION
 from pytlas.pkgutils import get_caller_package_name
 from pytlas.store import Store
-from pytlas.handling.localization import global_translations
+from pytlas.handling.localization import GLOBAL_TRANSLATIONS
 
 
 class Setting:
@@ -18,7 +20,6 @@ class Setting:
           description (str): Optional description for this setting
 
         """
-
         self.name = name
         self.section = section
         self.description = description
@@ -43,7 +44,6 @@ class Setting:
           'pytlas.weather'
 
         """
-
         try:
             section, name = value.rsplit('.', 1)
         except ValueError:
@@ -55,10 +55,12 @@ class Setting:
         return f'{self.section}.{self.name} ({self.type.__name__})'
 
 
-class Meta:
+class Meta: # pylint: disable=R0902
     """Represents a single skill metadata. It's used primarly for skill listing and
     comprehensive help on how your assistant can help you.
     """
+
+    # pylint: disable=W0102,R0913
 
     def __init__(self, name=None, description='No description provided',
                  version='?.?.?', author='', homepage='', media='', settings=[]):
@@ -74,7 +76,6 @@ class Meta:
           settings (list of str or list of Setting): Settings used by your skill
 
         """
-
         self.name = name
         self.media = media
         self.description = description
@@ -84,6 +85,8 @@ class Meta:
         self.settings = [setting if isinstance(
             setting, Setting) else Setting.from_value(setting) for setting in settings]
         self.package = None  # Represents the module which defines this meta
+
+    # pylint: enable=W0102,R0913
 
     def __eq__(self, value):
         if not isinstance(value, self.__class__):
@@ -117,9 +120,9 @@ class MetasStore(Store):
 
         """
         super().__init__('meta', data or {})
-        self._translations = translations_store or global_translations
+        self._translations = translations_store or GLOBAL_TRANSLATIONS
 
-    def _apply_meta_func(self, package, func, translations):
+    def _apply_meta_func(self, package, func, translations): # pylint: disable=R0201
         result = func(lambda k: translations.get(k, k))
 
         if not isinstance(result, Meta):
@@ -172,18 +175,20 @@ class MetasStore(Store):
         """Register skill package metadata
 
         Args:
-          func (func): Function which will be called with a function to translate strings using the package translations at runtime
-          package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+          func (func): Function which will be called with a function to translate
+            strings using the package translations at runtime
+          package (str): Optional package name (usually __package__), if not given
+            pytlas will try to determine it based on the call stack
 
         """
         package = package or get_caller_package_name()
 
         self._data[package] = func
-        self._logger.info(f'Registered "{package}.{func.__name__}" metadata')
+        self._logger.info('Registered "%s.%s" metadata', package, func.__name__)
 
 
 # Global skill metadata store
-global_metas = MetasStore()
+GLOBAL_METAS = MetasStore()
 
 
 def meta(store=None, package=None):
@@ -191,10 +196,11 @@ def meta(store=None, package=None):
 
     Args:
       store (MetasStore): Store to use for registration, defaults to the global one
-      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+      package (str): Optional package name (usually __package__), if not given
+        pytlas will try to determine it based on the call stack
 
     """
-    s = store or global_metas
+    s = store or GLOBAL_METAS # pylint: disable=C0103
 
     def new(func):
         s.register(func, package or get_caller_package_name()
@@ -217,36 +223,37 @@ class HandlersStore(Store):
         """
         super().__init__('handl', data or {})
 
-    def get(self, intent):
+    def get(self, intent_name):
         """Try to retrieve the handler associated with a particular intent.
 
         Args:
-          intent (str): Intent to search
+          intent_name (str): Intent to search
 
         Returns:
           callable: Handler if found, None otherwise
 
         """
-        return self._data.get(intent)
+        return self._data.get(intent_name)
 
-    def register(self, intent, func, package=None):
+    def register(self, intent_name, func, package=None):
         """Register an intent handler.
 
         Args:
-          intent (str): Name of the intent to handle
+          intent_name (str): Name of the intent to handle
           func (callable): Handler to be called when the intent is triggered
-          package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+          package (str): Optional package name (usually __package__), if not given
+            pytlas will try to determine it based on the call stack
 
         """
         package = package or get_caller_package_name() or func.__module__
 
-        self._data[intent] = func
-        self._logger.info(
-            f'Registered "{package}.{func.__name__}" which should handle "{intent}" intent')
+        self._data[intent_name] = func
+        self._logger.info('Registered "%s.%s" which should handle "%s" intent',
+                          package, func.__name__, intent_name)
 
 
 # Global handlers store
-global_handlers = HandlersStore()
+GLOBAL_HANDLERS = HandlersStore()
 
 
 def intent(intent_name, store=None, package=None):
@@ -254,10 +261,11 @@ def intent(intent_name, store=None, package=None):
 
     Args:
       intent_name (str): Name of the intent to handle
-      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+      package (str): Optional package name (usually __package__), if not given
+        pytlas will try to determine it based on the call stack
 
     """
-    s = store or global_handlers
+    s = store or GLOBAL_HANDLERS # pylint: disable=C0103
 
     def new(func):
         s.register(intent_name, func,

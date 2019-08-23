@@ -4,9 +4,9 @@ import logging
 import uuid
 from transitions import Machine, MachineError
 from pytlas.conversing.request import Request
-from pytlas.handling.localization import global_translations
-from pytlas.handling.skill import global_handlers
-from pytlas.handling.hooks import global_hooks, ON_AGENT_CREATED, ON_AGENT_DESTROYED
+from pytlas.handling.localization import GLOBAL_TRANSLATIONS
+from pytlas.handling.skill import GLOBAL_HANDLERS
+from pytlas.handling.hooks import GLOBAL_HOOKS, ON_AGENT_CREATED, ON_AGENT_DESTROYED
 from pytlas.understanding import Intent
 from pytlas.settings import CONFIG, SettingsStore
 from pytlas.pkgutils import get_package_name_from_module
@@ -117,12 +117,12 @@ class Agent: # pylint: disable=R0902
         self._on_context = None
 
         # Extract stores data
-        self._handlers = handlers_store or global_handlers
+        self._handlers = handlers_store or GLOBAL_HANDLERS
         # Maybe we should evaluate it everytime when creating the request instead
         # of caching translations here :/
         self._translations = (
-            translations_store or global_translations).all(self.lang)
-        self._hooks = hooks_store or global_hooks
+            translations_store or GLOBAL_TRANSLATIONS).all(self.lang)
+        self._hooks = hooks_store or GLOBAL_HOOKS
 
         self._intents_queue = []
         self._request = None

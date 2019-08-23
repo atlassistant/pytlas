@@ -1,7 +1,9 @@
+# pylint: disable=C0111
+
 from pytlas.datautils import strip_format
 
 
-class Card:
+class Card: # pylint: disable=R0902,R0903
 
     """Simple class to hold card properties which the primary way for skill to communicate
     visual data to the end user.
@@ -12,7 +14,7 @@ class Card:
 
     """
 
-    def __init__(self, header, text, subhead=None, header_link=None, media=None):
+    def __init__(self, header, text, subhead=None, header_link=None, media=None): # pylint: disable=R0913
         """Instantiates a new card.
 
         Args:

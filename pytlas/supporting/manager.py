@@ -2,7 +2,7 @@ import logging
 import re
 import os
 import subprocess
-from pytlas.handling.skill import global_metas, global_handlers, Meta
+from pytlas.handling.skill import GLOBAL_METAS, GLOBAL_HANDLERS, Meta
 from pytlas.pkgutils import get_package_name_from_module
 from pytlas.ioutils import rmtree
 
@@ -168,8 +168,8 @@ class SkillsManager:
         self._directory = directory
         self.lang = lang
         self._default_git_url = default_git_url
-        self._metas = metas_store or global_metas
-        self._handlers = handlers_store or global_handlers
+        self._metas = metas_store or GLOBAL_METAS
+        self._handlers = handlers_store or GLOBAL_HANDLERS
 
     def get(self):
         """Retrieve currently loaded skills. That means you should first start to

@@ -1,10 +1,10 @@
 from sure import expect
-from pytlas.handling.localization import translations, TranslationsStore, global_translations
+from pytlas.handling.localization import translations, TranslationsStore, GLOBAL_TRANSLATIONS
 
 class TestLocalization:
 
   def teardown(self):
-    global_translations.reset()
+    GLOBAL_TRANSLATIONS.reset()
 
   def test_it_should_register_translations_correctly(self):
     s = TranslationsStore()
@@ -42,7 +42,7 @@ class TestLocalization:
       'bye': 'au revoir',
     }
 
-    expect(global_translations._data).to.equal({
+    expect(GLOBAL_TRANSLATIONS._data).to.equal({
       'amodule': {
         'fr': some_translations,
       },

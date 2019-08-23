@@ -3,7 +3,7 @@ import sys
 from pytlas.pkgutils import get_root_package_name
 from pytlas.conversing import Agent
 from pytlas.handling import HandlersStore
-from pytlas.handling.skill import global_handlers
+from pytlas.handling.skill import GLOBAL_HANDLERS
 from pytlas.handling.importers import import_or_reload
 from pytlas.understanding.snips import SnipsInterpreter
 from pytlas.testing.mock import AgentModelMock
@@ -40,7 +40,7 @@ def create_skill_agent(skill_folder, lang='en', additional_skills=[]):
     interpreter.fit_from_skill_data(skills_to_load)
 
     # Filter handlers for targeted skill only
-    handlers = HandlersStore({k: v for (k, v) in global_handlers._data.items(
+    handlers = HandlersStore({k: v for (k, v) in GLOBAL_HANDLERS._data.items(
     ) if get_root_package_name(v.__module__) in skills_to_load})
 
     return Agent(interpreter, model=AgentModelMock(), handlers_store=handlers)

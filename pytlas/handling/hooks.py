@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 from pytlas.pkgutils import get_caller_package_name
 from pytlas.store import Store
 
@@ -27,18 +29,20 @@ class HooksStore(Store):
         Args:
           name (str): Name of the hook to register to
           func (callable): Function to call upon hook trigger
-          package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+          package (str): Optional package name (usually __package__), if not given
+            pytlas will try to determine it based on the call stack
 
         """
         pkg = package or get_caller_package_name()
 
         if name not in self._data:
             self._logger.warning(
-                f'"{name}" doesn\'t look like a valid hook name, dismissing')
+                '"%s" doesn\'t look like a valid hook name, dismissing', name)
         else:
             self._data[name].append(func)
             self._logger.info(
-                f'Registered "{pkg}.{func.__name__}" handler for hook "{name}"')
+                'Registered "%s.%s" handler for hook "%s"',
+                pkg, func.__name__, name)
 
     def trigger(self, name, *args, **kwargs):
         """Trigger a hook with given arguments.
@@ -57,7 +61,7 @@ class HooksStore(Store):
 
 
 # Contains global hooks handlers
-global_hooks = HooksStore()
+GLOBAL_HOOKS = HooksStore()
 
 
 def on_agent_created(store=None, package=None):
@@ -65,10 +69,11 @@ def on_agent_created(store=None, package=None):
 
     Args:
       store (HooksStore): Store to use for registration, defaults to the global one
-      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+      package (str): Optional package name (usually __package__), if not given pytlas
+        will try to determine it based on the call stack
 
     """
-    s = store or global_hooks
+    s = store or GLOBAL_HOOKS # pylint: disable=C0103
 
     def new(func):
         s.register(ON_AGENT_CREATED, func,
@@ -83,10 +88,11 @@ def on_agent_destroyed(store=None, package=None):
 
     Args:
       store (HooksStore): Store to use for registration, defaults to the global one
-      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+      package (str): Optional package name (usually __package__), if not given pytlas
+        will try to determine it based on the call stack
 
     """
-    s = store or global_hooks
+    s = store or GLOBAL_HOOKS # pylint: disable=C0103
 
     def new(func):
         s.register(ON_AGENT_DESTROYED, func,

@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 import importlib
 import os
 import logging
@@ -7,13 +9,13 @@ from types import ModuleType
 
 
 def _reload(module):
-    """Recursively reloads a module. It only works for simple scenario but it may be suitable for pytlas ;).
+    """Recursively reloads a module. It only works for simple scenario but it may
+    be suitable for pytlas ;)
 
     Args:
       module (ModuleType): Module to reload
 
     """
-
     importlib.reload(module)
 
     for attr_name in dir(module):
@@ -30,23 +32,22 @@ def import_or_reload(module_name):
       module_name (str): Module name
 
     """
-
     module = sys.modules.get(module_name)
 
     if module:
-        logging.info('Reloading module "%s"' % module_name)
+        logging.info('Reloading module "%s"', module_name)
 
         try:
             _reload(module)
-        except:
-            logging.warning('Reloading failed for "%s"' % module_name)
+        except: # pylint: disable=W0702
+            logging.warning('Reloading failed for "%s"', module_name)
     else:
-        logging.info('Importing module "%s"' % module_name)
+        logging.info('Importing module "%s"', module_name)
 
         try:
             importlib.import_module(module_name)
         except ImportError:
-            logging.error('Could not import module "%s"' % module_name)
+            logging.error('Could not import module "%s"', module_name)
 
 
 def _watch(directory):  # pragma: no cover
@@ -57,7 +58,7 @@ def _watch(directory):  # pragma: no cover
             'Could not watch for file changes, is "watchgod" installed?')
         return
 
-    logging.info('Watching for file changes in "%s"' % directory)
+    logging.info('Watching for file changes in "%s"', directory)
 
     for changes in watch(directory):
         for change in changes:
@@ -65,8 +66,8 @@ def _watch(directory):  # pragma: no cover
             module_name = os.path.split(
                 os.path.relpath(file_path, directory))[0]
 
-            logging.debug('Changes in file "%s" cause "%s" module (re)load' % (
-                file_path, module_name))
+            logging.debug('Changes in file "%s" cause "%s" module (re)load',
+                          file_path, module_name)
 
             import_or_reload(module_name)
 
@@ -76,19 +77,19 @@ def import_skills(directory, auto_reload=False):
 
     Args:
       directory (str): Directory in which skills are contained
-      auto_reload (bool): Sets to True if you want to watch for file changes, it should be used only for development purposes
+      auto_reload (bool): Sets to True if you want to watch for file changes, it
+        should be used only for development purposes
 
     """
-
-    logging.info('Importing skills from "%s"' % directory)
+    logging.info('Importing skills from "%s"', directory)
 
     if not os.path.isdir(directory):
-        return logging.info('Directory "%s" does not exist, no skills will be loaded 🤔' % directory)
+        logging.info('Directory "%s" does not exist, no skills will be loaded 🤔', directory)
+    else:
+        sys.path.append(directory)
 
-    sys.path.append(directory)
+        for skill_folder in os.listdir(directory):
+            import_or_reload(skill_folder)
 
-    for skill_folder in os.listdir(directory):
-        import_or_reload(skill_folder)
-
-    if auto_reload:
-        threading.Thread(target=_watch, args=(directory,), daemon=True).start()
+        if auto_reload:
+            threading.Thread(target=_watch, args=(directory,), daemon=True).start()

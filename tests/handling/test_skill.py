@@ -1,6 +1,6 @@
 from sure import expect
 from pytlas.handling.localization import TranslationsStore
-from pytlas.handling.skill import intent, meta, global_handlers, global_metas, \
+from pytlas.handling.skill import intent, meta, GLOBAL_HANDLERS, GLOBAL_METAS, \
   HandlersStore, MetasStore, Meta, Setting
 
 class TestMeta:
@@ -70,7 +70,7 @@ class TestMeta:
 class TestHandlers:
 
   def teardown(self):
-    global_handlers.reset()
+    GLOBAL_HANDLERS.reset()
 
   def test_it_should_register_handlers_correctly(self):
     s = HandlersStore()
@@ -100,7 +100,7 @@ class TestHandlers:
     def another_handler(r):
       return r.agent.done()
 
-    expect(global_handlers._data).to.equal({
+    expect(GLOBAL_HANDLERS._data).to.equal({
       'another_intent': another_handler,
     })
   
@@ -121,7 +121,7 @@ class TestHandlers:
 class TestMetas:
 
   def teardown(self):
-    global_metas.reset()
+    GLOBAL_METAS.reset()
 
   def test_it_should_register_metas_correctly(self):
     s = MetasStore()
@@ -151,7 +151,7 @@ class TestMetas:
     def meta_handler():
       pass
 
-    expect(global_metas._data).to.equal({
+    expect(GLOBAL_METAS._data).to.equal({
       'amodule': meta_handler,
     })
 
