@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 import os
 import sys
 from pytlas.pkgutils import get_root_package_name
@@ -9,7 +11,7 @@ from pytlas.understanding.snips import SnipsInterpreter
 from pytlas.testing.mock import AgentModelMock
 
 
-def create_skill_agent(skill_folder, lang='en', additional_skills=[]):
+def create_skill_agent(skill_folder, lang='en', additional_skills=[]):  # pylint: disable=W0102
     """Create an agent specifically targeted at the specified skill folder. It makes
     it easy to write skill tests using a specific mock object as the Agent model.
 
@@ -40,7 +42,8 @@ def create_skill_agent(skill_folder, lang='en', additional_skills=[]):
     interpreter.fit_from_skill_data(skills_to_load)
 
     # Filter handlers for targeted skill only
-    handlers = HandlersStore({k: v for (k, v) in GLOBAL_HANDLERS._data.items(
+    handlers_data = GLOBAL_HANDLERS._data  # pylint: disable=W0212
+    handlers = HandlersStore({k: v for (k, v) in handlers_data.items(
     ) if get_root_package_name(v.__module__) in skills_to_load})
 
     return Agent(interpreter, model=AgentModelMock(), handlers_store=handlers)

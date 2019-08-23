@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 from unittest.mock import MagicMock
 from pytlas.testing.attrdict import AttrDict
 
@@ -6,6 +8,10 @@ class ModelMock(MagicMock):
     """Represents a particular mocking object used to make assertions easier on the
     agent model.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._args_map = []
 
     def has_arguments_mapping(self, mapping):
         """Adds arguments names to this instance to be able to test against them. Maybe
@@ -35,26 +41,26 @@ class ModelMock(MagicMock):
 
         """
         try:
-            c = self.call_args_list[number][0]
+            call_args = self.call_args_list[number][0]
         except IndexError:
             raise AssertionError(
                 'Mock has been called less than %d times!' % number)
 
-        r = AttrDict()
+        result = AttrDict()
 
-        for (i, arg) in enumerate(c):
+        for (i, arg) in enumerate(call_args):
             try:
-                r[self._args_map[i]] = arg
+                result[self._args_map[i]] = arg
             except IndexError:
                 pass
 
-        for (k, v) in self.call_args_list[number][1].items():
-            r[k] = v
+        for (k, v) in self.call_args_list[number][1].items(): # pylint: disable=C0103
+            result[k] = v
 
-        return r
+        return result
 
 
-class AgentModelMock:
+class AgentModelMock: # pylint: disable=R0903
     """Represents an agent model targeted at testing skills easily.
     """
 

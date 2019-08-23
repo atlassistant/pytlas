@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 class AttrDict(dict):
     """Simple object to access dict keys like attributes.
     """

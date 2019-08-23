@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 import logging
 import re
 import os
@@ -30,7 +32,7 @@ def extract_repo_data(path):
     # Here we need to handle absolute url such as git@<a host> or https://<an url>
     matches = [(m.start(), m.end()) for m in re.finditer(':|/', path)]
 
-    if len(matches) == 0:
+    if not matches:
         raise Exception('Could not determine owner and repo names')
 
     last_slash_idx = matches[-1][0]
@@ -47,7 +49,7 @@ def extract_repo_data(path):
     try:
         ext_idx = repo.index('.')
         repo = repo[:ext_idx]
-    except:
+    except:  # pylint: disable=W0702
         pass
 
     return (owner, repo)
@@ -143,7 +145,7 @@ def path_to_skill_folder(path):
     try:
         owner, repo = extract_repo_data(path)
         return to_skill_folder(owner, repo)
-    except:
+    except:  # pylint: disable=W0702
         return path
 
 
@@ -151,6 +153,8 @@ class SkillsManager:
     """The SkillsManager handles skill installation, updates, listing and removal.
     It can be used with the built-in CLI or used as a library.
     """
+
+    # pylint: disable=R0913
 
     def __init__(self, directory, lang='en', default_git_url='https://github.com/',
                  handlers_store=None, metas_store=None):
@@ -171,6 +175,8 @@ class SkillsManager:
         self._metas = metas_store or GLOBAL_METAS
         self._handlers = handlers_store or GLOBAL_HANDLERS
 
+    # pylint: enable=R0913
+
     def get(self):
         """Retrieve currently loaded skills. That means you should first start to
         imports them by using the `pytlas.handling.importers` namespace.
@@ -180,9 +186,9 @@ class SkillsManager:
 
         """
         unique_pkgs = list(set(get_package_name_from_module(
-            v.__module__) for v in self._handlers._data.values()))
+            v.__module__) for v in self._handlers._data.values()))  # pylint: disable=W0212
         self._logger.info(
-            f'Retrieving meta for "{len(unique_pkgs)}" unique packages')
+            'Retrieving meta for "%d" unique packages', len(unique_pkgs))
         skills_meta = []
 
         for pkg in unique_pkgs:
@@ -213,31 +219,32 @@ class SkillsManager:
             if name.startswith(owner):  # Relative name, prepend the default git url
                 url = self._default_git_url + name
 
-            self._logger.info(f'Processing "{display_name}" from "{url}"')
+            self._logger.info('Processing "%s" from "%s"', display_name, url)
             dest = os.path.abspath(os.path.join(
                 self._directory, to_skill_folder(owner, repo)))
 
             if os.path.isdir(dest):
                 self._logger.info(
-                    f'Skill "{repo}" already exists, let\'s try an update')
-                s, f = self.update(name)
-                succeeded.extend(s)
-                failed.extend(f)
+                    'Skill "%s" already exists, let\'s try an update', repo)
+                succ, fail = self.update(name)
+                succeeded.extend(succ)
+                failed.extend(fail)
             else:
                 try:
                     self._logger.info(
-                        f'Starting to clone "{url}" inside "{dest}"')
+                        'Starting to clone "%s" inside "%s"', url, dest)
                     subprocess.check_output(
                         ['git', 'clone', url, dest], stderr=subprocess.STDOUT)
 
                     self._install_dependencies(dest)
 
                     succeeded.append(display_name)
-                    logging.info(f'Successfully installed "{repo}"')
-                except subprocess.CalledProcessError as e:
+                    logging.info('Successfully installed "%s"', repo)
+                except subprocess.CalledProcessError as err:
                     failed.append(display_name)
                     self._logger.error(
-                        f'Could not clone the skill repo, make sure you didn\'t mispelled it and you have sufficient rights to clone it. "{e}"')
+                        'Could not clone the skill repo, make sure you didn\'t mispelled it and '
+                        'you have sufficient rights to clone it. "%s"', err)
 
         return (succeeded, failed)
 
@@ -258,27 +265,29 @@ class SkillsManager:
         for name in to_proceed:
             folder_name = path_to_skill_folder(name)
             display_name = from_skill_folder(folder_name)
-            self._logger.info(f'Updating "{display_name}"')
+            self._logger.info('Updating "%s"', display_name)
             folder = os.path.abspath(
                 os.path.join(self._directory, folder_name))
 
             if not os.path.isdir(os.path.join(folder, '.git')):
                 failed.append(display_name)
                 self._logger.warning(
-                    f'Not a git repository "{folder}", skipping')
+                    'Not a git repository "%s", skipping', folder)
             else:
                 try:
-                    self._logger.info(f'Pulling updates for "{display_name}"')
+                    self._logger.info('Pulling updates for "%s"', display_name)
                     subprocess.check_output(
                         ['git', 'pull'], cwd=folder, stderr=subprocess.STDOUT)
 
                     self._install_dependencies(folder)
 
                     succeeded.append(display_name)
-                    self._logger.info(f'Successfully updated "{display_name}"')
-                except subprocess.CalledProcessError as e:
+                    self._logger.info(
+                        'Successfully updated "%s"', display_name)
+                except subprocess.CalledProcessError as err:
                     failed.append(display_name)
-                    self._logger.error(f'Could not pull in "{folder}": "{e}"')
+                    self._logger.error(
+                        'Could not pull in "%s": "%s"', folder, err)
 
         return (succeeded, failed)
 
@@ -304,17 +313,19 @@ class SkillsManager:
             if not os.path.isdir(folder):
                 failed.append(display_name)
                 self._logger.warning(
-                    f'Skill "{display_name}" does not seems to be installed in "{folder}", skipping')
+                    'Skill "%s" does not seems to be installed in "%s", skipping',
+                    display_name, folder)
             else:
-                self._logger.info(f'Removing "{folder}"')
+                self._logger.info('Removing "%s"', folder)
                 try:
                     rmtree(folder)
                     succeeded.append(display_name)
                     self._logger.info(
-                        f'Successfully uninstalled {display_name}')
-                except Exception as e:
+                        'Successfully uninstalled "%s"', display_name)
+                except Exception as err:  # pylint: disable=W0703
                     failed.append(display_name)
-                    self._logger.error(f'Could not delete "{folder}": "{e}"')
+                    self._logger.error(
+                        'Could not delete "%s": "%s"', folder, err)
 
         return (succeeded, failed)
 
@@ -323,9 +334,9 @@ class SkillsManager:
 
         if os.path.isfile(requirements_path):
             self._logger.info(
-                f'Installing dependencies from "{requirements_path}"')
+                'Installing dependencies from "%s"', requirements_path)
             subprocess.check_output(['pip', 'install', '-r', 'requirements.txt'],
                                     stderr=subprocess.STDOUT, cwd=directory)
         else:
             self._logger.info(
-                f'No requirements.txt available inside "{directory}", skipping')
+                'No requirements.txt available inside "%s", skipping', directory)
