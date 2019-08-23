@@ -149,8 +149,6 @@ class SettingsStore(Store):
                               os.environ.get(env_key,
                                              self.config.get(section, setting, fallback=default)))
 
-    # pylint: disable=W0212
-
     def getbool(self, setting, default=False, section=DEFAULT_SECTION):
         """Gets a boolean value for a setting. It uses the `get` under the hood so the same
         rules applies.
@@ -166,9 +164,7 @@ class SettingsStore(Store):
         """
         val = self.get(setting, section=section)
 
-        return self.config._convert_to_boolean(val) if val else default
-
-    # pylint: enable=W0212
+        return self.config._convert_to_boolean(val) if val else default # pylint: disable=W0212
 
     def getint(self, setting, default=0, section=DEFAULT_SECTION):
         """Gets a int value for a setting. It uses the `get` under the hood so the same
@@ -204,9 +200,7 @@ class SettingsStore(Store):
 
         return float(val) if val else default
 
-    # pylint: disable=W0102
-
-    def getlist(self, setting, default=[], section=DEFAULT_SECTION):
+    def getlist(self, setting, default=[], section=DEFAULT_SECTION): # pylint: disable=W0102
         """Gets a list for a setting. It will split values separated by a comma.
 
         It uses the `get` under the hood so the same rules applies.
@@ -223,8 +217,6 @@ class SettingsStore(Store):
         val = self.get(setting, section=section)
 
         return val.split(',') if val else default
-
-    # pylint: enable=W0102
 
     def getpath(self, setting, default=None, section=DEFAULT_SECTION):
         """Gets an absolute path for a setting.
@@ -249,8 +241,6 @@ class SettingsStore(Store):
 CONFIG = SettingsStore()
 
 
-# pylint: disable=C0103
-
 def write_to_store(section=DEFAULT_SECTION, store=None):
     """Simple decorator used to write each argument value to the current settings store
     if they're set.
@@ -261,13 +251,13 @@ def write_to_store(section=DEFAULT_SECTION, store=None):
 
     """
 
-    s = store or CONFIG
+    s = store or CONFIG # pylint: disable=C0103
 
-    def new(f):
+    def new(f): # pylint: disable=C0103
         @wraps(f)
         def func(**kwargs):
             # For each argument, update the SettingsStore object if value is set
-            for (k, v) in kwargs.items():
+            for (k, v) in kwargs.items(): # pylint: disable=C0103
                 if v:
                     s.set(k, v, section)
 
@@ -276,5 +266,3 @@ def write_to_store(section=DEFAULT_SECTION, store=None):
         return func
 
     return new
-
-# pylint: enable=C0103

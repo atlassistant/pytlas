@@ -5,8 +5,6 @@ import os
 from shutil import rmtree as shrmtree
 
 
-# pylint: disable=W0703
-
 def read_file(path, ignore_errors=False, relative_to_file=None):
     """Read the file content as utf-8 at the specified path.
 
@@ -26,17 +24,14 @@ def read_file(path, ignore_errors=False, relative_to_file=None):
     try:
         with open(path, encoding='utf-8') as file:
             return file.read()
-    except Exception as err:
+    except Exception as err: # pylint: disable=W0703
         if not ignore_errors:
             raise err
 
         return None
 
-# pylint: enable=W0703
-# pylint: disable=W0613,E0704
 
-
-def _onerror(func, path, exc_info):  # pragma: no cover
+def _onerror(func, path, exc_info):  # pragma: no cover pylint: disable=W0613
     """Error handler for ``shutil.rmtree``.
 
     If the error is due to an access error (read only file)
@@ -52,9 +47,7 @@ def _onerror(func, path, exc_info):  # pragma: no cover
         os.chmod(path, stat.S_IWUSR)
         func(path)
     else:
-        raise
-
-# pylint: enable=W0613,E0704
+        raise # pylint: disable=E0704
 
 
 def rmtree(path, ignore_errors=False):

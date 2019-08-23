@@ -1,10 +1,10 @@
-# pylint: disable=C0111,R0903
+# pylint: disable=C0111
 
 import logging
 from copy import deepcopy
 
 
-class Store:
+class Store: # pylint: disable=R0903
     """Basic class to store configuration data for this library. Data will be
     stores in the `_data` property but chidren should implements getter/setter tied
     to their domain.
