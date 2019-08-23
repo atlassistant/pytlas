@@ -1,41 +1,48 @@
+# pylint: disable=C0111,R0201,W0613,W0212
+
+import cmd
+import sys
 from pytlas.version import __version__
-import cmd, sys
 
-class Prompt(cmd.Cmd): # pragma: no cover
-  intro = 'pytlas prompt v%s (type exit to leave)' % __version__
-  prompt = '> '
 
-  def __init__(self, agent, parse_message=None):
-    super(Prompt, self).__init__()
+class Prompt(cmd.Cmd):  # pragma: no cover
+    """Tiny REPL to interact with a pytlas agent.
+    """
 
-    self._agent = agent
-    self._agent.model = self
-    self._exit_on_done = False
+    intro = 'pytlas prompt v%s (type exit to leave)' % __version__
+    prompt = '> '
 
-    if parse_message:
-      self._exit_on_done = True
-      self._agent.parse(parse_message)
-  
-  def on_done(self, require_input):
-    if self._exit_on_done and not self._agent._request:
-      sys.exit()
+    def __init__(self, agent, parse_message=None):
+        super(Prompt, self).__init__()
 
-  def on_ask(self, slot, text, choices, **meta):
-    print (text)
+        self._agent = agent
+        self._agent.model = self
+        self._exit_on_done = False
 
-    if choices:
-      for choice in choices:
-        print ('\t-' + choice)
+        if parse_message:
+            self._exit_on_done = True
+            self._agent.parse(parse_message)
 
-  def on_answer(self, text, cards, **meta):
-    print (text)
+    def on_done(self, require_input):
+        if self._exit_on_done and not self._agent._request:
+            sys.exit()
 
-    if cards:
-      for card in cards:
-        print (card)
+    def on_ask(self, slot, text, choices, **meta):
+        print(text)
 
-  def do_exit(self, msg):
-    return True
+        if choices:
+            for choice in choices:
+                print('\t-' + choice)
 
-  def default(self, msg):
-    self._agent.parse(msg)
+    def on_answer(self, text, cards, **meta):
+        print(text)
+
+        if cards:
+            for card in cards:
+                print(card)
+
+    def do_exit(self, msg):
+        return True
+
+    def default(self, line):
+        self._agent.parse(line)

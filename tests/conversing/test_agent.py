@@ -5,7 +5,7 @@ from pytlas.conversing import Agent
 from pytlas.conversing.agent import STATE_ASK, STATE_CANCEL, STATE_ASLEEP, STATE_FALLBACK
 from pytlas.understanding import Interpreter, Intent, SlotValue
 from pytlas.handling import Card, HandlersStore, TranslationsStore
-from pytlas.settings import config
+from pytlas.settings import CONFIG
 from pytlas.handling.hooks import HooksStore, ON_AGENT_CREATED
 
 last_request = None
@@ -134,7 +134,7 @@ class TestAgent:
     self.agent = Agent(self.interpreter, model=self, handlers_store=self.handlers, **self.meta)
 
   def test_it_should_provide_settings(self):
-    expect(self.agent.settings.config).to.equal(config.config)
+    expect(self.agent.settings.config).to.equal(CONFIG.config)
     expect(self.agent.settings.get('key', section='agent')).to.equal('an agent value')
 
     self.agent.settings.set('another agent key', 'agent value', section='agent')

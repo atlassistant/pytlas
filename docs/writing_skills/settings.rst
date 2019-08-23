@@ -5,7 +5,7 @@ Settings
 
 Settings provides a facility to enable developers to retrieve settings value.
 
-The `pytlas.settings` module exposes a `SettingsStore` class and a global instance of this class in its `config` property.
+The `pytlas.settings` module exposes a `SettingsStore` class and a global instance of this class in its `CONFIG` property.
 
 The `SettingsStore` read settings from 3 sources:
 
@@ -22,26 +22,26 @@ The store also provides a wide range of methods to retrieve configuration values
 .. code-block:: python
 
   from pytlas import intent
-  from pytlas.settings import config
+  from pytlas.settings import CONFIG
 
   # Load a setting file
-  config.load_from_file('file/path/pytlas.conf')
+  CONFIG.load_from_file('file/path/pytlas.conf')
 
   # Get a string
-  config.get('openweather_key', 'a default value', section='pytlas.weather')
+  CONFIG.get('openweather_key', 'a default value', section='pytlas.weather')
 
   # If you have exported the env PYTLAS_WEATHER_OPENWEATHER_KEY=apikey, then this
   # function will returns "apikey"
 
   # Arguments are the same for other helpers
-  # config.getint
-  # config.getfloat
-  # config.getlist
-  # config.getbool
-  # config.getpath
+  # CONFIG.getint
+  # CONFIG.getfloat
+  # CONFIG.getlist
+  # CONFIG.getbool
+  # CONFIG.getpath
 
   # You can also programatically set a setting
-  config.set('a key', 'your value', section='pytlas.weather')
+  CONFIG.set('a key', 'your value', section='pytlas.weather')
 
   @intent('my_intent')
   def my_handler(r):

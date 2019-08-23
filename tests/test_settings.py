@@ -1,5 +1,5 @@
 from sure import expect
-from pytlas.settings import SettingsStore, write_to_store, config
+from pytlas.settings import SettingsStore, write_to_store, CONFIG
 from configparser import ConfigParser
 import os
 
@@ -145,7 +145,7 @@ class TestSettingsStore:
 class TestWriteToStore:
 
   def teardown(self):
-    config.reset()
+    CONFIG.reset()
 
   def test_it_should_write_args_to_global_store(self):
     @write_to_store()
@@ -153,12 +153,12 @@ class TestWriteToStore:
       expect(one).to.equal('one value')
       expect(two).to.equal('two value')
 
-    expect(config.get('one')).to.be.none
+    expect(CONFIG.get('one')).to.be.none
 
     a_method(one='one value', two='two value')
 
-    expect(config.get('one')).to.equal('one value')
-    expect(config.get('two')).to.equal('two value')
+    expect(CONFIG.get('one')).to.equal('one value')
+    expect(CONFIG.get('two')).to.equal('two value')
 
   def test_it_should_write_args_to_given_store(self):
     s = SettingsStore()
@@ -172,7 +172,7 @@ class TestWriteToStore:
     a_method(three='three value')
 
     expect(s.get('three')).to.equal('three value')
-    expect(config.get('three')).to.be.none
+    expect(CONFIG.get('three')).to.be.none
 
   def test_it_should_write_args_to_given_section(self):
     s = SettingsStore()

@@ -2,7 +2,7 @@ import os
 from sure import expect
 from unittest.mock import patch, mock_open
 from pytlas.datautils import find_match, keep_one, should_load_resources, strip_format
-from pytlas.settings import config, SETTING_ALLOWED_LANGUAGES
+from pytlas.settings import CONFIG, SETTING_ALLOWED_LANGUAGES
 
 class TestFindMatch:
 
@@ -38,14 +38,14 @@ class TestShouldLoadResources:
 
   def teardown(self):
     # Restore the global loading settings
-    config.set(SETTING_ALLOWED_LANGUAGES, [])
+    CONFIG.set(SETTING_ALLOWED_LANGUAGES, [])
 
   def test_it_should_allow_load_resources_when_empty(self):
-    config.set(SETTING_ALLOWED_LANGUAGES, [])
+    CONFIG.set(SETTING_ALLOWED_LANGUAGES, [])
     expect(should_load_resources('fr')).to.be.true
 
   def test_it_should_allow_load_resources(self):
-    config.set(SETTING_ALLOWED_LANGUAGES, ['en', 'it'])
+    CONFIG.set(SETTING_ALLOWED_LANGUAGES, ['en', 'it'])
 
     expect(should_load_resources('en')).to.be.true
     expect(should_load_resources('it')).to.be.true
