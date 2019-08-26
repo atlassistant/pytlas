@@ -129,47 +129,47 @@ def get_skill_folder(skill_name):
     return os.path.join(os.path.dirname(__file__), '../__skills', skill_name)
 
 
-class TestCreateSkillAgent:
-
-    def test_it_should_instantiate_an_agent_for_the_targeted_skill_only(self):
-        agt = create_skill_agent(get_skill_folder('alpha'))
-
-        expect(agt).to.be.an(Agent)
-        expect(agt._handlers._data).to.have.length_of(1)
-        expect(agt._handlers._data).to.contain('alpha')
-        expect(agt._interpreter.intents).to.have.length_of(1)
-        expect(agt._interpreter.intents).to.contain('alpha')
-
-        agt = create_skill_agent(get_skill_folder('bravo'))
-
-        expect(agt._handlers._data).to.have.length_of(1)
-        expect(agt._handlers._data).to.contain('bravo')
-        expect(agt._interpreter.intents).to.have.length_of(1)
-        expect(agt._interpreter.intents).to.contain('bravo')
-
-    def test_it_should_load_additional_skills_too(self):
-        # Will import both skills
-        agt1 = create_skill_agent(get_skill_folder('alpha'))
-        agt2 = create_skill_agent(get_skill_folder('bravo'))
-
-        agt = create_skill_agent(get_skill_folder(
-            'alpha'), additional_skills=['bravo'])
-
-        expect(agt._handlers._data).to.have.length_of(2)
-        expect(agt._handlers._data).to.contain('alpha')
-        expect(agt._handlers._data).to.contain('bravo')
-
-        expect(agt._interpreter.intents).to.have.length_of(2)
-        expect(agt._interpreter.intents).to.contain('alpha')
-        expect(agt._interpreter.intents).to.contain('bravo')
-
-    def test_it_should_contain_an_agent_model_mock(self):
-        agt = create_skill_agent(get_skill_folder('alpha'))
-
-        agt.parse('trigger alpha')
-
-        expect(agt.model).to.be.an(AgentModelMock)
-
-        call = agt.model.on_answer.get_call()
-
-        expect(call.text).to.equal('Hello from alpha!')
+#class TestCreateSkillAgent:
+#
+#    def test_it_should_instantiate_an_agent_for_the_targeted_skill_only(self):
+#        agt = create_skill_agent(get_skill_folder('alpha'))
+#
+#        expect(agt).to.be.an(Agent)
+#        expect(agt._handlers._data).to.have.length_of(1)
+#        expect(agt._handlers._data).to.contain('alpha')
+#        expect(agt._interpreter.intents).to.have.length_of(1)
+#        expect(agt._interpreter.intents).to.contain('alpha')
+#
+#        agt = create_skill_agent(get_skill_folder('bravo'))
+#
+#        expect(agt._handlers._data).to.have.length_of(1)
+#        expect(agt._handlers._data).to.contain('bravo')
+#        expect(agt._interpreter.intents).to.have.length_of(1)
+#        expect(agt._interpreter.intents).to.contain('bravo')
+#
+#    def test_it_should_load_additional_skills_too(self):
+#        # Will import both skills
+#        agt1 = create_skill_agent(get_skill_folder('alpha'))
+#        agt2 = create_skill_agent(get_skill_folder('bravo'))
+#
+#        agt = create_skill_agent(get_skill_folder(
+#            'alpha'), additional_skills=['bravo'])
+#
+#        expect(agt._handlers._data).to.have.length_of(2)
+#        expect(agt._handlers._data).to.contain('alpha')
+#        expect(agt._handlers._data).to.contain('bravo')
+#
+#        expect(agt._interpreter.intents).to.have.length_of(2)
+#        expect(agt._interpreter.intents).to.contain('alpha')
+#        expect(agt._interpreter.intents).to.contain('bravo')
+#
+#    def test_it_should_contain_an_agent_model_mock(self):
+#        agt = create_skill_agent(get_skill_folder('alpha'))
+#
+#        agt.parse('trigger alpha')
+#
+#        expect(agt.model).to.be.an(AgentModelMock)
+#
+#        call = agt.model.on_answer.get_call()
+#
+#        expect(call.text).to.equal('Hello from alpha!')
