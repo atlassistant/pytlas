@@ -7,7 +7,7 @@ install:
   - pip install -e ."[snips,test]"
   - snips-nlu download en
 script:
-  - pylint setup.py pytlas --disable=duplicate-code
+  - pylint setup.py pytlas
   - python -m nose --with-doctest --with-xcoverage --cover-package=pytlas
 after_success:
   - codecov
