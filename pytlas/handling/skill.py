@@ -1,254 +1,275 @@
+# pylint: disable=C0111
+
 from pytlas.settings import DEFAULT_SECTION
 from pytlas.pkgutils import get_caller_package_name
 from pytlas.store import Store
-from pytlas.handling.localization import global_translations
+from pytlas.handling.localization import GLOBAL_TRANSLATIONS
+
 
 class Setting:
-  """Represents a skill settings.
-  """
-
-  def __init__(self, section, name, data_type=str, description='No description provided'):
-    """Instantiate a new setting.
-
-    Args:
-      section (str): Section in which this setting belongs
-      name (str): Name of the settings
-      data_type (type): Data type of the settings
-      description (str): Optional description for this setting
-
+    """Represents a skill settings.
     """
 
-    self.name = name
-    self.section = section
-    self.description = description
-    self.type = data_type
+    def __init__(self, section, name, data_type=str, description='No description provided'):
+        """Instantiate a new setting.
 
-  @classmethod
-  def from_value(cls, value):
-    """Instantiate a setting from a string representation in the form section.name
+        Args:
+          section (str): Section in which this setting belongs
+          name (str): Name of the settings
+          data_type (type): Data type of the settings
+          description (str): Optional description for this setting
 
-    Args:
-      value (str): String which represents the setting
+        """
+        self.name = name
+        self.section = section
+        self.description = description
+        self.type = data_type
 
-    Returns:
-      Setting: Setting instance
+    @classmethod
+    def from_value(cls, value):
+        """Instantiate a setting from a string representation in the form section.name
 
-    Examples:
-      >>> str(Setting.from_value('openweather.api_key'))
-      'openweather.api_key (str)'
-      >>> str(Setting.from_value('language'))
-      'pytlas.language (str)'
-      >>> Setting.from_value('pytlas.weather.api_key').section
-      'pytlas.weather'
+        Args:
+          value (str): String which represents the setting
 
+        Returns:
+          Setting: Setting instance
+
+        Examples:
+          >>> str(Setting.from_value('openweather.api_key'))
+          'openweather.api_key (str)'
+          >>> str(Setting.from_value('language'))
+          'pytlas.language (str)'
+          >>> Setting.from_value('pytlas.weather.api_key').section
+          'pytlas.weather'
+
+        """
+        try:
+            section, name = value.rsplit('.', 1)
+        except ValueError:
+            section, name = DEFAULT_SECTION, value
+
+        return Setting(section, name)
+
+    def __str__(self):
+        return f'{self.section}.{self.name} ({self.type.__name__})'
+
+
+class Meta: # pylint: disable=R0902
+    """Represents a single skill metadata. It's used primarly for skill listing and
+    comprehensive help on how your assistant can help you.
     """
 
-    try:
-      section, name = value.rsplit('.', 1)
-    except ValueError:
-      section, name = DEFAULT_SECTION, value
+    # pylint: disable=W0102,R0913
 
-    return Setting(section, name)
+    def __init__(self, name=None, description='No description provided',
+                 version='?.?.?', author='', homepage='', media='', settings=[]):
+        """Instantiate a new Metadata instance for a skill.
 
-  def __str__(self):
-    return f'{self.section}.{self.name} ({self.type.__name__})'
+        Args:
+          name (str): Name of the skill
+          description (str): Description of what your skill is doing
+          version (str): Version of the skill
+          author (str): Author of the skill
+          homepage (str): URL of the skill to submit issues or enhancements
+          media (str): Logo representing your skill
+          settings (list of str or list of Setting): Settings used by your skill
 
-class Meta:
-  """Represents a single skill metadata. It's used primarly for skill listing and
-  comprehensive help on how your assistant can help you.
-  """
+        """
+        self.name = name
+        self.media = media
+        self.description = description
+        self.version = version
+        self.author = author
+        self.homepage = homepage
+        self.settings = [setting if isinstance(
+            setting, Setting) else Setting.from_value(setting) for setting in settings]
+        self.package = None  # Represents the module which defines this meta
 
-  def __init__(self, name=None, description='No description provided',
-    version='?.?.?', author='', homepage='', media='', settings=[]):
-    """Instantiate a new Metadata instance for a skill.
+    # pylint: enable=W0102,R0913
 
-    Args:
-      name (str): Name of the skill
-      description (str): Description of what your skill is doing
-      version (str): Version of the skill
-      author (str): Author of the skill
-      homepage (str): URL of the skill to submit issues or enhancements
-      media (str): Logo representing your skill
-      settings (list of str or list of Setting): Settings used by your skill
+    def __eq__(self, value):
+        if not isinstance(value, self.__class__):
+            return False
+        return self.name == value.name and self.media == value.media \
+            and self.description == value.description and self.version == value.version \
+            and self.author == value.author and self.homepage == value.homepage
 
-    """
+    def __str__(self):
+        data = self.__dict__.copy()
+        data['settings'] = ', '.join([str(s) for s in data['settings']])
 
-    self.name = name
-    self.media = media
-    self.description = description
-    self.version = version
-    self.author = author
-    self.homepage = homepage
-    self.settings = [setting if isinstance(setting, Setting) else Setting.from_value(setting) for setting in settings]
-    self.package = None # Represents the module which defines this meta
-
-  def __eq__(self, value):
-    if not isinstance(value, self.__class__):
-      return False
-    return self.name == value.name and self.media == value.media \
-      and self.description == value.description and self.version == value.version \
-        and self.author == value.author and self.homepage == value.homepage
-
-  def __str__(self):
-    data = self.__dict__.copy()
-    data['settings'] = ', '.join([ str(s) for s in data['settings'] ])
-
-    return """{name} - v{version}
+        return """{name} - v{version}
   description: {description}
   homepage: {homepage}
   author: {author}
   settings: {settings}
 """.format(**data)
 
+
 class MetasStore(Store):
-  """Hold skill metadatas.
-  """
-
-  def __init__(self, translations_store=None, data=None):
-    """Instantiates a new store.
-
-    Args:
-      translations_store (TranslationsStore): Optional translations store to use
-      data (dict): Optional initial data to use
-
+    """Hold skill metadatas.
     """
-    super().__init__('meta', data or {})
-    self._translations = translations_store or global_translations
 
-  def _apply_meta_func(self, package, func, translations):
-    result = func(lambda k: translations.get(k, k))
+    def __init__(self, translations_store=None, data=None):
+        """Instantiates a new store.
 
-    if not isinstance(result, Meta):
-      result = Meta(**result)
+        Args:
+          translations_store (TranslationsStore): Optional translations store to use
+          data (dict): Optional initial data to use
 
-    result.package = package
+        """
+        super().__init__('meta', data or {})
+        self._translations = translations_store or GLOBAL_TRANSLATIONS
 
-    return result
+    def _apply_meta_func(self, package, func, translations): # pylint: disable=R0201
+        result = func(lambda k: translations.get(k, k))
 
-  def all(self, lang):
-    """Retrieve all registered meta in the given language.
+        if not isinstance(result, Meta):
+            result = Meta(**result)
 
-    Args:
-      lang (str): Language to use
+        result.package = package
 
-    Returns:
-      list of Meta: Registered Meta
+        return result
 
-    """
-    metas = []
-    translations = self._translations.all(lang)
+    def all(self, lang):
+        """Retrieve all registered meta in the given language.
 
-    for pkg, meta_func in self._data.items():
-      pkg_translations = translations.get(pkg, {})
-      metas.append(self._apply_meta_func(pkg, meta_func, pkg_translations))
-    
-    return metas
+        Args:
+          lang (str): Language to use
 
-  def get(self, package, lang):
-    """Retrieve a meta for the given package.
+        Returns:
+          list of Meta: Registered Meta
 
-    Args:
-      package (str): Package name to retrieve
-      lang (str): Lang for which you want to retrieve the skill Meta
+        """
+        metas = []
+        translations = self._translations.all(lang)
 
-    Returns:
-      Meta: Meta instance or None if not found
+        for pkg, meta_func in self._data.items():
+            pkg_translations = translations.get(pkg, {})
+            metas.append(self._apply_meta_func(
+                pkg, meta_func, pkg_translations))
 
-    """
-    meta_func = self._data.get(package)
+        return metas
 
-    if not meta_func:
-      return None
+    def get(self, package, lang):
+        """Retrieve a meta for the given package.
 
-    translations = self._translations.get(package, lang)
-    return self._apply_meta_func(package, meta_func, translations)
+        Args:
+          package (str): Package name to retrieve
+          lang (str): Lang for which you want to retrieve the skill Meta
 
-  def register(self, func, package=None):
-    """Register skill package metadata
-  
-    Args:
-      func (func): Function which will be called with a function to translate strings using the package translations at runtime
-      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
-  
-    """
-    package = package or get_caller_package_name()
-  
-    self._data[package] = func
-    self._logger.info(f'Registered "{package}.{func.__name__}" metadata')
+        Returns:
+          Meta: Meta instance or None if not found
+
+        """
+        meta_func = self._data.get(package)
+
+        if not meta_func:
+            return None
+
+        translations = self._translations.get(package, lang)
+        return self._apply_meta_func(package, meta_func, translations)
+
+    def register(self, func, package=None):
+        """Register skill package metadata
+
+        Args:
+          func (func): Function which will be called with a function to translate
+            strings using the package translations at runtime
+          package (str): Optional package name (usually __package__), if not given
+            pytlas will try to determine it based on the call stack
+
+        """
+        package = package or get_caller_package_name()
+
+        self._data[package] = func
+        self._logger.info('Registered "%s.%s" metadata', package, func.__name__)
+
 
 # Global skill metadata store
-global_metas = MetasStore()
+GLOBAL_METAS = MetasStore()
+
 
 def meta(store=None, package=None):
-  """Decorator used to register skill metadata.
+    """Decorator used to register skill metadata.
 
-  Args:
-    store (MetasStore): Store to use for registration, defaults to the global one
-    package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+    Args:
+      store (MetasStore): Store to use for registration, defaults to the global one
+      package (str): Optional package name (usually __package__), if not given
+        pytlas will try to determine it based on the call stack
 
-  """
-  s = store or global_metas
+    """
+    s = store or GLOBAL_METAS # pylint: disable=C0103
 
-  def new(func):
-    s.register(func, package or get_caller_package_name() or func.__module__)
-    return func
+    def new(func):
+        s.register(func, package or get_caller_package_name()
+                   or func.__module__)
+        return func
 
-  return new
+    return new
+
 
 class HandlersStore(Store):
-  """Holds skill handlers.
-  """
-
-  def __init__(self, data=None):
-    """Instantiates a new store.
-
-    Args:
-      data (dict): Optional initial data to use
-
+    """Holds skill handlers.
     """
-    super().__init__('handl', data or {})
 
-  def get(self, intent):
-    """Try to retrieve the handler associated with a particular intent.
+    def __init__(self, data=None):
+        """Instantiates a new store.
 
-    Args:
-      intent (str): Intent to search
+        Args:
+          data (dict): Optional initial data to use
 
-    Returns:
-      callable: Handler if found, None otherwise
+        """
+        super().__init__('handl', data or {})
 
-    """
-    return self._data.get(intent)
+    def get(self, intent_name):
+        """Try to retrieve the handler associated with a particular intent.
 
-  def register(self, intent, func, package=None):
-    """Register an intent handler.
+        Args:
+          intent_name (str): Intent to search
 
-    Args:
-      intent (str): Name of the intent to handle
-      func (callable): Handler to be called when the intent is triggered
-      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+        Returns:
+          callable: Handler if found, None otherwise
 
-    """
-    package = package or get_caller_package_name() or func.__module__
+        """
+        return self._data.get(intent_name)
 
-    self._data[intent] = func
-    self._logger.info(f'Registered "{package}.{func.__name__}" which should handle "{intent}" intent')
+    def register(self, intent_name, func, package=None):
+        """Register an intent handler.
+
+        Args:
+          intent_name (str): Name of the intent to handle
+          func (callable): Handler to be called when the intent is triggered
+          package (str): Optional package name (usually __package__), if not given
+            pytlas will try to determine it based on the call stack
+
+        """
+        package = package or get_caller_package_name() or func.__module__
+
+        self._data[intent_name] = func
+        self._logger.info('Registered "%s.%s" which should handle "%s" intent',
+                          package, func.__name__, intent_name)
+
 
 # Global handlers store
-global_handlers = HandlersStore()
+GLOBAL_HANDLERS = HandlersStore()
+
 
 def intent(intent_name, store=None, package=None):
-  """Decorator used to register an intent handler.
+    """Decorator used to register an intent handler.
 
-  Args:
-    intent_name (str): Name of the intent to handle
-    package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
-  
-  """
-  s = store or global_handlers
-  
-  def new(func):
-    s.register(intent_name, func, package or get_caller_package_name() or func.__module__)
-    return func
-    
-  return new
+    Args:
+      intent_name (str): Name of the intent to handle
+      package (str): Optional package name (usually __package__), if not given
+        pytlas will try to determine it based on the call stack
+
+    """
+    s = store or GLOBAL_HANDLERS # pylint: disable=C0103
+
+    def new(func):
+        s.register(intent_name, func,
+                   package or get_caller_package_name() or func.__module__)
+        return func
+
+    return new
