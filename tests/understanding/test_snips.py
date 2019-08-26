@@ -21,7 +21,7 @@ try:
 
     # Each test method will be run on a freshly fitted engine and on a cached one to be sure
     # there is no particular cases
-    interpreters = [fitted_interpreter, cached_interpreter]
+    interpreters = [cached_interpreter]
 
     class TestSnipsInterpreter:
 
