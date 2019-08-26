@@ -199,6 +199,26 @@ class TestAgent:
             },
         })
 
+    def test_it_we_should_be_able_to_determine_if_kwargs_are_set(self):
+        agent = Agent(self.interpreter)
+        expect(agent._is_valid({ 'data': 'here' }, ['text', 'cards'])).to.be.false
+        expect(agent._is_valid({ 'text': 'here' }, ['text', 'cards'])).to.be.false
+        expect(agent._is_valid({ 'text': 'here', 'cards': [] }, ['text', 'cards'])).to.be.true
+
+    def test_it_should_do_nothing_when_it_could_not_go_to_a_given_state(self):
+        self.agent.go('an unknown state')
+        self.on_done.assert_not_called()
+
+    def test_it_should_always_trigger_answer_with_a_list_of_cards(self):
+        self.agent.answer('Some text', Card('A card', 'With some text'))
+
+        self.on_answer.assert_called_once()
+        expect(self.on_answer.call_args[0][0]).to.equal('Some text')
+        cards = self.on_answer.call_args[0][1]
+        expect(cards).to.be.a(list)
+        expect(cards[0].header).to.equal('A card')
+        expect(cards[0].text).to.equal('With some text')
+
     def test_it_should_queue_string_as_intent(self):
         self.agent.queue_intent('greet')
 
