@@ -67,7 +67,7 @@ def find_match(choices, value):
 
     """
     if not value:
-      return None
+        return None
 
     match = process.extractOne(value, choices, score_cutoff=60)
 
