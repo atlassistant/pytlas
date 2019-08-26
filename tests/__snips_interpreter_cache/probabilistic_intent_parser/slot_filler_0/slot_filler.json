@@ -100,9 +100,28 @@
       },
       {
         "args": {
+          "entities": [],
+          "entity_filter": {
+            "automatically_extensible": false
+          },
+          "tagging_scheme_code": 2,
+          "use_stemming": true
+        },
+        "factory_name": "entity_match",
+        "offsets": [
+          -2,
+          -1,
+          0
+        ]
+      },
+      {
+        "args": {
           "entities": [
             "location"
           ],
+          "entity_filter": {
+            "automatically_extensible": true
+          },
           "tagging_scheme_code": 2,
           "use_stemming": true
         },
@@ -117,13 +136,17 @@
       {
         "args": {
           "entity_labels": [
+            "snips/amountOfMoney",
+            "snips/date",
+            "snips/datePeriod",
+            "snips/datetime",
+            "snips/duration",
             "snips/number",
             "snips/ordinal",
             "snips/percentage",
-            "snips/amountOfMoney",
             "snips/temperature",
-            "snips/datetime",
-            "snips/duration"
+            "snips/time",
+            "snips/timePeriod"
           ],
           "language_code": "en",
           "tagging_scheme_code": 1
@@ -149,11 +172,10 @@
         ]
       }
     ],
-    "random_seed": null,
     "tagging_scheme": 1,
     "unit_name": "crf_slot_filler"
   },
-  "crf_model_file": "modelr0u1f8tl.crfsuite",
+  "crf_model_file": "modelp40yf3a7.crfsuite",
   "intent": "get_forecast",
   "language_code": "en",
   "slot_name_mapping": {

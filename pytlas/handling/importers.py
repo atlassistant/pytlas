@@ -39,8 +39,8 @@ def import_or_reload(module_name):
 
         try:
             _reload(module)
-        except: # pylint: disable=W0702
-            logging.warning('Reloading failed for "%s"', module_name)
+        except Exception as err: # pylint: disable=W0703
+            logging.warning('Reloading failed for "%s": %s', module_name, err)
     else:
         logging.info('Importing module "%s"', module_name)
 

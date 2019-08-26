@@ -12,7 +12,6 @@ from pytlas.supporting import SkillsManager
 
 SKILLS_DIR = 'skills_dir'
 CACHE_DIR = 'cache_dir'
-TRAINING_FILE = 'training_file'
 REPO_URL = 'repo_url'
 GRAPH_FILE = 'graph_file'
 WATCH = 'watch'
@@ -21,16 +20,15 @@ VERBOSE = 'verbose'
 DEBUG = 'debug'
 
 
-def instantiate_and_fit_interpreter():  # pragma: no cover
-    import_skills(CONFIG.getpath(SKILLS_DIR), CONFIG.getbool(WATCH))
+def instantiate_and_fit_interpreter(training_file=None):  # pragma: no cover
+    if not training_file:
+        import_skills(CONFIG.getpath(SKILLS_DIR), CONFIG.getbool(WATCH))
 
     try:
         from pytlas.understanding.snips import SnipsInterpreter
 
         interpreter = SnipsInterpreter(
             CONFIG.get(LANGUAGE), CONFIG.getpath(CACHE_DIR))
-
-        training_file = CONFIG.getpath(TRAINING_FILE)
 
         if training_file:
             interpreter.fit_from_file(training_file)
@@ -66,7 +64,6 @@ def make_argname(name):
       '--language'
 
     """
-
     return f'--{name}'
 
 
@@ -89,7 +86,6 @@ def main(config_file, skills_dir, language, repo_url, **kwargs):  # pragma: no c
     """An open-source 🤖 assistant library built for people and made to be super
     easy to setup and understand.
     """
-
     if config_file:
         CONFIG.load_from_file(config_file)
 
@@ -104,12 +100,10 @@ def main(config_file, skills_dir, language, repo_url, **kwargs):  # pragma: no c
 
 @main.group(invoke_without_command=True)
 @click.option(make_argname(WATCH), is_flag=True, help='Reload on skill files change')
-@click.argument(make_argname(TRAINING_FILE), type=click.Path(), nargs=1, required=False)
 @write_to_store()
 def repl(**kwargs):  # pragma: no cover
     """Start a REPL session to interact with your assistant.
     """
-
     instantiate_agent_prompt()
 
 
@@ -118,16 +112,15 @@ def repl(**kwargs):  # pragma: no cover
 def parse(sentence):  # pragma: no cover
     """Parse the given message immediately and exits when the skill is done.
     """
-
     instantiate_agent_prompt(sentence)
 
 
 @main.command('train')
-def train():  # pragma: no cover
+@click.argument('training_file', type=click.Path(), nargs=1, required=False)
+def train(training_file):  # pragma: no cover
     """Dry run, will not load the interactive prompt but only the fit part.
     """
-
-    instantiate_and_fit_interpreter()
+    instantiate_and_fit_interpreter(training_file)
 
 
 @main.group()

@@ -26,7 +26,7 @@
         },
         "unit_name": "featurizer"
       },
-      "random_seed": null,
+      "noise_reweight_factor": 1,
       "unit_name": "log_reg_intent_classifier"
     },
     "slot_filler_config": {
@@ -125,6 +125,24 @@
         },
         {
           "args": {
+            "entity_filter": {
+              "automatically_extensible": false
+            },
+            "tagging_scheme_code": 2,
+            "use_stemming": true
+          },
+          "factory_name": "entity_match",
+          "offsets": [
+            -2,
+            -1,
+            0
+          ]
+        },
+        {
+          "args": {
+            "entity_filter": {
+              "automatically_extensible": true
+            },
             "tagging_scheme_code": 2,
             "use_stemming": true
           },
@@ -161,7 +179,6 @@
           ]
         }
       ],
-      "random_seed": null,
       "tagging_scheme": 1,
       "unit_name": "crf_slot_filler"
     },
