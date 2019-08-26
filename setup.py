@@ -23,14 +23,12 @@ setup(
     ],
     install_requires=[
         'click~=7.0',
-        'transitions~=0.6.9', # TODO check graph extension changes
+        'transitions~=0.7.0',
         'fuzzywuzzy~=0.17.0',
         'colorlog~=4.0.2',
         'pychatl~=2.0.1',
         'python-dateutil~=2.8.0',
         'Babel~=2.7.0',
-        # requests is included because the remote training will need it
-        'requests~=2.22.0',
         # Those lines are required for markdown display and raw_text generation
         'Markdown~=3.1.1',
         'beautifulsoup4~=4.8.0',

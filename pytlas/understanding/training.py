@@ -64,11 +64,7 @@ class TrainingsStore(Store):
                 'Skipped "%s" training data for language "%s"',
                 package, lang)
         else:
-            if package not in self._data:
-                self._data[package] = {}
-
-            self._data[package][lang] = func
-
+            self._set(func, package, lang)
             self._logger.info(
                 'Registered "%s.%s" training data for the lang "%s"',
                 package, func.__name__, lang)
@@ -88,11 +84,11 @@ def training(lang, store=None, package=None):
         will try to determine it based on the call stack
 
     """
-    s = store or GLOBAL_TRAININGS # pylint: disable=C0103
+    ts = store or GLOBAL_TRAININGS # pylint: disable=C0103
 
     def new(func):
-        s.register(lang, func, package or get_caller_package_name()
-                   or func.__module__)
+        ts.register(lang, func, package or get_caller_package_name()
+                    or func.__module__)
         return func
 
     return new

@@ -190,7 +190,7 @@ class Agent: # pylint: disable=R0902
                 kwargs['show_conditions'] = True
             except (ImportError, ModuleNotFoundError):
                 self._logger.error(
-                    'Could not use a GraphMachine, is pygraphviz installed?')
+                    'Could not use a GraphMachine, is "pygraphviz" installed?')
 
         self._machine = MachineKlass(
             model=self,

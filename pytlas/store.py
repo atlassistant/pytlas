@@ -29,3 +29,20 @@ class Store: # pylint: disable=R0903
         """Reset the store data to the initial value provided at construction.
         """
         self._data = deepcopy(self._initial_data)
+
+    def _set(self, value, *names):
+        """Safely sets the given value in the nested path.
+
+        Args:
+            value (any): Value to set
+            names (list of str): Path parts
+
+        """
+        cur = self._data
+
+        for name in names[:-1]:
+            if name not in cur:
+                cur[name] = {}
+            cur = cur[name]
+
+        cur[names[-1]] = value
