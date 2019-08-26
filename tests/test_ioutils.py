@@ -20,8 +20,18 @@ class TestReadFile:
 
     def test_it_should_read_the_file_relative_to_another_one(self):
         with patch('builtins.open', mock_open(read_data='some content')) as mopen:
-            expect(read_file(
-                'somepath', relative_to_file='/home/julien/pytlas/a.file')).to.equal('some content')
+            with patch('os.path.isdir', return_value=False):
+                expect(read_file(
+                    'somepath', relative_to='/home/julien/pytlas/a.file')).to.equal('some content')
 
-            mopen.assert_called_once_with(
-                '/home/julien/pytlas%ssomepath' % os.path.sep, encoding='utf-8')
+                mopen.assert_called_once_with(
+                    '/home/julien/pytlas%ssomepath' % os.path.sep, encoding='utf-8')
+
+    def test_it_should_read_the_file_relative_to_a_folder(self):
+        with patch('builtins.open', mock_open(read_data='some content')) as mopen:
+            with patch('os.path.isdir', return_value=True):
+                expect(read_file(
+                    'somepath', relative_to='/home/julien/pytlas/folder')).to.equal('some content')
+
+                mopen.assert_called_once_with(
+                    '/home/julien/pytlas/folder%ssomepath' % os.path.sep, encoding='utf-8')
