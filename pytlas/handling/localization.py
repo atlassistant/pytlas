@@ -55,7 +55,7 @@ class TranslationsStore(Store):
         """
         package = package or get_caller_package_name()
 
-        if not should_load_resources(lang):
+        if not should_load_resources(lang): # pragma: no cover
             self._logger.debug('Skipped "%s" translations for language "%s"',
                                package, lang)
         else:
