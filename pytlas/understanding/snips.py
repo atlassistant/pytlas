@@ -1,3 +1,5 @@
+# pylint: disable=C0111,W0511
+
 import os
 import sys
 import subprocess
@@ -5,16 +7,16 @@ import importlib
 import pkg_resources
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse as parse_date
-from pytlas.understanding.intent import Intent
-from pytlas.understanding.slot import SlotValue, SlotValues, UnitValue
-from pytlas.understanding.interpreter import Interpreter, compute_checksum
-from pytlas.ioutils import read_file, rmtree
 from snips_nlu import load_resources, SnipsNLUEngine, __version__
 from snips_nlu.constants import ENTITIES, AUTOMATICALLY_EXTENSIBLE, RESOLVED_VALUE, \
     ENTITY_KIND, ENTITY, RES_VALUE, RES_RAW_VALUE, RES_INTENT, RES_INTENT_NAME, RES_SLOTS, \
     RES_SLOT_NAME
 from snips_nlu.entity_parser.builtin_entity_parser import is_builtin_entity
 import snips_nlu.default_configs as snips_confs
+from pytlas.understanding.intent import Intent
+from pytlas.understanding.slot import SlotValue, UnitValue
+from pytlas.understanding.interpreter import Interpreter, compute_checksum
+from pytlas.ioutils import read_file, rmtree
 
 
 def get_entity_value(data):
@@ -36,10 +38,9 @@ def get_entity_value(data):
       any: A python object which match the slot value kind
 
     """
-
     kind = data.get('kind')
 
-    if kind == 'Duration':
+    if kind == 'Duration': # pylint: disable=R1705
         return relativedelta(
             days=data.get('days'),
             hours=data.get('hours'),
@@ -49,7 +50,7 @@ def get_entity_value(data):
             weeks=data.get('weeks'),
             years=data.get('years'),
         )
-    elif kind == 'AmountOfMoney' or kind == 'Temperature':
+    elif kind in ('AmountOfMoney', 'Temperature'):
         return UnitValue(data.get('value'), data.get('unit'))
     elif kind == 'Percentage':
         return data.get('value') / 100.0
@@ -89,10 +90,8 @@ class SnipsInterpreter(Interpreter):
         self.intents = list(self._slot_mappings.keys())
 
     def load_from_cache(self):
-        self._logger.info(f'Loading engine from "{self.cache_directory}"')
-
+        self._logger.info('Loading engine from "%s"', self.cache_directory)
         self._engine = SnipsNLUEngine.from_path(self.cache_directory)
-
         self._configure()
 
     def _check_and_install_resources_package(self):
@@ -100,18 +99,21 @@ class SnipsInterpreter(Interpreter):
 
         if not importlib.util.find_spec(resource_pkg_name):
             self._logger.info(
-                f'Could not import resource package "{resource_pkg_name}", attempting installation')
+                'Could not import resource package "%s", attempting installation',
+                resource_pkg_name)
 
             try:
                 subprocess.run([sys.executable, '-m', 'snips_nlu', 'download',
                                 self.lang], check=True, stdout=subprocess.PIPE)
                 self._logger.info(
-                    f'Successfuly downloaded "{resource_pkg_name}"!')
+                    'Successfuly downloaded "%s"!', resource_pkg_name)
                 # Reload resources (used by snips to determine if resources are installed)
                 importlib.reload(pkg_resources)
-            except:  # pragma: no cover
+            except:  # pragma: no cover pylint: disable=W0702
                 self._logger.warning(
-                    f'Looks like it fails, you may have to do it manually with: "python -m snips_nlu download {self.lang}"')
+                    'Looks like it fails, you may have to do it manually with: '\
+                    '"python -m snips_nlu download %s"',
+                    self.lang)
 
         return resource_pkg_name
 
@@ -122,9 +124,11 @@ class SnipsInterpreter(Interpreter):
 
         if data_lang != self.lang:  # pragma: no cover
             self._logger.warning(
-                f'Training language "{data_lang}" and interpreter language "{self.lang}" do not match, things could go badly')
+                'Training language "%s" and interpreter language "%s" do not match,'\
+                'things could go badly',
+                data_lang, self.lang)
 
-        self._logger.info(f'Fitting using "snips v{__version__}"')
+        self._logger.info('Fitting using "snips v%s"', __version__)
 
         checksum = compute_checksum(data)
         cached_checksum = None
@@ -146,7 +150,7 @@ class SnipsInterpreter(Interpreter):
 
             try:
                 self._logger.info(
-                    f'Importing default configuration for language "{self.lang}"')
+                    'Importing default configuration for language "%s"', self.lang)
                 config = getattr(snips_confs, 'CONFIG_%s' % self.lang.upper())
             except AttributeError:
                 self._logger.warning(
@@ -160,14 +164,14 @@ class SnipsInterpreter(Interpreter):
 
             if self.cache_directory:  # pragma: no cover
                 self._logger.info(
-                    f'Persisting trained engine to "{self.cache_directory}"')
+                    'Persisting trained engine to "%s"', self.cache_directory)
 
                 rmtree(self.cache_directory, ignore_errors=True)
 
                 self._engine.persist(self.cache_directory)
 
-                with open(cached_checksum_path, mode='w') as f:
-                    f.write(checksum)
+                with open(cached_checksum_path, mode='w') as file:
+                    file.write(checksum)
 
             self._configure()
 
@@ -179,7 +183,6 @@ class SnipsInterpreter(Interpreter):
           bool: Ready or not
 
         """
-
         return self._engine and self._engine.fitted
 
     def parse(self, msg, scopes=None):
@@ -190,7 +193,7 @@ class SnipsInterpreter(Interpreter):
 
         parsed = self._engine.parse(msg, intents=scopes)
 
-        if parsed[RES_INTENT][RES_INTENT_NAME] == None:
+        if not parsed[RES_INTENT][RES_INTENT_NAME]:
             return []
 
         slots = {}
@@ -250,7 +253,7 @@ class SnipsInterpreter(Interpreter):
                 msg, [entity_label])
 
             # The custom parser did not found a match and it's extensible? Just returns the value
-            if not parsed and self._entities.get(entity_label, {})[AUTOMATICALLY_EXTENSIBLE] == True:
+            if not parsed and self._entities.get(entity_label, {})[AUTOMATICALLY_EXTENSIBLE]:
                 return [SlotValue(msg)]
 
             for slot_data in parsed:

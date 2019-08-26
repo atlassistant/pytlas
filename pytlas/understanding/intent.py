@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 from pytlas.understanding.slot import SlotValues
 
 
@@ -21,7 +23,6 @@ class Intent:
           SlotValues: Parsed values for the slot
 
         """
-
         return self.slots.get(slot_name, SlotValues())
 
     def update_slots(self, **kwargs):
@@ -30,8 +31,8 @@ class Intent:
         Values will be wrapped in a SlotValues object for easier use.
 
         """
-
         self.slots.update({k: SlotValues(v) for (k, v) in kwargs.items()})
 
     def __str__(self):
-        return '"%s" (%s)' % (self.name, ', '.join(['"%s"=%s' % (k, ['"%s"' % vv for vv in v]) for k, v in self.slots.items()]))
+        return '"%s" (%s)' % (self.name, \
+          ', '.join(['"%s"=%s' % (k, ['"%s"' % vv for vv in v]) for k, v in self.slots.items()]))

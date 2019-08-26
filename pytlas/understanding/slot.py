@@ -1,4 +1,7 @@
-class SlotValue:
+"""Define class to ease slot handling.
+"""
+
+class SlotValue: # pylint: disable=R0903
     """Represents a single slot value.
 
     This class adds some utility methods to ease the process when working with skills.
@@ -23,7 +26,7 @@ class SlotValues(list):
 
     """
 
-    def __init__(self, iterable=[]):
+    def __init__(self, iterable=[]): # pylint: disable=W0102
         # Force iterable
         if not isinstance(iterable, list):
             iterable = [iterable]
@@ -39,7 +42,6 @@ class SlotValues(list):
           bool: True if empty, false otherwise
 
         """
-
         return len(self) == 0
 
     def first(self):
@@ -49,7 +51,6 @@ class SlotValues(list):
           SlotValue: first slot value
 
         """
-
         return self[0] if not self.is_empty() else SlotValue(None)
 
     def last(self):
@@ -59,7 +60,6 @@ class SlotValues(list):
           SlotValue: last slot value
 
         """
-
         return self[len(self) - 1] if not self.is_empty() else SlotValue(None)
 
 

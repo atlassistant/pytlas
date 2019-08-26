@@ -1,10 +1,10 @@
 from sure import expect
-from pytlas.understanding.training import global_trainings, TrainingsStore, training
+from pytlas.understanding.training import GLOBAL_TRAININGS, TrainingsStore, training
 
 class TestTraining:
 
   def teardown(self):
-    global_trainings.reset()
+    GLOBAL_TRAININGS.reset()
 
   def test_it_should_register_funcs(self):
     s = TrainingsStore()
@@ -56,7 +56,7 @@ class TestTraining:
   london
 """
 
-    expect(global_trainings._data).to.equal({
+    expect(GLOBAL_TRAININGS._data).to.equal({
       'amodule': {
         'en': en_data,
       },

@@ -1,9 +1,10 @@
+# pylint: disable=C0111
+
 import logging
 import hashlib
-import os
 import json
 from pytlas.understanding.slot import SlotValue
-from pytlas.understanding.training import global_trainings
+from pytlas.understanding.training import GLOBAL_TRAININGS
 from pychatl.utils import deep_update
 from pychatl import parse
 import pychatl.postprocess as postprocessors
@@ -45,7 +46,7 @@ class Interpreter:
 
         """
         self._logger = logging.getLogger(name)
-        self._trainings = trainings_store or global_trainings
+        self._trainings = trainings_store or GLOBAL_TRAININGS
 
         self.lang = lang
         self.name = name
@@ -55,7 +56,7 @@ class Interpreter:
     def load_from_cache(self):
         """Loads the interpreter from the cache directory.
         """
-        pass
+        pass # pylint: disable=W0107
 
     def fit(self, data):
         """Fit the interpreter with given data.
@@ -66,11 +67,12 @@ class Interpreter:
         """
         self._logger.debug(data)
 
-    def fit_from_skill_data(self, skills=None):
+    def fit_from_skill_data(self, skills=None): # pylint: disable=R1710
         """Fit the interpreter with every training data registered in the inner TrainingsStore.
 
         Args:
-          skills (list of str): Optional list of skill names from which we should retrieve training data. Used to handle context understanding.
+          skills (list of str): Optional list of skill names from which we should retrieve
+            training data. Used to handle context understanding.
 
         """
         filtered_module_trainings = self._trainings.all(self.lang)
@@ -80,7 +82,7 @@ class Interpreter:
                 k: v for (k, v) in filtered_module_trainings.items() if k in skills}
 
         self._logger.info(
-            f'Merging skill training data from "{len(filtered_module_trainings)}" modules')
+            'Merging skill training data from "%d" modules', len(filtered_module_trainings))
 
         data = {}
         sorted_trainings = sorted(filtered_module_trainings.items(),
@@ -90,16 +92,17 @@ class Interpreter:
             if training_dsl:
                 try:
                     data = deep_update(data, parse(training_dsl))
-                except Exception as e:
+                except Exception as err: # pylint: disable=W0703
                     self._logger.error(
-                        f'Could not parse "{module}" training data: "{e}"')
+                        'Could not parse "%s" training data: "%s"', module, err)
             else:
-                self._logger.warning(f'No training data found for "{module}"')
+                self._logger.warning('No training data found for "%s"', module)
 
         try:
             data = getattr(postprocessors, self.name)(data, language=self.lang)
         except AttributeError:
-            return self._logger.critical('No post-processors found on pychatl for this interpreter!')
+            return self._logger.critical(
+                'No post-processors found on pychatl for this interpreter!')
 
         self.fit(data)
 
@@ -111,12 +114,12 @@ class Interpreter:
 
         """
 
-        self._logger.info(f'Training interpreter with file "{path}"')
+        self._logger.info('Training interpreter with file "%s"', path)
 
-        with open(path, encoding='utf-8') as f:
-            self.fit(json.load(f))
+        with open(path, encoding='utf-8') as file:
+            self.fit(json.load(file))
 
-    def parse_slot(self, intent, slot, msg):
+    def parse_slot(self, intent, slot, msg): # pylint: disable=W0613,R0201
         """Parses the given raw message to extract a slot matching given criterias.
 
         Args:
@@ -132,7 +135,7 @@ class Interpreter:
         # Default is to wrap the raw msg in a SlotValue
         return [SlotValue(msg)]
 
-    def parse(self, msg, scopes=None):
+    def parse(self, msg, scopes=None): # pylint: disable=W0613,R0201
         """Parses the given raw message and returns parsed intents.
 
         Args:
@@ -143,5 +146,4 @@ class Interpreter:
           list of Intent: Parsed intents
 
         """
-
         return []

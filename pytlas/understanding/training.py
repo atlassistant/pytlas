@@ -1,3 +1,5 @@
+# pylint: disable=C0111
+
 from pytlas.pkgutils import get_caller_package_name
 from pytlas.datautils import should_load_resources
 from pytlas.store import Store
@@ -51,25 +53,29 @@ class TrainingsStore(Store):
         Args:
           lang (str): Language for which the training has been made for
           func (func): Function to call to return training data written using the chatl DSL
-          package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+          package (str): Optional package name (usually __package__), if not given pytlas
+            will try to determine it based on the call stack
 
         """
         package = package or get_caller_package_name()
 
         if not should_load_resources(lang):
-            return self._logger.debug(f'Skipped "{package}" training data for language "{lang}"')
+            self._logger.debug(
+                'Skipped "%s" training data for language "%s"',
+                package, lang)
+        else:
+            if package not in self._data:
+                self._data[package] = {}
 
-        if package not in self._data:
-            self._data[package] = {}
+            self._data[package][lang] = func
 
-        self._data[package][lang] = func
-
-        self._logger.info(
-            f'Registered "{package}.{func.__name__}" training data for the lang "{lang}"')
+            self._logger.info(
+                'Registered "%s.%s" training data for the lang "%s"',
+                package, func.__name__, lang)
 
 
 # Global trainings store
-global_trainings = TrainingsStore()
+GLOBAL_TRAININGS = TrainingsStore()
 
 
 def training(lang, store=None, package=None):
@@ -78,10 +84,11 @@ def training(lang, store=None, package=None):
     Args:
       lang (str): Lang of the training data
       store (TrainingsStore): Store to use for registration, defaults to the global one
-      package (str): Optional package name (usually __package__), if not given pytlas will try to determine it based on the call stack
+      package (str): Optional package name (usually __package__), if not given pytlas
+        will try to determine it based on the call stack
 
     """
-    s = store or global_trainings
+    s = store or GLOBAL_TRAININGS # pylint: disable=C0103
 
     def new(func):
         s.register(lang, func, package or get_caller_package_name()
