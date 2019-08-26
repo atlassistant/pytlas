@@ -3,11 +3,11 @@
 import logging
 import hashlib
 import json
+import pychatl.postprocess as postprocessors
+from pychatl import parse
+from pychatl.utils import deep_update
 from pytlas.understanding.slot import SlotValue
 from pytlas.understanding.training import GLOBAL_TRAININGS
-from pychatl.utils import deep_update
-from pychatl import parse
-import pychatl.postprocess as postprocessors
 
 
 def compute_checksum(data):
