@@ -5,21 +5,21 @@ import os
 from shutil import rmtree as shrmtree
 
 
-def read_file(path, ignore_errors=False, relative_to_file=None):
+def read_file(path, ignore_errors=False, relative_to=None):
     """Read the file content as utf-8 at the specified path.
 
     Args:
       path (str): Path to be read
       ignore_errors: True if you don't want exception to be raised (None will be returned)
-      relative_to_file (str): If set, the path will be evaluated relative to this filepath
+      relative_to (str): If set, the path will be evaluated relative to this file or folder
 
     Returns:
       str: Content of the file or None if not found and ignore_errors was true
 
     """
-
-    if relative_to_file:
-        path = os.path.join(os.path.dirname(relative_to_file), path)
+    if relative_to:
+        dirname = relative_to if os.path.isdir(relative_to) else os.path.dirname(relative_to)
+        path = os.path.join(dirname, path)
 
     try:
         with open(path, encoding='utf-8') as file:
