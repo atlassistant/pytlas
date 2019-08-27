@@ -344,6 +344,30 @@ try:
 
             expect(r).to.equal('Harder Better Faster Stronger')
 
+        def test_it_shoud_handle_city(self):
+            r = get_entity_value({
+                'kind': 'City',
+                'value': 'Paris',
+            })
+
+            expect(r).to.equal('Paris')
+
+        def test_it_shoud_handle_country(self):
+            r = get_entity_value({
+                'kind': 'Country',
+                'value': 'France',
+            })
+
+            expect(r).to.equal('France')
+
+        def test_it_shoud_handle_region(self):
+            r = get_entity_value({
+                'kind': 'Region',
+                'value': 'California',
+            })
+
+            expect(r).to.equal('California')
+
         def test_it_should_handle_custom(self):
             r = get_entity_value({
                 'kind': 'Custom',

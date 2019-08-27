@@ -40,6 +40,8 @@ Installation
 Testing
 -------
 
+*When `pytest` is also installed, it may cause some tests to failed, so make sure it is not installed with `pip uninstall -y pytest` or use venv*
+
 .. code-block:: bash
 
   $ pip install -e .[snips,test]

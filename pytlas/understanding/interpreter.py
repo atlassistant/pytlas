@@ -3,9 +3,8 @@
 import logging
 import hashlib
 import json
-import pychatl.postprocess as postprocessors
-from pychatl import parse
-from pychatl.utils import deep_update
+import pychatl.adapters as adapters
+from pychatl import parse, merge
 from pytlas.understanding.slot import SlotValue
 from pytlas.understanding.training import GLOBAL_TRAININGS
 
@@ -91,7 +90,7 @@ class Interpreter:
         for (module, training_dsl) in sorted_trainings:
             if training_dsl:
                 try:
-                    data = deep_update(data, parse(training_dsl))
+                    data = merge(data, parse(training_dsl))
                 except Exception as err: # pylint: disable=W0703
                     self._logger.error(
                         'Could not parse "%s" training data: "%s"', module, err)
@@ -99,7 +98,7 @@ class Interpreter:
                 self._logger.warning('No training data found for "%s"', module)
 
         try:
-            data = getattr(postprocessors, self.name)(data, language=self.lang)
+            data = getattr(adapters, self.name)(data, language=self.lang)
         except AttributeError:
             return self._logger.critical(
                 'No post-processors found on pychatl for this interpreter!')
@@ -113,7 +112,6 @@ class Interpreter:
           path (str): Path to the training file
 
         """
-
         self._logger.info('Training interpreter with file "%s"', path)
 
         with open(path, encoding='utf-8') as file:
@@ -131,7 +129,6 @@ class Interpreter:
           list of SlotValue: Slot values extracted
 
         """
-
         # Default is to wrap the raw msg in a SlotValue
         return [SlotValue(msg)]
 

@@ -25,3 +25,20 @@ class TestStore:
         s.reset()
 
         expect(s._data).to.equal({'initial': 'data'})
+
+    def test_it_should_safely_sets_a_nested_value(self):
+        s = Store('test')
+        s._set('a value', 'deeply', 'nested')
+        
+        expect(s._data).to.equal({
+            'deeply': {
+                'nested': 'a value',
+            }
+        })
+
+        s.reset()
+        s._set('a value', 'somewhere')
+
+        expect(s._data).to.equal({
+            'somewhere': 'a value',
+        })

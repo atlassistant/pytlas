@@ -59,10 +59,7 @@ class TranslationsStore(Store):
             self._logger.debug('Skipped "%s" translations for language "%s"',
                                package, lang)
         else:
-            if package not in self._data:
-                self._data[package] = {}
-
-            self._data[package][lang] = func
+            self._set(func, package, lang)
             self._logger.info('Registered "%s.%s" translations for the lang "%s"',
                               package, func.__name__, lang)
 

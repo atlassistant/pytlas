@@ -73,11 +73,11 @@ def on_agent_created(store=None, package=None):
         will try to determine it based on the call stack
 
     """
-    s = store or GLOBAL_HOOKS # pylint: disable=C0103
+    hs = store or GLOBAL_HOOKS # pylint: disable=C0103
 
     def new(func):
-        s.register(ON_AGENT_CREATED, func,
-                   package or get_caller_package_name() or func.__module__)
+        hs.register(ON_AGENT_CREATED, func,
+                    package or get_caller_package_name() or func.__module__)
         return func
 
     return new

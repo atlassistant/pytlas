@@ -200,11 +200,11 @@ def meta(store=None, package=None):
         pytlas will try to determine it based on the call stack
 
     """
-    s = store or GLOBAL_METAS # pylint: disable=C0103
+    ms = store or GLOBAL_METAS # pylint: disable=C0103
 
     def new(func):
-        s.register(func, package or get_caller_package_name()
-                   or func.__module__)
+        ms.register(func, package or get_caller_package_name()
+                    or func.__module__)
         return func
 
     return new
@@ -265,11 +265,11 @@ def intent(intent_name, store=None, package=None):
         pytlas will try to determine it based on the call stack
 
     """
-    s = store or GLOBAL_HANDLERS # pylint: disable=C0103
+    hs = store or GLOBAL_HANDLERS # pylint: disable=C0103
 
     def new(func):
-        s.register(intent_name, func,
-                   package or get_caller_package_name() or func.__module__)
+        hs.register(intent_name, func,
+                    package or get_caller_package_name() or func.__module__)
         return func
 
     return new

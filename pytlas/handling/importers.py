@@ -39,8 +39,8 @@ def import_or_reload(module_name):
 
         try:
             _reload(module)
-        except: # pylint: disable=W0702
-            logging.warning('Reloading failed for "%s"', module_name)
+        except Exception as err: # pylint: disable=W0703
+            logging.warning('Reloading failed for "%s": %s', module_name, err)
     else:
         logging.info('Importing module "%s"', module_name)
 
@@ -50,7 +50,7 @@ def import_or_reload(module_name):
             logging.error('Could not import module "%s"', module_name)
 
 
-def _watch(directory):  # pragma: no cover
+def _watch(directory): # pragma: no cover
     try:
         from watchgod import watch
     except ImportError:
@@ -91,5 +91,5 @@ def import_skills(directory, auto_reload=False):
         for skill_folder in os.listdir(directory):
             import_or_reload(skill_folder)
 
-        if auto_reload:
+        if auto_reload: # pragma: no cover
             threading.Thread(target=_watch, args=(directory,), daemon=True).start()

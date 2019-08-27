@@ -4,9 +4,7 @@
     "intent_parsers_configs": [
       {
         "ignore_stop_words": true,
-        "max_pattern_length": 1000,
-        "max_queries": 500,
-        "unit_name": "deterministic_intent_parser"
+        "unit_name": "lookup_intent_parser"
       },
       {
         "intent_classifier_config": {
@@ -35,7 +33,7 @@
             },
             "unit_name": "featurizer"
           },
-          "random_seed": null,
+          "noise_reweight_factor": 1,
           "unit_name": "log_reg_intent_classifier"
         },
         "slot_filler_config": {
@@ -134,6 +132,24 @@
             },
             {
               "args": {
+                "entity_filter": {
+                  "automatically_extensible": false
+                },
+                "tagging_scheme_code": 2,
+                "use_stemming": true
+              },
+              "factory_name": "entity_match",
+              "offsets": [
+                -2,
+                -1,
+                0
+              ]
+            },
+            {
+              "args": {
+                "entity_filter": {
+                  "automatically_extensible": true
+                },
                 "tagging_scheme_code": 2,
                 "use_stemming": true
               },
@@ -170,7 +186,6 @@
               ]
             }
           ],
-          "random_seed": null,
           "tagging_scheme": 1,
           "unit_name": "crf_slot_filler"
         },
@@ -204,10 +219,10 @@
     }
   },
   "intent_parsers": [
-    "deterministic_intent_parser",
+    "lookup_intent_parser",
     "probabilistic_intent_parser"
   ],
-  "model_version": "0.19.0",
-  "training_package_version": "0.19.1",
+  "model_version": "0.20.0",
+  "training_package_version": "0.20.0",
   "unit_name": "nlu_engine"
 }
