@@ -7,7 +7,8 @@ import importlib
 import pkg_resources
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse as parse_date
-from snips_nlu import load_resources, SnipsNLUEngine, __version__
+from snips_nlu import SnipsNLUEngine, __version__
+from snips_nlu.resources import load_resources
 from snips_nlu.constants import ENTITIES, AUTOMATICALLY_EXTENSIBLE, RESOLVED_VALUE, \
     ENTITY_KIND, ENTITY, RES_VALUE, RES_RAW_VALUE, RES_INTENT, RES_INTENT_NAME, RES_SLOTS, \
     RES_SLOT_NAME
