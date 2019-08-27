@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from sure import expect
 from pytlas.understanding import Interpreter, TrainingsStore
 
@@ -99,6 +99,31 @@ parsing will fail here
 
         expect(data['intents']).to.have.key('intent_module2')
         expect(data['intents']).to_not.have.key('intent_module1')
+
+    def test_it_should_ignore_package_when_merging_with_exceptions(self):
+        with patch('pytlas.understanding.interpreter.merge', side_effect=Exception('A merge err')):
+            t = TrainingsStore({
+                'module1': {
+                    'fr': lambda: """
+    %[intent_module1]
+    avec quelques données
+    """,
+                },
+                'module2': {
+                    'en': lambda: """
+    %[intent_module2]
+    with some data
+    """,
+                },
+            })
+            interpreter = Interpreter('snips', 'en', trainings_store=t)
+            interpreter.fit = MagicMock()
+            interpreter.fit_from_skill_data()
+            interpreter.fit.assert_called_once_with({
+                'language': 'en',
+                'intents': {},
+                'entities': {},
+            })
 
     def test_it_should_fail_when_no_processor_could_be_found_for_the_interpreter(self):
         t = TrainingsStore({
