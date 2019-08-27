@@ -5,6 +5,7 @@ python:
 install:
   - pip install codecov pylint nosexcover
   - pip install -e ."[snips,test]"
+  - pip uninstall -y pytest
   - snips-nlu download en
 script:
   - pylint setup.py pytlas
