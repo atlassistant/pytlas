@@ -3,7 +3,8 @@
 Installation
 ============
 
-There's multiple way to install pytlas. You're free to pick the one that better fit your needs.
+There's multiple way to install pytlas. You're free to pick the one that better
+fit your needs.
 
 .. note::
 
@@ -38,7 +39,8 @@ From source
 Choosing your interpreter
 -------------------------
 
-In order to understand natural language, pytlas is backed by :ref:`interpreter` which may need additional installation steps.
+In order to understand natural language, pytlas is backed by :ref:`interpreter`
+which may need additional installation steps.
 
 .. _installation_snips:
 
@@ -47,4 +49,7 @@ snips
 
 The official interpreter use the fantastic `snips-nlu <https://github.com/snipsco/snips-nlu>`_ python library.
 
-Given the language you want your assistant to understand, it will need to download additional resources. Fortunately, you don't have to do it manually since `v5.0.0`, pytlas will automatically try to download them when fitting the interpreter with a language it doesn't know already.
+Given the language you want your assistant to understand, it will need to
+download additional resources. Fortunately, you don't have to do it manually
+since `v5.0.0`, pytlas will automatically try to download them when fitting the
+interpreter with a language it doesn't know already.

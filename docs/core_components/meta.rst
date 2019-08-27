@@ -10,7 +10,9 @@ Especially in:
 - The agent `__init__`, `answer`, `ask` and `parse` methods,
 - The `Intent` class
 
-Those metadata represents any non consumed keyword parameters. They are pretty useful when you need to provide additional information but should never be considered mandatory.
+Those metadata represents any non consumed keyword parameters. They are pretty
+useful when you need to provide additional information but should never be
+considered mandatory.
 
 Here is a code example for a skill:
 
@@ -35,7 +37,8 @@ Here is a code example for a skill:
     
     return r.agent.done()
 
-With this definition, if I call the `parse` method with some meta, it will handle my position, else, it will fallback to search the weather for a city:
+With this definition, if I call the `parse` method with some meta, it will
+handle my position, else, it will fallback to search the weather for a city:
 
 .. code-block:: python
   

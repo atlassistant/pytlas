@@ -3,7 +3,8 @@
 Hooks
 =====
 
-Hooks represents lifecycle events your skill can listen to. At the moment, only 2 hooks are available as decorators.
+Hooks represents lifecycle events your skill can listen to. At the moment, only
+2 hooks are available as decorators.
 
 .. code-block:: python
 

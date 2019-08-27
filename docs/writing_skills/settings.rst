@@ -5,7 +5,8 @@ Settings
 
 Settings provides a facility to enable developers to retrieve settings value.
 
-The `pytlas.settings` module exposes a `SettingsStore` class and a global instance of this class in its `CONFIG` property.
+The `pytlas.settings` module exposes a `SettingsStore` class and a global
+instance of this class in its `CONFIG` property.
 
 The `SettingsStore` read settings from 3 sources:
 
@@ -13,11 +14,17 @@ The `SettingsStore` read settings from 3 sources:
 - System environment variables
 - `additional_lookup` property used at construction
 
-So when you request a value from a store object for a section **pytlas** and a key **my_setting**, it will first try to find a key in `additional_lookup` matching `PYTLAS_MY_SETTING`, if not found, it will look for the same key in the OS environment variables and if it's still can't find a match, it will look in the `ConfigParser` instance for the section and the key provided.
+So when you request a value from a store object for a section **pytlas** and
+a key **my_setting**, it will first try to find a key in `additional_lookup`
+matching `PYTLAS_MY_SETTING`, if not found, it will look for the same key in
+the OS environment variables and if it's still can't find a match, it will look
+in the `ConfigParser` instance for the section and the key provided.
 
-This order make it easy to override config file settings by using environment variables or, as seen below, using agent metadata.
+This order make it easy to override config file settings by using environment
+variables or, as seen below, using agent metadata.
 
-The store also provides a wide range of methods to retrieve configuration values casted to a particular type.
+The store also provides a wide range of methods to retrieve configuration
+values casted to a particular type.
 
 .. code-block:: python
 

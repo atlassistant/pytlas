@@ -1,7 +1,8 @@
 Managing skills
 ===============
 
-The pytlas `SkillsManager` class make it easy to add, update and remove skills to and from your pytlas skills directory.
+The pytlas `SkillsManager` class make it easy to add, update and remove skills
+to and from your pytlas skills directory.
 
 .. note::
 
@@ -22,7 +23,9 @@ List all loaded skills metadata and tries to translate them.
 Installing
 ~~~~~~~~~~
 
-Install one or more skills from a git repository. If you use a relative name such as `owner/repo`, it will be resolved as `https://github.com/owner/repo` but you can use an absolute URL such as `https://gitlab.com/owner/repo`.
+Install one or more skills from a git repository. If you use a relative name
+such as `owner/repo`, it will be resolved as `https://github.com/owner/repo`
+but you can use an absolute URL such as `https://gitlab.com/owner/repo`.
 
 .. code-block:: bash
 
