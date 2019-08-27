@@ -44,4 +44,5 @@ yourself? This is possible!
   writing_skills/index
   skills_management/index
   core_components/index
+  migrating
 

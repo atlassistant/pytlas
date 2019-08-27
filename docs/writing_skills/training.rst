@@ -84,4 +84,5 @@ Here is some thoughts about making great training data.
 * Use lowercase
 * Avoid punctuation
 * Give at least 10 sentences per intent
-* Provide variety in your samples
+* Provide variety in your samples (with or without slots defined for example)
+* Use optional synonyms (with ~[your synonym?] in intents)
