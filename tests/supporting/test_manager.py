@@ -223,16 +223,18 @@ class TestSkillsManager:
                          cwd=os.path.join(p, 'a__third'), stderr=subprocess.STDOUT),
                 ])
 
-    def test_it_should_complain_when_install_failed(self):
+    def test_it_should_complain_when_install_failed_and_cleanup_skill_folder(self):
         s = SkillsManager('skills')
 
         with patch('subprocess.check_output',
                    side_effect=subprocess.CalledProcessError(42, 'cmd')) as sub_mock:
             with patch('os.path.isfile', return_value=True):
-                succeeded, failed = s.install('my/skill')
+                with patch('pytlas.supporting.manager.rmtree') as rm_mock:
+                    succeeded, failed = s.install('my/skill')
 
-                expect(failed).to.equal(['my/skill'])
-                expect(succeeded).to.be.empty
+                    expect(failed).to.equal(['my/skill'])
+                    expect(succeeded).to.be.empty
+                    rm_mock.assert_called_once_with(os.path.abspath('skills/my__skill'), ignore_errors=True)
 
     def test_it_should_update_skills_when_it_already_exists(self):
         s = SkillsManager('skills')
