@@ -2,7 +2,7 @@
 
 import cmd
 import sys
-from pytlas.version import __version__
+from pytlas.__about__ import __version__
 
 
 class Prompt(cmd.Cmd):  # pragma: no cover

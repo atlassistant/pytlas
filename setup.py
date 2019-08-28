@@ -5,18 +5,24 @@ from setuptools import setup, find_packages
 with open('README.rst', encoding='utf-8') as f:
     README = f.read()
 
-with open('pytlas/version.py') as f:
-    VERSION = f.readlines()[1].strip()[15:-1]
+with open('pytlas/__about__.py') as about_file:
+    ABOUT = {}
+    exec(about_file.read(), ABOUT) # pylint: disable=W0122
 
 setup(
-    name='pytlas',
-    version=VERSION,
-    description='An open-source Python 3 assistant library built for people and '\
-                'made to be super easy to setup and understand!',
+    name=ABOUT['__title__'],
+    version=ABOUT['__version__'],
+    description=ABOUT['__summary__'],
     long_description=README,
-    url='https://github.com/atlassistant/pytlas',
-    author='Julien LEICHER',
-    license='GPL-3.0',
+    url=ABOUT['__github_url__'],
+    project_urls={
+        "Documentation": ABOUT['__doc_url__'],
+        "Source": ABOUT['__github_url__'],
+        "Tracker": ABOUT['__tracker_url__'],
+    },
+    author=ABOUT['__author__'],
+    author_email=ABOUT['__email__'],
+    license=ABOUT['__license__'],
     packages=find_packages(),
     include_package_data=True,
     classifiers=[
