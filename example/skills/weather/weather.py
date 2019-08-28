@@ -29,6 +29,7 @@ def en_data(): return """
 %[get_forecast]
   will it be sunny in @[location] at @[date#at]
   what's the weather like in @[location] on @[date#on]
+  what's the weather like
   will it rain in @[location] @[date]
   what kind of weather should I expect at @[date#at] in @[location]
   what will be the weather on @[date#on] in @[location]

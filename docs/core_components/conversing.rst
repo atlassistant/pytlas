@@ -1,16 +1,21 @@
 Conversing
 ==========
 
-The conversing domain use the :ref:`understanding` and :ref:`handling` domains to trigger python actions from parsed intents and maintain a conversation state.
+The conversing domain use the :ref:`understanding` and :ref:`handling` domains
+to trigger python actions from parsed intents and maintain a conversation
+state.
 
 .. _agents:
 
 Agent
 -----
 
-An agent represent the interface between the user and loaded skills. It maintain the conversation state and use an underlying interpreter to understand the user.
+An agent represent the interface between the user and loaded skills. It
+maintain the conversation state and use an underlying interpreter to understand
+the user.
 
-The agent is the entry point which will take raw user inputs with its `parse` method and call loaded handlers as needed.
+The agent is the entry point which will take raw user inputs with its `parse`
+method and call loaded handlers as needed.
 
 Entry point
 ~~~~~~~~~~~
@@ -21,7 +26,10 @@ Entry point
 
   More information on :ref:`meta`.
 
-When an intent has been found, it will try to find an handler for this specific intent and call it. It will then manage the conversation, handle cancel and fallback intents and communicate back to the user using its internal :ref:`client`.
+When an intent has been found, it will try to find an handler for this specific
+intent and call it. It will then manage the conversation, handle cancel and
+fallback intents and communicate back to the user using its internal
+:ref:`client`.
 
 From a skill
 ~~~~~~~~~~~~
@@ -38,9 +46,12 @@ From a skill perspective, here are the method you will use.
 Client
 ------
 
-A client is a thin layer used by an agent to communicate with the user. It can be anything such as a tiny CLI (as the one provided), a WebSocket server or a connected speaker.
+A client is a thin layer used by an agent to communicate with the user. It can
+be anything such as a tiny CLI (as the one provided), a WebSocket server or a
+connected speaker.
 
-When provided to an agent (using its `model` property), some specific members will be called by the agent on specific lifecycle events:
+When provided to an agent (using its `model` property), some specific members
+will be called by the agent on specific lifecycle events:
 
 .. py:function:: on_answer(text, cards, raw_text, **meta)
 

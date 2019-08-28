@@ -17,40 +17,47 @@ pytlas |travis| |cover| |pypi| |rtd| |license|
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
-An open-source 🤖💬 python 3 assistant library built for people and made to be super easy to setup and understand.
+An open-source 🤖💬 Python 3 assistant library built for people and made to be super easy to setup and understand.
 
-**pytlas** translates natural language sentence into python skills you can easily define yourself.
+**pytlas** translates natural language sentence into python skills you can easily define yourself. It makes it really easy to develop your own Google Assistant, Alexa or whatever but runs on **your device** with **your trusted code** and **no connection** to obscure servers.
 
-I first started to develop `atlas <https://github.com/atlassistant/atlas>`_ but I have finally decided to develop a library that everyone could embed in their own program with simple python code.
+🌊 Want to get your feet wet? Have a look at the `example/skills` folder to see how it works!
 
-Want to get your feet wet? Have a look at the `example/skills` folder to see how it works!
+📚 Want to go futher and develop your own skill? Let's visit the `latest documentation <https://pytlas.readthedocs.io>`_ and share your work!
 
-Documentation
--------------
-
-The documentation is hosted on readthedocs here `https://pytlas.readthedocs.io <https://pytlas.readthedocs.io>`_.
+Quick start
+-----------
 
 Installation
-------------
+~~~~~~~~~~~~
 
 .. code-block:: bash
 
-  $ pip install -e .[snips] # Install pytlas and the snips interpreter backend
+  $ pip install pytlas[snips] # Gets the latest release from pypi
+  $ git clone https://github.com/atlassistant/pytlas && cd pytlas && pip install -e .[snips] # or directly from source
 
 Testing
--------
+~~~~~~~
 
-*When `pytest` is also installed, it may cause some tests to failed, so make sure it is not installed with `pip uninstall -y pytest` or use venv*
+*When `pytest` is also installed, it may cause some tests to fail, so make sure it is not installed with `pip uninstall -y pytest` or use venv*
 
 .. code-block:: bash
 
+  $ git clone https://github.com/atlassistant/pytlas && cd pytlas
   $ pip install -e .[snips,test]
   $ python -m nose --with-doctest --with-coverage --cover-package=pytlas
+
+Linting
+~~~~~~~
+
+.. code-block:: bash
+
+  $ pylint pytlas setup.py # in the root directory
 
 Contributing
 ------------
 
-Contributions are **welcome**! **pytlas** is being developed on my spare time so every help is greatly appreciated to push this project further.
+Contributions are **welcome**! **pytlas** is being developed my spare time so every help is greatly appreciated to push this project further.
 
 I have ideas!
 ~~~~~~~~~~~~~
@@ -60,7 +67,7 @@ Don't hesitate to submit them in the repo and we'll see what can be done.
 I have skills & time!
 ~~~~~~~~~~~~~~~~~~~~~
 
-Great, have a look at `NEXT.md <NEXT.md>`_ to see the big plans for upcoming releases or fix unresolved issues to start.
+Great, have a look at `the github project page <https://github.com/atlassistant/pytlas/projects/1>`_ to see the big plans for upcoming releases or fix unresolved issues to start.
 
 I have money!
 ~~~~~~~~~~~~~

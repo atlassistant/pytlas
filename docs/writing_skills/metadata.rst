@@ -1,9 +1,11 @@
 Metadata
 ========
 
-Metadata are entirely optional and are mostly use by the tiny skill manager of pytlas to list loaded skills with associated informations.
+Metadata are entirely optional and are mostly use by the tiny skill manager of
+pytlas to list loaded skills with associated informations.
 
-As a best practice however, you must include it in your skill to provide at least a description of what your skill do and what settings are expected.
+As a best practice however, you must include it in your skill to provide at
+least a description of what your skill do and what settings are expected.
 
 .. code-block:: python
 
@@ -20,7 +22,7 @@ As a best practice however, you must include it in your skill to provide at leas
     'version': '1.0.0',
     'author': 'Julien LEICHER',
     'settings': [
-      'lights.setting_one', # represents the setting_one key in the lights section
+      'lights.setting_one', # represents the 'setting_one' key in the 'lights' section
     ],
   }
 

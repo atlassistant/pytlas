@@ -16,7 +16,7 @@ import sys
 import os
 
 with open('../pytlas/version.py') as f:
-  __version__ = f.readline().strip()[15:-1]
+  __version__ = f.readlines()[1].strip()[15:-1]
 
 # -- Project information -----------------------------------------------------
 

@@ -3,9 +3,12 @@
 Context
 =======
 
-Context are important when dealing with complex skills. It allows you to define in which case your intent should be recognized.
+Context are important when dealing with complex skills. It allows you to define
+in which case your intent should be recognized.
 
-In order to declare a context, you just to have to define your intent with `valid_context/your_intent` and use the `request.agent.context` method to switch at runtime. Here is an example.
+In order to declare a context, you just to have to define your intent with
+`valid_context/your_intent` and use the `request.agent.context` method to
+switch at runtime. Here is an example.
 
 .. code-block:: python
 

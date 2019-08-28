@@ -11,7 +11,8 @@ with open('pytlas/version.py') as f:
 setup(
     name='pytlas',
     version=VERSION,
-    description='Python 3 assistant made to be super simple to setup!',
+    description='An open-source Python 3 assistant library built for people and '\
+                'made to be super easy to setup and understand!',
     long_description=README,
     url='https://github.com/atlassistant/pytlas',
     author='Julien LEICHER',

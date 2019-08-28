@@ -6,9 +6,12 @@ Usage
 Using the pytlas CLI
 --------------------
 
-pytlas include a basic CLI interface to interact with the system that you may use when developping skills.
+pytlas include a basic CLI interface to interact with the system that you may
+use when developping skills.
 
-After cloning the git repository, this line will start the pytlas REPL by using the configuration file `example/pytlas.conf`. It will load all data and fit the engine before starting the interactive prompt.
+After cloning the git repository, this line will start the pytlas REPL by using
+the configuration file `example/pytlas.conf`. It will load all data and fit the
+engine before starting the interactive prompt.
 
 .. code:: bash
 
@@ -18,7 +21,8 @@ After cloning the git repository, this line will start the pytlas REPL by using 
 Using the library
 -----------------
 
-Here is a snippet which cover the basics of using pytlas inside your own program :
+Here is a snippet which cover the basics of using pytlas inside your own
+program:
 
 .. code-block:: python
 
@@ -97,7 +101,6 @@ Here is a snippet which cover the basics of using pytlas inside your own program
       print (text)
 
   if __name__ == '__main__':
-    
     # The last piece is the `Interpreter`. This is the part responsible for human
     # language parsing. It parses raw human sentences into something more useful for
     # the program.

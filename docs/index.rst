@@ -22,11 +22,15 @@ pytlas |travis| |coveralls| |pypi| |rtd| |license|
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
-pytlas is an open-source 🤖💬 **python 3** assistant library built for people and made to be super easy to setup and understand.
+pytlas is an open-source 🤖💬 **python 3** assistant library built for
+people and made to be super easy to setup and understand.
 
-Its goal is to make easy to **map natural language sentences** to **python function handlers**. It also manages a conversation with the help of a finite state machine.
+Its goal is to make easy to **map natural language sentences** to
+**python function handlers**. It also manages a conversation with the help of
+a finite state machine to enable back and forth communications.
 
-Ever wanted to develop your own Alexa, Siri or Google Assistant and host it yourself? This is possible!
+Ever wanted to develop your own Alexa, Siri or Google Assistant and host it
+yourself? This is possible!
 
 .. warning::
 
@@ -40,4 +44,5 @@ Ever wanted to develop your own Alexa, Siri or Google Assistant and host it your
   writing_skills/index
   skills_management/index
   core_components/index
+  migrating
 
