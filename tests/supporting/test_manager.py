@@ -13,7 +13,7 @@ class TestSkillsManager:
             pass
 
         h = HandlersStore()
-        h.register('intent1', an_handler)
+        h.register('intent1', an_handler, package='skm_skill')
         m = MetasStore()
 
         s = SkillsManager('skills', handlers_store=h, metas_store=m)
@@ -22,20 +22,21 @@ class TestSkillsManager:
 
         meta = metas[0]
         expect(meta).to.be.a(Meta)
-        expect(meta.name).to.equal('tests')
+        expect(meta.name).to.equal('skm_skill')
         expect(meta.version).to.equal('?.?.?')
+        expect(meta.package).to.equal('skm_skill')
 
     def test_it_should_list_currently_loaded_skills_with_meta(self):
         def an_handler():
             pass
 
         h = HandlersStore()
-        h.register('intent1', an_handler)
+        h.register('intent1', an_handler, package='skm_skill')
         m = MetasStore()
         m.register(lambda _: {
             'name': _('Support skill'),
             'version': '1.0.0',
-        })
+        }, package='skm_skill')
 
         s = SkillsManager('skills', handlers_store=h, metas_store=m)
         metas = s.get()
@@ -45,22 +46,23 @@ class TestSkillsManager:
         expect(meta).to.be.a(Meta)
         expect(meta.name).to.equal('Support skill')
         expect(meta.version).to.equal('1.0.0')
+        expect(meta.package).to.equal('skm_skill')
 
     def test_it_should_list_currently_loaded_skills_with_meta_and_localize(self):
         def an_handler():
             pass
 
         h = HandlersStore()
-        h.register('intent1', an_handler)
+        h.register('intent1', an_handler, package='skm_skill')
         t = TranslationsStore()
         t.register('fr', lambda: {
             'Support skill': 'Fonctions de support',
-        }, package='tests')
+        }, package='skm_skill')
         m = MetasStore(translations_store=t)
         m.register(lambda _: {
             'name': _('Support skill'),
             'version': '1.0.0',
-        }, package='tests')
+        }, package='skm_skill')
 
         s = SkillsManager('skills', lang='fr', handlers_store=h, metas_store=m)
         metas = s.get()
@@ -70,6 +72,7 @@ class TestSkillsManager:
         expect(meta).to.be.a(Meta)
         expect(meta.name).to.equal('Fonctions de support')
         expect(meta.version).to.equal('1.0.0')
+        expect(meta.package).to.equal('skm_skill')
 
     def test_it_should_uninstall_skills_correctly(self):
         s = SkillsManager('skills')

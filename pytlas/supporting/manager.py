@@ -185,7 +185,7 @@ class SkillsManager:
           list of Meta: Skills loaded.
 
         """
-        unique_pkgs = list(set(get_package_name_from_module(
+        unique_pkgs = list(set(v.__pytlas_package__ or get_package_name_from_module(
             v.__module__) for v in self._handlers._data.values()))  # pylint: disable=W0212
         self._logger.info(
             'Retrieving meta for "%d" unique packages', len(unique_pkgs))

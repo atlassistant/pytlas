@@ -84,7 +84,7 @@ class Meta: # pylint: disable=R0902
         self.homepage = homepage
         self.settings = [setting if isinstance(
             setting, Setting) else Setting.from_value(setting) for setting in settings]
-        self.package = None  # Represents the module which defines this meta
+        self.package = name # Represents the module which defines this meta
 
     # pylint: enable=W0102,R0913
 
@@ -248,6 +248,8 @@ class HandlersStore(Store):
         package = package or get_caller_package_name() or func.__module__
 
         self._data[intent_name] = func
+        # Let's add the package to the func to tied together each registered resources
+        func.__pytlas_package__ = package
         self._logger.info('Registered "%s.%s" which should handle "%s" intent',
                           package, func.__name__, intent_name)
 
