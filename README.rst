@@ -17,7 +17,7 @@ pytlas |travis| |cover| |pypi| |rtd| |license|
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
-An open-source 🤖💬 python 3 assistant library built for people and made to be super easy to setup and understand.
+An open-source 🤖💬 Python 3 assistant library built for people and made to be super easy to setup and understand.
 
 **pytlas** translates natural language sentence into python skills you can easily define yourself. It makes it really easy to develop your own Google Assistant, Alexa or whatever but runs on **your device** with **your trusted code** and **no connection** to obscure servers.
 
@@ -46,6 +46,13 @@ Testing
   $ git clone https://github.com/atlassistant/pytlas && cd pytlas
   $ pip install -e .[snips,test]
   $ python -m nose --with-doctest --with-coverage --cover-package=pytlas
+
+Linting
+~~~~~~~
+
+.. code-block:: bash
+
+  $ pylint pytlas setup.py # in the root directory
 
 Contributing
 ------------
