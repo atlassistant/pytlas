@@ -245,6 +245,20 @@ class TestSkillsManager:
                         expect(failed).to.equal(['incompatible/skill'])
                         rm_mock.assert_called_once_with(os.path.join(p, 'incompatible__skill'), ignore_errors=True)
 
+    def test_it_should_allow_installation_of_compatible_skills(self):
+        s = SkillsManager('skills')
+        p = os.path.abspath('skills')
+
+        compatible_version_spec = f'{__title__}[snips]~={__version__[0]}.0'
+
+        with patch('subprocess.check_output') as sub_mock:
+            with patch('os.path.isfile', return_value=True):
+                with patch('builtins.open', mock_open(read_data=f'{compatible_version_spec}\n\nrequests~=2.22')):
+                    succeeded, failed = s.install('incompatible/skill')
+
+                    expect(failed).to.be.empty
+                    expect(succeeded).to.equal(['incompatible/skill'])
+
     def test_it_should_complain_when_install_failed_and_cleanup_skill_folder(self):
         s = SkillsManager('skills')
 
