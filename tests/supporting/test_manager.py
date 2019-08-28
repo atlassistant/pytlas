@@ -1,7 +1,8 @@
 import os
 import subprocess
-from unittest.mock import patch, call
+from unittest.mock import patch, call, mock_open
 from sure import expect
+from pytlas.__about__ import __version__, __title__
 from pytlas.supporting import SkillsManager
 from pytlas.handling import HandlersStore, MetasStore, Meta, TranslationsStore
 
@@ -155,19 +156,20 @@ class TestSkillsManager:
 
         with patch('os.path.isdir', return_value=True):
             with patch('os.path.isfile', return_value=True):
-                with patch('subprocess.check_output') as sub_mock:
-                    succeeded, failed = s.update('my/skill')
+                with patch('builtins.open', mock_open(read_data='')):
+                    with patch('subprocess.check_output') as sub_mock:
+                        succeeded, failed = s.update('my/skill')
 
-                    expect(succeeded).to.equal(['my/skill'])
-                    expect(failed).to.be.empty
+                        expect(succeeded).to.equal(['my/skill'])
+                        expect(failed).to.be.empty
 
-                    expect(sub_mock.call_count).to.equal(2)
-                    sub_mock.assert_has_calls([
-                        call(['git', 'pull'], cwd=os.path.join(
-                            p, 'my__skill'), stderr=subprocess.STDOUT),
-                        call(['pip', 'install', '-r', 'requirements.txt'],
-                             cwd=os.path.join(p, 'my__skill'), stderr=subprocess.STDOUT),
-                    ])
+                        expect(sub_mock.call_count).to.equal(2)
+                        sub_mock.assert_has_calls([
+                            call(['git', 'pull'], cwd=os.path.join(
+                                p, 'my__skill'), stderr=subprocess.STDOUT),
+                            call(['pip', 'install', '-r', 'requirements.txt'],
+                                cwd=os.path.join(p, 'my__skill'), stderr=subprocess.STDOUT),
+                        ])
 
     def test_it_should_update_all_skills_if_no_one_provided(self):
         s = SkillsManager('skills')
@@ -208,23 +210,40 @@ class TestSkillsManager:
 
         with patch('subprocess.check_output') as sub_mock:
             with patch('os.path.isfile', return_value=True):
-                succeeded, failed = s.install(
-                    'a/skill', 'https://gitlab.com/a/third')
+                with patch('builtins.open', mock_open(read_data='')):
+                    succeeded, failed = s.install(
+                        'a/skill', 'https://gitlab.com/a/third')
 
-                expect(succeeded).to.equal(['a/skill', 'a/third'])
-                expect(failed).to.be.empty
+                    expect(succeeded).to.equal(['a/skill', 'a/third'])
+                    expect(failed).to.be.empty
 
-                expect(sub_mock.call_count).to.equal(4)
-                sub_mock.assert_has_calls([
-                    call(['git', 'clone', 'https://github.com/a/skill',
-                          os.path.join(p, 'a__skill')], stderr=subprocess.STDOUT),
-                    call(['pip', 'install', '-r', 'requirements.txt'],
-                         cwd=os.path.join(p, 'a__skill'), stderr=subprocess.STDOUT),
-                    call(['git', 'clone', 'https://gitlab.com/a/third',
-                          os.path.join(p, 'a__third')], stderr=subprocess.STDOUT),
-                    call(['pip', 'install', '-r', 'requirements.txt'],
-                         cwd=os.path.join(p, 'a__third'), stderr=subprocess.STDOUT),
-                ])
+                    expect(sub_mock.call_count).to.equal(4)
+                    sub_mock.assert_has_calls([
+                        call(['git', 'clone', 'https://github.com/a/skill',
+                            os.path.join(p, 'a__skill')], stderr=subprocess.STDOUT),
+                        call(['pip', 'install', '-r', 'requirements.txt'],
+                            cwd=os.path.join(p, 'a__skill'), stderr=subprocess.STDOUT),
+                        call(['git', 'clone', 'https://gitlab.com/a/third',
+                            os.path.join(p, 'a__third')], stderr=subprocess.STDOUT),
+                        call(['pip', 'install', '-r', 'requirements.txt'],
+                            cwd=os.path.join(p, 'a__third'), stderr=subprocess.STDOUT),
+                    ])
+    
+    def test_it_should_not_allow_installation_of_incompatible_skills(self):
+        s = SkillsManager('skills')
+        p = os.path.abspath('skills')
+
+        incompatible_version_spec = f'{__title__}[snips]~={int(__version__[0]) - 1}.0'
+
+        with patch('subprocess.check_output') as sub_mock:
+            with patch('os.path.isfile', return_value=True):
+                with patch('builtins.open', mock_open(read_data=f'{incompatible_version_spec}\n\nrequests~=2.22')):
+                    with patch('pytlas.supporting.manager.rmtree') as rm_mock:
+                        succeeded, failed = s.install('incompatible/skill')
+
+                        expect(succeeded).to.be.empty
+                        expect(failed).to.equal(['incompatible/skill'])
+                        rm_mock.assert_called_once_with(os.path.join(p, 'incompatible__skill'), ignore_errors=True)
 
     def test_it_should_complain_when_install_failed_and_cleanup_skill_folder(self):
         s = SkillsManager('skills')

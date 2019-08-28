@@ -9,7 +9,6 @@ __email__ = 'julien@leicher.me'
 __license__ = 'GPL-3.0'
 
 __version__ = '5.0.0'
-__skills_version_specs__ = '~=5.0'
 
 __doc_url__ = 'https://pytlas.readthedocs.io/'
 __tracker_url__ = 'https://github.com/atlassistant/pytlas/issues'
