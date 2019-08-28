@@ -245,6 +245,7 @@ class SkillsManager:
                     self._logger.error(
                         'Could not clone the skill repo, make sure you didn\'t mispelled it and '
                         'you have sufficient rights to clone it. "%s"', err)
+                    rmtree(dest, ignore_errors=True) # try to clean up the directory
 
         return (succeeded, failed)
 
