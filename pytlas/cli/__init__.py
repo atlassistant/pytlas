@@ -146,7 +146,7 @@ def list_skills():  # pragma: no cover
 
 
 @skills.command('add')
-@click.argument('skills', nargs=-1, required=True)
+@click.argument('names', nargs=-1, required=True)
 def add_skills(names):  # pragma: no cover
     """Add given skills to your instance.
     """
@@ -160,7 +160,7 @@ def add_skills(names):  # pragma: no cover
 
 
 @skills.command('update')
-@click.argument('skills', nargs=-1)
+@click.argument('names', nargs=-1)
 def update_skills_command(names):  # pragma: no cover
     """Update given skills for this instance. If no skills are defined, they will be all updated.
     """
@@ -174,7 +174,7 @@ def update_skills_command(names):  # pragma: no cover
 
 
 @skills.command('remove')
-@click.argument('skills', nargs=-1, required=True)
+@click.argument('names', nargs=-1, required=True)
 def remove_skills(names):  # pragma: no cover
     """Remove given skills from your instance.
     """
