@@ -83,11 +83,12 @@ class TestHandlers:
         def on_lights_on():
             pass
 
-        s.register('lights_on', on_lights_on)
+        s.register('lights_on', on_lights_on, package='mypackage')
 
         expect(s._data).to.equal({
             'lights_on': on_lights_on,
         })
+        expect(on_lights_on.__pytlas_package__).to.equal('mypackage')
 
     def test_it_should_register_with_the_decorator_in_the_provided_store(self):
         s = HandlersStore()

@@ -1,2 +1,2 @@
 include README.rst
-include pytlas/version.py
+include pytlas/__about__.py

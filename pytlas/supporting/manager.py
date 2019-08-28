@@ -4,6 +4,10 @@ import logging
 import re
 import os
 import subprocess
+from pkg_resources import Requirement
+from packaging.version import Version
+from packaging.specifiers import SpecifierSet
+from pytlas.__about__ import __title__, __version__
 from pytlas.handling.skill import GLOBAL_METAS, GLOBAL_HANDLERS, Meta
 from pytlas.pkgutils import get_package_name_from_module
 from pytlas.ioutils import rmtree
@@ -149,6 +153,15 @@ def path_to_skill_folder(path):
         return path
 
 
+class CompatibilityError(Exception):
+    """Represents an exception when a skill could not work with the running
+    pytlas environment.
+    """
+
+    def __init__(self, current_version, expected_specifications):
+        super().__init__(f'Current pytlas version "{current_version}" does not '\
+                         f'satisfy skill dependency "{expected_specifications}"')
+
 class SkillsManager:
     """The SkillsManager handles skill installation, updates, listing and removal.
     It can be used with the built-in CLI or used as a library.
@@ -174,6 +187,7 @@ class SkillsManager:
         self._default_git_url = default_git_url
         self._metas = metas_store or GLOBAL_METAS
         self._handlers = handlers_store or GLOBAL_HANDLERS
+        self._version = Version(__version__)
 
     # pylint: enable=R0913
 
@@ -185,7 +199,7 @@ class SkillsManager:
           list of Meta: Skills loaded.
 
         """
-        unique_pkgs = list(set(get_package_name_from_module(
+        unique_pkgs = list(set(v.__pytlas_package__ or get_package_name_from_module(
             v.__module__) for v in self._handlers._data.values()))  # pylint: disable=W0212
         self._logger.info(
             'Retrieving meta for "%d" unique packages', len(unique_pkgs))
@@ -240,11 +254,10 @@ class SkillsManager:
 
                     succeeded.append(display_name)
                     logging.info('Successfully installed "%s"', repo)
-                except subprocess.CalledProcessError as err:
+                except (subprocess.CalledProcessError, CompatibilityError) as err:
                     failed.append(display_name)
                     self._logger.error(
-                        'Could not clone the skill repo, make sure you didn\'t mispelled it and '
-                        'you have sufficient rights to clone it. "%s"', err)
+                        'Could not install skill "%s": %s', display_name, err)
                     rmtree(dest, ignore_errors=True) # try to clean up the directory
 
         return (succeeded, failed)
@@ -285,10 +298,11 @@ class SkillsManager:
                     succeeded.append(display_name)
                     self._logger.info(
                         'Successfully updated "%s"', display_name)
-                except subprocess.CalledProcessError as err:
+                except (subprocess.CalledProcessError, CompatibilityError) as err:
                     failed.append(display_name)
                     self._logger.error(
-                        'Could not pull in "%s": "%s"', folder, err)
+                        'Could not update skill "%s" in "%s": %s',
+                        display_name, folder, err)
 
         return (succeeded, failed)
 
@@ -334,6 +348,7 @@ class SkillsManager:
         requirements_path = os.path.join(directory, 'requirements.txt')
 
         if os.path.isfile(requirements_path):
+            self._ensure_compatibility(requirements_path)
             self._logger.info(
                 'Installing dependencies from "%s"', requirements_path)
             subprocess.check_output(['pip', 'install', '-r', 'requirements.txt'],
@@ -341,3 +356,22 @@ class SkillsManager:
         else:
             self._logger.info(
                 'No requirements.txt available inside "%s", skipping', directory)
+
+    def _ensure_compatibility(self, requirements_path):
+        with open(requirements_path, encoding='utf8') as reqs_file:
+            def try_parse_requirement(line):
+                try:
+                    return Requirement.parse(line)
+                except: # pylint: disable=W0702
+                    return None
+
+            requirements = [try_parse_requirement(line) for line in reqs_file.readlines()]
+            pytlas_requirement = next((r for r in requirements\
+                                         if r and r.project_name == __title__),
+                                      None)
+
+            if pytlas_requirement:
+                specs_set = SpecifierSet(','.join(''.join(s) for s in pytlas_requirement.specs))
+
+                if self._version not in specs_set:
+                    raise CompatibilityError(__version__, pytlas_requirement)

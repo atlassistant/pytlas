@@ -15,19 +15,20 @@
 import sys
 import os
 
-with open('../pytlas/version.py') as f:
-  __version__ = f.readlines()[1].strip()[15:-1]
+with open('../pytlas/__about__.py') as f:
+    ABOUT = {}
+    exec(f.read(), ABOUT)
 
 # -- Project information -----------------------------------------------------
 
-project = 'pytlas'
-copyright = '2018, Julien LEICHER'
-author = 'Julien LEICHER'
+project = ABOUT['__title__']
+copyright = '2018, %s' % ABOUT['__author__']
+author = ABOUT['__author__']
 
 # The short X.Y version
-version = __version__
+version = ABOUT['__version__']
 # The full version, including alpha/beta/rc tags
-release = __version__
+release = ABOUT['__version__']
 
 
 # -- General configuration ---------------------------------------------------
