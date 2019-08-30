@@ -32,7 +32,7 @@ values casted to a particular type.
   from pytlas.settings import CONFIG
 
   # Load a setting file
-  CONFIG.load_from_file('file/path/pytlas.conf')
+  CONFIG.load_from_file('file/path/pytlas.ini')
 
   # Get a string
   CONFIG.get('openweather_key', 'a default value', section='pytlas.weather')

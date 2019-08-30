@@ -69,7 +69,8 @@ def make_argname(name):
 
 @click.group()
 @click.version_option(__version__)
-@click.option('-c', '--config_file', type=click.Path(), help='Path to the configuration file')
+@click.option('-c', '--config_file', type=click.Path(), default='pytlas.ini', \
+    help='Path to the configuration file (default to pytlas.ini')
 @click.option('-v', make_argname(VERBOSE), is_flag=True, help='Verbose output')
 @click.option(make_argname(DEBUG), is_flag=True, help='Debug mode')
 @click.option('-l', make_argname(LANGUAGE), help='Lang of the interpreter to use')
@@ -86,7 +87,7 @@ def main(config_file, skills_dir, language, repo_url, **kwargs):  # pragma: no c
     """An open-source 🤖 assistant library built for people and made to be super
     easy to setup and understand.
     """
-    if config_file:
+    if os.path.isfile(config_file):
         CONFIG.load_from_file(config_file)
 
     # Sets default settings value if not given in args or config file

@@ -10,13 +10,13 @@ pytlas include a basic CLI interface to interact with the system that you may
 use when developping skills.
 
 After cloning the git repository, this line will start the pytlas REPL by using
-the configuration file `example/pytlas.conf`. It will load all data and fit the
+the configuration file `example/pytlas.ini`. It will load all data and fit the
 engine before starting the interactive prompt.
 
 .. code:: bash
 
   $ cd example
-  $ pytlas -c pytlas.conf repl
+  $ pytlas -c pytlas.ini repl
 
 Using the library
 -----------------
