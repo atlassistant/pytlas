@@ -8,7 +8,7 @@ install:
   - pip uninstall -y pytest
   - snips-nlu download en
 script:
-  - pylint setup.py pytlas
+  - pylint --rcfile .pylintrc pytlas setup.py
   - python -m nose --with-doctest --with-xcoverage --cover-package=pytlas
 after_success:
   - codecov

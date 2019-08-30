@@ -18,7 +18,7 @@ Making Changes
 * Create a feature branch from where you want to base your work.
 * Make commits of logical units (if needed rebase your feature branch before
   submitting it).
-* Check that your changes are `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ compliant (command `pylint pytlas setup.py` is your friend!).
+* Check that your changes are `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ compliant (command `pylint --rcfile .pylintrc pytlas setup.py` is your friend!).
 * Make sure your commit messages are well formatted.
 * If your commit fixes an open issue, reference it in the commit message (f.e. ``#15``).
 * Update the documentation as needed.
