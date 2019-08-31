@@ -1,1 +1,1 @@
-pytlas[snips,test]~=4.0.2
+pytlas[snips,test]~=5.0
