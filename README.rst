@@ -23,7 +23,7 @@ An open-source 🤖💬 Python 3 assistant library built for people and made to 
 
 🌊 Want to get your feet wet? Have a look at the `example/skills` folder to see how it works!
 
-📚 Want to go futher and develop your own skill? Let's visit the `latest documentation <https://pytlas.readthedocs.io>`_ and share your work!
+📚 Want to go further and develop your own skill? Let's visit the `latest documentation <https://pytlas.readthedocs.io>`_ and share your work!
 
 Quick start
 -----------
