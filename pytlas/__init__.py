@@ -1,7 +1,8 @@
-from pytlas.version import __version__
-from pytlas.agent import Agent
-from pytlas.card import Card
-from pytlas.skill import intent, meta, register as register_intent, register_metadata
-from pytlas.localization import translations, register as register_translations
-from pytlas.training import training, register as register_training
-from pytlas.hooks import on_agent_created, on_agent_destroyed, register as register_hook
+"""The pytlas library parse natural language intents and call registered python
+handlers.
+"""
+
+from pytlas.__about__ import __version__
+from pytlas.conversing import Agent
+from pytlas.handling import Card, intent, meta, translations
+from pytlas.understanding import training

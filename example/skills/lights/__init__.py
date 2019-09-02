@@ -1,8 +1,9 @@
-from pytlas import register_training, register_translations
-from pytlas.utils import read_file
+from pytlas.understanding.training import GLOBAL_TRAININGS
+from pytlas.handling.localization import GLOBAL_TRANSLATIONS
+from pytlas.ioutils import read_file
 from .skill import *
 import json
 
-register_translations ('fr', lambda: json.loads(read_file('lights.fr.json', relative_to_file=__file__)))
-register_training ('en', lambda: read_file('lights.en.dsl', relative_to_file=__file__))
-register_training ('fr', lambda: read_file('lights.fr.dsl', relative_to_file=__file__))
+GLOBAL_TRANSLATIONS.register('fr', lambda: json.loads(read_file('lights.fr.json', relative_to=__file__)))
+GLOBAL_TRAININGS.register('en', lambda: read_file('lights.en.dsl', relative_to=__file__))
+GLOBAL_TRAININGS.register('fr', lambda: read_file('lights.fr.dsl', relative_to=__file__))

@@ -3,9 +3,12 @@
 Handler
 =======
 
-Handlers are python code that will be executed when an intent has been recognized.
+Handlers are python code that will be executed when an intent has been
+recognized.
 
-Your handler will received one and only arguments, a :ref:`request` instance which represents the agent and the context for which your handler is being called.
+Your handler will received one and only arguments, a :ref:`request` instance
+which represents the agent and the context for which your handler is being
+called.
 
 Getting started
 ---------------
@@ -14,7 +17,8 @@ Getting started
 
   The agent in the :ref:`request` is a proxy which maps to an :ref:`agents` so you have access to everything it exposes. Why a proxy you may ask? Because when the action is cancelled by the user, the request is invalidated so any call through the proxy will be dismissed.
 
-Here the basic code you need to have. Calling `request.agent.done` is mandatory to inform the agent that it should returns to its asleep state.
+Here the basic code you need to have. Calling `request.agent.done` is mandatory
+to inform the agent that it should returns to its asleep state.
 
 .. code-block:: python
 
@@ -31,14 +35,15 @@ Here the basic code you need to have. Calling `request.agent.done` is mandatory 
 Retrieving slots
 ----------------
 
-Remember, slots are like function arguments that has been extracted by the interpreter.
+Remember, slots are like function arguments that has been extracted by the
+:ref:`interpreter`.
 
 .. note::
 
   In a slot, the `value` property will give you back a representation of what have been parsed by the NLU engine in a meaningful way:
 
     - for durations, it will returns a `dateutil.relativedelta` object
-    - for moneys and temperatures, it returns a `pytlas.interpreters.slot.UnitValue`
+    - for moneys and temperatures, it returns a `pytlas.understanding.UnitValue`
     - for percentages, a float between 0 and 1
     - for exact time, a `datetime.datetime` object,
     - for time ranges, a tuple of `datetime.datetime` objects representing the lower and upper bounds
@@ -66,7 +71,8 @@ Remember, slots are like function arguments that has been extracted by the inter
 Answering
 ---------
 
-When you need to show something to the user, you should use the `answer` method.
+When you need to show something to the user, you should use the `answer`
+method.
 
 .. code-block:: python
 
@@ -92,7 +98,9 @@ When you need to show something to the user, you should use the `answer` method.
 Asking
 ------
 
-When you need some informations or slot have not been extracted in the original sentence, you can ask the user to fill them.
+When you need some informations or slot have not been extracted in the original
+sentence, you can ask the user to fill them. Once filled by the user, your
+handler will be called again with the updated slots.
 
 .. code-block:: python
 
@@ -112,3 +120,10 @@ When you need some informations or slot have not been extracted in the original 
     request.agent.answer('Turning lights on in %s' % room)
 
     return request.agent.done()
+
+Builtin intents
+---------------
+
+For now, there's only one builtin intent that you want to handle which is
+`__fallback__`. It will be called if an intent has been recognized but no handler
+have been found to fulfill the request.

@@ -1,5 +1,5 @@
 from sure import expect
-from pytlas.interpreters.slot import UnitValue
+from pytlas.understanding import UnitValue
 from .swear_jar import SwearJar
 
 class TestSwearJar:

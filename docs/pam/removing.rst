@@ -1,4 +1,0 @@
-Removing skills
-===============
-
-*TODO*

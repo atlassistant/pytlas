@@ -6,19 +6,23 @@ Usage
 Using the pytlas CLI
 --------------------
 
-pytlas include a basic CLI interface to interact with the system and help you build skill efficiently.
+pytlas include a basic CLI interface to interact with the system that you may
+use when developping skills.
 
-This line will start the pytlas REPL with skills located in the example/skills/ directory (in the git repository). It will load all data and fit the engine before starting the interactive prompt. The `-c cache/` lets the interpreter save its trained data to this folder to speed up the loading at the next launch if training data has not changed since.
+After cloning the git repository, this line will start the pytlas REPL by using
+the configuration file `example/pytlas.ini`. It will load all data and fit the
+engine before starting the interactive prompt.
 
 .. code:: bash
 
   $ cd example
-  $ pytlas -c cache/ repl
+  $ pytlas -c pytlas.ini repl
 
 Using the library
 -----------------
 
-Here is a snippet which cover the basics of using pytlas inside your own program :
+Here is a snippet which cover the basics of using pytlas inside your own
+program:
 
 .. code-block:: python
 
@@ -28,7 +32,7 @@ Here is a snippet which cover the basics of using pytlas inside your own program
   # ask for user inputs if they need to.
 
   from pytlas import Agent, intent, training
-  from pytlas.interpreters.snips import SnipsInterpreter
+  from pytlas.understanding.snips import SnipsInterpreter
   import os
   
   # Here, we register a sentence as training data for the specified language
@@ -97,7 +101,6 @@ Here is a snippet which cover the basics of using pytlas inside your own program
       print (text)
 
   if __name__ == '__main__':
-    
     # The last piece is the `Interpreter`. This is the part responsible for human
     # language parsing. It parses raw human sentences into something more useful for
     # the program.

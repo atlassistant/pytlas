@@ -3,9 +3,12 @@
 Testing your skill
 ==================
 
-Once you have developed your skill, you should test it. You can launch the pytlas repl and test it manually or (the prefered approach) use some code to trigger agent state and make assertions about how your skill has answered.
+Once you have developed your skill, you should test it. You can launch the
+pytlas repl and test it manually or (the prefered approach) use some code to
+trigger agent state and make assertions about how your skill has answered.
 
-In order to help you do the later approach, there's some utilities in the `pytlas` package itself.
+In order to help you do the later approach, there's some utilities in the
+`pytlas` package itself.
 
 Let's consider this tiny skill:
 

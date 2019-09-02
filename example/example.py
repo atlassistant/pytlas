@@ -1,14 +1,14 @@
 # pytlas is fairly easy to understand.
 # It will take raw user inputs, parse them and call appropriate handlers with
-# parsed slots values. It will also manage the conversation states so skills can 
-# ask for user inputs if they need to.
+# parsed slots values. It will also manage the conversation states so skills
+# can ask for user inputs if they need to.
 
-from pytlas import Agent, intent, training
-from pytlas.interpreters.snips import SnipsInterpreter
 import os
+from pytlas import Agent, intent, training
+from pytlas.understanding.snips import SnipsInterpreter
 
 # Here, we register a sentence as training data for the specified language
-# Those training sample are written using a simple DSL named chatl. It make it 
+# Those training sample are written using a simple DSL named chatl. It make it
 # back-end agnostic and is much more readable than raw dataset needed by NLU
 # engines.
 #
@@ -37,12 +37,13 @@ def en_data(): return """
 
 """
 
-# Here we are registering a function (with the intent decorator) as an handler 
+# Here we are registering a function (with the intent decorator) as an handler
 # for the intent 'lights_on'.
 #
-# So when a user input will be parsed as a 'lights_on' intent by the interpreter, 
-# this handler will be called with a special `Request` object which contains the 
-# agent (which triggered this handler) and the intent with its slots.
+# So when a user input will be parsed as a 'lights_on' intent by the
+# interpreter, this handler will be called with a special `Request` object
+# which contains the agent (which triggered this handler) and the intent with
+# its slots.
 
 @intent('lights_on')
 def on_intent_lights_on(request):

@@ -1,4 +1,4 @@
-from pytlas import intent, training, translations, meta, settings, Card
+from pytlas import intent, training, translations, meta, Card
 from datetime import datetime
 from dateutil.parser import parse as dateParse 
 import requests, pytz
@@ -8,7 +8,7 @@ def register(_): return {
   'name': _('weather'),
   'description': _('Gives weather forecasts using the OpenWeather API'),
   'version': '1.0.0',
-  'settings': ['WEATHER_APPID', 'WEATHER_UNITS']
+  'settings': ['weather.appid', 'weather.units']
 }
 
 # This entity will be shared among training data since it's not language specific
@@ -29,6 +29,7 @@ def en_data(): return """
 %[get_forecast]
   will it be sunny in @[location] at @[date#at]
   what's the weather like in @[location] on @[date#on]
+  what's the weather like
   will it rain in @[location] @[date]
   what kind of weather should I expect at @[date#at] in @[location]
   what will be the weather on @[date#on] in @[location]
@@ -108,8 +109,8 @@ units_map = {
 
 @intent('get_forecast')
 def on_forecast(req):
-  appid = settings.get('appid', section='weather', additional_lookup=req.agent.meta)
-  units = settings.get('units', default='metric', section='weather', additional_lookup=req.agent.meta)
+  appid = req.agent.settings.get('appid', section='weather')
+  units = req.agent.settings.get('units', default='metric', section='weather')
 
   if not appid:
     req.agent.answer(req._('You must provide an WEATHER_APPID'))

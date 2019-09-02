@@ -1,9 +1,11 @@
 Metadata
 ========
 
-Metadata are entirely optional and are mostly use by the tiny skill manager of pytlas to list loaded skills with associated informations.
+Metadata are entirely optional and are mostly use by the tiny skill manager of
+pytlas to list loaded skills with associated informations.
 
-As a best practice however, you must include it in your skill to provide at least a description of what your skill do and what settings are expected.
+As a best practice however, you must include it in your skill to provide at
+least a description of what your skill do and what settings are expected.
 
 .. code-block:: python
 
@@ -11,7 +13,7 @@ As a best practice however, you must include it in your skill to provide at leas
 
   # Here the function register will be called with a function used to translate
   # a string.
-  # If you prefer, you can also returns a `pytlas.skill.Meta` instance.
+  # If you prefer, you can also returns a `pytlas.skill.Meta` instance and use `pytlas.skill.Setting` instance in the `settings` property.
 
   @meta()
   def register(_): return {
@@ -19,7 +21,9 @@ As a best practice however, you must include it in your skill to provide at leas
     'description': _('Control some lights'),
     'version': '1.0.0',
     'author': 'Julien LEICHER',
-    'settings': ['LIGHTS_SETTING_ONE'],
+    'settings': [
+      'lights.setting_one', # represents the 'setting_one' key in the 'lights' section
+    ],
   }
 
   @translations('fr')
