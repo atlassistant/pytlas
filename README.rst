@@ -19,7 +19,7 @@ pytlas |travis| |cover| |pypi| |rtd| |license|
 
 An open-source 🤖💬 Python 3 assistant library built for people and made to be super easy to setup and understand.
 
-**pytlas** translates natural language sentence into python skills you can easily define yourself. It makes it really easy to develop your own Google Assistant, Alexa or whatever but runs on **your device** with **your trusted code** and **no connection** to obscure servers.
+**pytlas** translates natural language sentences into python skills you can easily define yourself. It makes it really easy to develop your own Google Assistant, Alexa or whatever but runs on **your device** with **your trusted code** and **no connection** to obscure servers.
 
 🌊 Want to get your feet wet? Have a look at the `example/skills` folder to see how it works!
 
