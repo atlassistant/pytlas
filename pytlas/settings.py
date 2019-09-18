@@ -113,6 +113,24 @@ class SettingsStore(Store):
         self._logger.info('Loading configuration from "%s"', abspath)
         self.config.read(abspath)
 
+    def to_dict(self):
+        """Gets a flat dictionary representation of this store (combining
+        settings from the config and the ones in additional_data).
+
+        Each keys will be converted to an env one so it can be used in an agent
+        meta for example.
+
+        Returns:
+            dict: Flat dictionary representing this store
+
+        """
+        result = self._data.copy()
+        for section in self.config.sections():
+            result.update({
+                to_env_key(section, k): v for k, v in self.config.items(section)
+            })
+        return result
+
     def set(self, setting, value, section=DEFAULT_SECTION):
         """Sets a setting value in the `_data` dictionary so it will take
         precedence over all the others.
