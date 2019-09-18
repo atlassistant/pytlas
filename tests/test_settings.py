@@ -47,6 +47,8 @@ class TestSettingsStore:
         s.load_from_file(os.path.join(
             os.path.dirname(__file__), '__test.conf'))
         expect(s.get('some_key', section='some_section')).to.equal('some_value')
+        expect(s._loaded_from_path).to.equal(os.path.abspath(os.path.join(
+            os.path.dirname(__file__), '__test.conf')))
 
     def test_it_should_set_the_setting_even_if_the_section_does_not_exists_yet(self):
         s = SettingsStore()
@@ -145,6 +147,22 @@ class TestSettingsStore:
         s._data['PATHS_A_KEY'] = 'var/data'
         expect(s.getpath('a key', section='paths')).to.equal(
             os.path.abspath('var/data'))
+
+    def test_it_should_leave_absolute_path_as_it(self):
+        s = SettingsStore(additional_lookup={
+            'PATHS_A_KEY': os.path.abspath('skills'),
+        })
+        s.load_from_file(os.path.abspath('my_pytlas/pytlas.ini'))
+        expect(s.getpath('a key', section='paths')).to.equal(
+            os.path.abspath('skills'))
+
+    def test_it_should_compute_a_path_relative_to_the_loaded_config_one(self):
+        s = SettingsStore(additional_lookup={
+            'PATHS_A_KEY': '../skills',
+        })
+        s.load_from_file(os.path.abspath('my_pytlas/pytlas.ini'))
+        expect(s.getpath('a key', section='paths')).to.equal(
+            os.path.abspath('my_pytlas/../skills'))
 
 
 class TestWriteToStore:
