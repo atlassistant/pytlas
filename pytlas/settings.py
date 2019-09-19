@@ -95,6 +95,7 @@ class SettingsStore(Store):
         """
         super().__init__('settings', additional_lookup or {})
 
+        self._loaded_from_path = None
         if config:
             self.config = config
         else:
@@ -111,6 +112,7 @@ class SettingsStore(Store):
         """
         abspath = os.path.abspath(path)
         self._logger.info('Loading configuration from "%s"', abspath)
+        self._loaded_from_path = abspath
         self.config.read(abspath)
 
     def to_dict(self):
@@ -237,7 +239,8 @@ class SettingsStore(Store):
         return val.split(',') if val else default
 
     def getpath(self, setting, default=None, section=DEFAULT_SECTION):
-        """Gets an absolute path for a setting.
+        """Gets an absolute path for a setting. If the value is not an absolute
+        path, it will be resolved based on the loaded config file directory.
 
         It uses the `get` under the hood so the same rules applies.
 
@@ -252,7 +255,18 @@ class SettingsStore(Store):
         """
         val = self.get(setting, default, section=section)
 
-        return os.path.abspath(val) if val else None
+        if not val:
+            return None
+
+        if os.path.isabs(val):
+            return val
+
+        rel_to = os.curdir
+
+        if self._loaded_from_path:
+            rel_to = os.path.dirname(self._loaded_from_path)
+
+        return os.path.abspath(os.path.join(rel_to, val))
 
 
 # Holds the global settings store of the application
