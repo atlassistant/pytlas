@@ -44,8 +44,7 @@ class TestSettingsStore:
     def test_it_should_load_settings_from_a_path(self):
         s = SettingsStore()
         expect(s.get('some_key', section='some_section')).to.be.none
-        s.load_from_file(os.path.join(
-            os.path.dirname(__file__), '__test.conf'))
+        s.load_from_file(os.path.join(os.path.dirname(__file__), '__test.conf'))
         expect(s.get('some_key', section='some_section')).to.equal('some_value')
         expect(s._loaded_from_path).to.equal(os.path.abspath(os.path.join(
             os.path.dirname(__file__), '__test.conf')))
@@ -163,6 +162,19 @@ class TestSettingsStore:
         s.load_from_file(os.path.abspath('my_pytlas/pytlas.ini'))
         expect(s.getpath('a key', section='paths')).to.equal(
             os.path.abspath('my_pytlas/../skills'))
+
+    def test_it_should_convert_all_settings_to_a_dict_representation(self):
+        s = SettingsStore(additional_lookup={
+            'A_SETTING': 'with a string value',
+            'ANOTHER_ONE': '42',
+        })
+        s.load_from_file(os.path.join(os.path.dirname(__file__), '__test.conf'))
+
+        expect(s.to_dict()).to.equal({
+            'A_SETTING': 'with a string value',
+            'ANOTHER_ONE': '42',
+            'SOME_SECTION_SOME_KEY': 'some_value'
+        })
 
 
 class TestWriteToStore:
