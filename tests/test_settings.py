@@ -1,4 +1,5 @@
 import os
+from unittest.mock import patch, mock_open, call
 from configparser import ConfigParser
 from sure import expect
 from pytlas.settings import SettingsStore, write_to_store, CONFIG
@@ -54,6 +55,16 @@ class TestSettingsStore:
         s.set('my_key', 'a value', section='my_section')
         expect(s.get('my_key', section='my_section')).to.equal('a value')
         expect(s._data.get('MY_SECTION_MY_KEY')).to.equal('a value')
+        
+
+    def test_it_should_keep_track_of_manually_set_settings(self):
+        s = SettingsStore()
+        s.set('my_key', 'a value', section='my_section')
+        s.set('my_key', 'a value', section='my_section')
+        s.set('another_key', 'a value', section='my_section')
+        expect(s._overriden_by_set).to.equal({
+            'my_section': set(['my_key', 'another_key']),
+        })
 
     def test_it_should_retrieve_a_string_value(self):
         s = SettingsStore()
@@ -175,6 +186,27 @@ class TestSettingsStore:
             'ANOTHER_ONE': '42',
             'SOME_SECTION_SOME_KEY': 'some_value'
         })
+    
+    def test_it_should_write_the_store_to_a_file(self):
+        s = SettingsStore(additional_lookup={
+            'A_SETTING': 'with a string value',
+            'SOME_SECTION_SOME_KEY': '42',
+        })
+        s.load_from_file(os.path.join(os.path.dirname(__file__), '__test.conf'))
+        s.set('my_value', '1337', section='weather')
+
+        with patch('builtins.open', mock_open()) as mopen:
+            s.write_to_file('a/file/path.ini')
+
+            mopen().write.assert_has_calls([
+                call('[some_section]\n'),
+                call('some_key=42\n'),
+                call('\n'),
+                call('[weather]\n'),
+                call('my_value=1337\n'),
+                call('\n'),
+            ])
+
 
 
 class TestWriteToStore:

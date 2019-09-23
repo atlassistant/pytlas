@@ -96,6 +96,7 @@ class SettingsStore(Store):
         super().__init__('settings', additional_lookup or {})
 
         self._loaded_from_path = None
+        self._overriden_by_set = {}
         if config:
             self.config = config
         else:
@@ -107,13 +108,39 @@ class SettingsStore(Store):
         """Load settings from a file.
 
         Args:
-          path (str): Name of the file to read
+            path (str): Name of the file to read
 
         """
         abspath = os.path.abspath(path)
         self._logger.info('Loading configuration from "%s"', abspath)
         self._loaded_from_path = abspath
         self.config.read(abspath)
+
+    def write_to_file(self, path):
+        """Write this settings store to a file.
+
+        Args:
+            path (str): Path to a file to store the resut.
+
+        """
+        # Starts by flattening the current ConfigParser object
+        conf_dict = {
+            name: {
+                k: self.get(k, section=name) for k, v in section.items()
+            } for name, section in self.config.items() if name != self.config.default_section
+        }
+
+        # Update with custom set data if any
+        for section, settings in self._overriden_by_set.items():
+            if section not in conf_dict:
+                conf_dict[section] = {}
+            conf_dict[section].update({v: self.get(v, section=section) for v in settings})
+
+        conf_to_write = ConfigParser()
+        conf_to_write.read_dict(conf_dict)
+
+        with open(path, 'w') as file:
+            conf_to_write.write(file, space_around_delimiters=False)
 
     def to_dict(self):
         """Gets a flat dictionary representation of this store (combining
@@ -145,6 +172,9 @@ class SettingsStore(Store):
           section (str): Section to write to
 
         """
+        if section not in self._overriden_by_set:
+            self._overriden_by_set[section] = set()
+        self._overriden_by_set[section].add(setting)
         self._data[to_env_key(section, setting)] = stringify(value)
 
     def get(self, setting, default=None, section=DEFAULT_SECTION):
