@@ -183,7 +183,7 @@ class Agent: # pylint: disable=R0902
 
         if self._transitions_graph_path:  # pragma: no cover
             try:
-                import pygraphviz # pylint: disable=W0611
+                import pygraphviz # pylint: disable=import-outside-toplevel,unused-import
                 from transitions.extensions import GraphMachine
 
                 MachineKlass = GraphMachine

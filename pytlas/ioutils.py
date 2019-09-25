@@ -2,6 +2,7 @@
 """
 
 import os
+import stat
 from shutil import rmtree as shrmtree
 
 
@@ -40,8 +41,6 @@ def _onerror(func, path, exc_info):  # pragma: no cover pylint: disable=W0613
     If the error is for another reason it re-raises the error.
 
     """
-    import stat
-
     if not os.access(path, os.W_OK):
             # Is the error an access error ?
         os.chmod(path, stat.S_IWUSR)
