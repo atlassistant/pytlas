@@ -1,4 +1,4 @@
-# pylint: disable=C0111,W0613,W0107
+# pylint: disable=missing-module-docstring,missing-function-docstring,unused-argument,unnecessary-pass
 
 import os
 import logging
