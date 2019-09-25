@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring,missing-function-docstring,unused-argument,unnecessary-pass
+# pylint: disable=missing-docstring,unused-argument,unnecessary-pass
 
 import os
 import logging
