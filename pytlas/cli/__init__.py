@@ -1,4 +1,7 @@
-# pylint: disable=missing-module-docstring,missing-function-docstring,unused-argument,unnecessary-pass
+"""Exposes the tiny pytlas CLI used to easily interact with the system.
+"""
+
+# pylint: disable=missing-function-docstring,unused-argument,unnecessary-pass
 
 import os
 import logging
