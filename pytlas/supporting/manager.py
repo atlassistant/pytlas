@@ -290,8 +290,10 @@ class SkillsManager:
             else:
                 try:
                     self._logger.info('Pulling updates for "%s"', display_name)
+                    # pylint: disable=unexpected-keyword-arg
                     subprocess.check_output(
                         ['git', 'pull'], cwd=folder, stderr=subprocess.STDOUT)
+                    # pylint: enable=unexpected-keyword-arg
 
                     self._install_dependencies(folder)
 
@@ -351,8 +353,10 @@ class SkillsManager:
             self._ensure_compatibility(requirements_path)
             self._logger.info(
                 'Installing dependencies from "%s"', requirements_path)
+            # pylint: disable=unexpected-keyword-arg
             subprocess.check_output(['pip', 'install', '-r', 'requirements.txt'],
                                     stderr=subprocess.STDOUT, cwd=directory)
+            # pylint: enable=unexpected-keyword-arg
         else:
             self._logger.info(
                 'No requirements.txt available inside "%s", skipping', directory)

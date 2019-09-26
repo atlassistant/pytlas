@@ -167,7 +167,9 @@ class SnipsInterpreter(Interpreter):
                 self._logger.info(
                     'Persisting trained engine to "%s"', self.cache_directory)
 
+                # Make sure the cache directory has been cleaned out
                 rmtree(self.cache_directory, ignore_errors=True)
+                os.makedirs(self.cache_directory, exist_ok=True)
 
                 self._engine.persist(self.cache_directory)
 

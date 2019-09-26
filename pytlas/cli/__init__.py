@@ -1,4 +1,7 @@
-# pylint: disable=C0111,W0613,W0107
+"""Exposes the tiny pytlas CLI used to easily interact with the system.
+"""
+
+# pylint: disable=missing-function-docstring,unused-argument,unnecessary-pass
 
 import os
 import logging

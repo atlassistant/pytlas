@@ -95,6 +95,8 @@ class SettingsStore(Store):
         """
         super().__init__('settings', additional_lookup or {})
 
+        self._loaded_from_path = None
+        self._overriden_by_set = {}
         if config:
             self.config = config
         else:
@@ -106,12 +108,57 @@ class SettingsStore(Store):
         """Load settings from a file.
 
         Args:
-          path (str): Name of the file to read
+            path (str): Name of the file to read
 
         """
         abspath = os.path.abspath(path)
         self._logger.info('Loading configuration from "%s"', abspath)
+        self._loaded_from_path = abspath
         self.config.read(abspath)
+
+    def write_to_file(self, path):
+        """Write this settings store to a file.
+
+        Args:
+            path (str): Path to a file to store the resut.
+
+        """
+        # Starts by flattening the current ConfigParser object
+        conf_dict = {
+            name: {
+                k: self.get(k, section=name) for k, v in section.items()
+            } for name, section in self.config.items() if name != self.config.default_section
+        }
+
+        # Update with custom set data if any
+        for section, settings in self._overriden_by_set.items():
+            if section not in conf_dict:
+                conf_dict[section] = {}
+            conf_dict[section].update({v: self.get(v, section=section) for v in settings})
+
+        conf_to_write = ConfigParser()
+        conf_to_write.read_dict(conf_dict)
+
+        with open(path, 'w') as file:
+            conf_to_write.write(file, space_around_delimiters=False)
+
+    def to_dict(self):
+        """Gets a flat dictionary representation of this store (combining
+        settings from the config and the ones in additional_data).
+
+        Each keys will be converted to an env one so it can be used in an agent
+        meta for example.
+
+        Returns:
+            dict: Flat dictionary representing this store
+
+        """
+        result = self._data.copy()
+        for section in self.config.sections():
+            result.update({
+                to_env_key(section, k): v for k, v in self.config.items(section)
+            })
+        return result
 
     def set(self, setting, value, section=DEFAULT_SECTION):
         """Sets a setting value in the `_data` dictionary so it will take
@@ -125,6 +172,9 @@ class SettingsStore(Store):
           section (str): Section to write to
 
         """
+        if section not in self._overriden_by_set:
+            self._overriden_by_set[section] = set()
+        self._overriden_by_set[section].add(setting)
         self._data[to_env_key(section, setting)] = stringify(value)
 
     def get(self, setting, default=None, section=DEFAULT_SECTION):
@@ -219,7 +269,8 @@ class SettingsStore(Store):
         return val.split(',') if val else default
 
     def getpath(self, setting, default=None, section=DEFAULT_SECTION):
-        """Gets an absolute path for a setting.
+        """Gets an absolute path for a setting. If the value is not an absolute
+        path, it will be resolved based on the loaded config file directory.
 
         It uses the `get` under the hood so the same rules applies.
 
@@ -234,7 +285,18 @@ class SettingsStore(Store):
         """
         val = self.get(setting, default, section=section)
 
-        return os.path.abspath(val) if val else None
+        if not val:
+            return None
+
+        if os.path.isabs(val):
+            return val
+
+        rel_to = os.curdir
+
+        if self._loaded_from_path:
+            rel_to = os.path.dirname(self._loaded_from_path)
+
+        return os.path.abspath(os.path.join(rel_to, val))
 
 
 # Holds the global settings store of the application

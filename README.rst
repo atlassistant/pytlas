@@ -57,7 +57,7 @@ Linting
 Contributing
 ------------
 
-Contributions are **welcome**! **pytlas** is being developed my spare time so every help is greatly appreciated to push this project further.
+Contributions are **welcome**! **pytlas** is being developed on my spare time so every help is greatly appreciated to push this project further.
 
 I have ideas!
 ~~~~~~~~~~~~~
