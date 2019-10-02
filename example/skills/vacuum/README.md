@@ -1,7 +1,7 @@
 Vacuum
 ===
 
-Vacuum is a demotic sample skill. Ask your vaccum cleaner to do the job
+Vacuum is a home automation sample skill. Ask your vaccum cleaner to do the job.
 
 
 ## Supported languages
