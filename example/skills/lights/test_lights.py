@@ -15,6 +15,20 @@ class TestLights:
     call = agent.model.on_answer.get_call(0)
 
     expect(call.text).to.equal('Turning lights on in kitchen')
+    expect(call.skill).to.equal('lights')
+    expect(call.action).to.equal('on')
+    expect(call.rooms).to.equal('kitchen')
+
+  def test_it_should_turn_lights_off(self):
+    agent.parse('Turn the lights off in kitchen please')
+
+    call = agent.model.on_answer.get_call(0)
+
+    expect(call.text).to.equal('Turning lights off in kitchen')
+    expect(call.skill).to.equal('lights')
+    expect(call.action).to.equal('off')
+    expect(call.rooms).to.equal('kitchen')
+
 
   def test_it_should_turn_lights_on_and_ask_for_rooms(self):
     agent.parse('Turn the lights on')
