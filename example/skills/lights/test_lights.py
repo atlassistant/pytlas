@@ -44,3 +44,18 @@ class TestLights:
     call = agent.model.on_answer.get_call()
 
     expect(call.text).to.equal('Turning lights on in kitchen')
+
+  def test_it_should_turn_lights_on_and_ask_among_available_rooms(self):
+    agent.parse('Turn the lights on in cellar')
+
+    call = agent.model.on_ask.get_call()
+
+    expect(call.slot).to.equal('room')
+    expect(call.text).to.equal("Please choose a room  among?")
+    expect(call.choices).to.equal(['kitchen', 'bedroom'])
+
+    agent.parse('In the kitchen please')
+
+    call = agent.model.on_answer.get_call()
+
+    expect(call.text).to.equal('Turning lights on in kitchen')
