@@ -1,71 +1,72 @@
 from pytlas import intent, training, translations, meta
 
+
 @training('en')
-def en_data():
-    return """
+def en_data(): return """
 %[lights_on]
-  turn the @[room]'s lights on would you
-  turn lights on in the @[room]
-  lights on in @[room] please
-  turn on the lights in @[room]
-  turn the lights on in @[room]
-  enlight me in @[room]
+    turn the @[room]'s lights on would you
+    turn lights on in the @[room]
+    lights on in @[room] please
+    turn on the lights in @[room]
+    turn the lights on in @[room]
+    enlight me in @[room]
 
 %[lights_off]
-  turn the @[room]'s lights off would you
-  turn lights off in the @[room]
-  lights off in @[room] please
-  turn off the lights in @[room]
-  turn the lights off in @[room]
+    turn the @[room]'s lights off would you
+    turn lights off in the @[room]
+    lights off in @[room] please
+    turn off the lights in @[room]
+    turn the lights off in @[room]
 
 ~[basement]
-  cellar
+    cellar
 
 @[room](extensible=false)
-  living room
-  kitchen
-  bedroom
-  ~[basement]
+    living room
+    kitchen
+    bedroom
+    ~[basement]
 """
+
 
 @training('fr')
-def fr_data():
-    return """
+def fr_data(): return """
 %[lights_on]
-  allume ~[light_or_lights] du @[room] veux-tu
-  allume les lumières de la @[room#feminin]
-  peux-tu allumer ~[light_or_lights] du @[room] s'il te plait
-  peux-tu allumer ~[light_or_lights] dans la @[room#feminin] s'il te plait
-  allume ~[light_or_lights] dans le @[room]
-  allume ~[light_or_lights] dans la @[room#feminin] et le @[room]
-  j'ai besoin de lumière dans le @[room]
-  j'ai besoin d'un peu de lumière dans la @[room#feminin]
+    allume ~[light_or_lights] du @[room] veux-tu
+    allume les lumières de la @[room#feminin]
+    peux-tu allumer ~[light_or_lights] du @[room] s'il te plait
+    peux-tu allumer ~[light_or_lights] dans la @[room#feminin] s'il te plait
+    allume ~[light_or_lights] dans le @[room]
+    allume ~[light_or_lights] dans la @[room#feminin] et le @[room]
+    j'ai besoin de lumière dans le @[room]
+    j'ai besoin d'un peu de lumière dans la @[room#feminin]
 
 ~[light_or_lights]
-  la lumière
-  les lumières
+    la lumière
+    les lumières
 
 %[lights_off]
-  éteint ~[light_or_lights] du @[room] veux-tu
-  éteint les lumières de la @[room#feminin]
-  peux-tu éteindre ~[light_or_lights] du @[room] s'il te plait
-  peux-tu éteindre ~[light_or_lights] dans la @[room#feminin] s'il te plait
-  éteint ~[light_or_lights] dans le @[room]
-  éteint ~[light_or_lights] dans la @[room#feminin] et le @[room]
-  coupe ~[light_or_lights] dans la @[room#feminin]
+    éteint ~[light_or_lights] du @[room] veux-tu
+    éteint les lumières de la @[room#feminin]
+    peux-tu éteindre ~[light_or_lights] du @[room] s'il te plait
+    peux-tu éteindre ~[light_or_lights] dans la @[room#feminin] s'il te plait
+    éteint ~[light_or_lights] dans le @[room]
+    éteint ~[light_or_lights] dans la @[room#feminin] et le @[room]
+    coupe ~[light_or_lights] dans la @[room#feminin]
 
 @[room](extensible=false)
-  salon
-  garage
-  celier
+    salon
+    garage
+    celier
 
 @[room#feminin]
-  cuisine
-  chambre
-  chambre d'ami
-  salle de bain
-  salle d'eau
+    cuisine
+    chambre
+    chambre d'ami
+    salle de bain
+    salle d'eau
 """
+
 
 @translations('fr')
 def fr_translations():
@@ -76,36 +77,41 @@ def fr_translations():
         "Turning lights %s in %s": "Très bien, lumières %s pour les pièces %s"
     }
 
+
 AVAILABLE_ROOMS = {
-    'en' : ['kitchen', 'bedroom'],
-    'fr' : ['cuisine', 'chambre']
+    'en': ['kitchen', 'bedroom'],
+    'fr': ['cuisine', 'chambre']
 }
-""" Restrict room to managed ones """
-# Sort of white list. Is should be defined in settings
+""" Restrict room to managed ones
+Sort of white list. Is should be defined in settings.
+"""
+
 
 def turn_lights(req, on):
     global AVAILABLE_ROOMS
 
     rooms = req.intent.slot('room')
 
-    if not rooms: #< no room defined ask for some
+    if not rooms:  # < no room defined ask for some
         return req.agent.ask('room', [
             req._('For which rooms?'),
             req._('Which rooms Sir?'),
             req._('Please specify some rooms'),
         ])
 
-    for room in rooms: #< check all room
-        if not room.value in AVAILABLE_ROOMS[req.lang]: #< this one is not available
+    for room in rooms:  # < check all room
+        # < this one is not available
+        if not room.value in AVAILABLE_ROOMS[req.lang]:
             return req.agent.ask('room',
                                  req._('Please choose a room  among?'),
                                  AVAILABLE_ROOMS[req.lang])
 
-# PUT YOUR LOGIC HERE
+    # put your logic here
 
     room_list = ', '.join(room.value for room in rooms)
     action_name = 'on' if on else 'off'
-    req.agent.answer(req._('Turning lights %s in %s') % (action_name, room_list), skill = 'lights', action = action_name, rooms = room_list)
+    req.agent.answer(req._('Turning lights %s in %s') % (
+        action_name, room_list), skill='lights', action=action_name, rooms=room_list)
 
     return req.agent.done()
 
