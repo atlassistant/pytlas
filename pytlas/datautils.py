@@ -2,13 +2,14 @@
 """
 
 import random
+from typing import Union, List
 from fuzzywuzzy import process
 from markdown import markdown
 from bs4 import BeautifulSoup
 from pytlas.settings import CONFIG, SETTING_ALLOWED_LANGUAGES
 
 
-def keep_one(value):
+def keep_one(value: Union[List[str], str]) -> str:
     """Keeps only one element if value is a list.
 
     Args:
@@ -24,7 +25,7 @@ def keep_one(value):
     return value
 
 
-def strip_format(value):
+def strip_format(value: str) -> str:
     """Removes any markdown format from the source to returns a raw string.
 
     Args:
@@ -55,7 +56,7 @@ def strip_format(value):
     return BeautifulSoup(html, 'html.parser').get_text()
 
 
-def find_match(choices, value):
+def find_match(choices: List[str], value: str) -> str:
     """Find element that fuzzy match the available choices.
 
     Args:
@@ -74,7 +75,7 @@ def find_match(choices, value):
     return match[0] if match else None
 
 
-def should_load_resources(language_code):
+def should_load_resources(language_code: str) -> bool:
     """Determines if resources for the given language should be loaded. It will help
     keep only necessary stuff and avoid allocating space for unneeded resources.
 

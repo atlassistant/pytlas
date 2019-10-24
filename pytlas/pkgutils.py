@@ -6,7 +6,7 @@ import sys
 import inspect
 
 
-def get_root_package_name(name):
+def get_root_package_name(name: str) -> str:
     """Get the root package name of a nested module one.
 
     Args:
@@ -25,7 +25,7 @@ def get_root_package_name(name):
     return name.split('.')[0] if name else name
 
 
-def get_package_name_from_module(module_name):
+def get_package_name_from_module(module_name: str) -> str:
     """Retrieve a package name from a module one.
 
     Args:
@@ -38,7 +38,7 @@ def get_package_name_from_module(module_name):
     return get_root_package_name(sys.modules[module_name].__package__)
 
 
-def get_caller_package_name():
+def get_caller_package_name() -> str:
     """Retrieve the caller package name. This is used with the register methods for the skills.
 
     Returns:
@@ -48,7 +48,7 @@ def get_caller_package_name():
     return get_root_package_name(inspect.currentframe().f_back.f_back.f_globals['__name__'])
 
 
-def get_module_path(module_name):
+def get_module_path(module_name: str) -> str:
     """Retrieve the path where a module is defined. If the module could not be found
     or it doesn't have a path property, the current working directory will be returned.
 

@@ -1,8 +1,11 @@
-# pylint: disable=C0111,R0903
+# pylint: disable=missing-docstring
 
 import uuid
 import logging
+from datetime import datetime
+from typing import Dict
 from babel.dates import format_date, format_datetime, format_time
+from pytlas.understanding.intent import Intent
 
 AGENT_SILENTED_METHODS = ['ask', 'answer', 'done', 'context']
 
@@ -17,11 +20,11 @@ class AgentProxy:
 
     """
 
-    def __init__(self, request, agent):
+    def __init__(self, request: 'Request', agent: 'Agent') -> None:
         self._request = request
         self._agent = agent
 
-    def unwrap(self):
+    def unwrap(self) -> 'Agent':
         """Retrieve the underlying agent for this proxy. Use it with caution since the
         proxy is here to silent cancelled requests.
 
@@ -34,31 +37,34 @@ class AgentProxy:
     def empty_func(self, *args, **kwargs): # pragma: no cover
         pass
 
-    def __getattr__(self, attr):
-        if self._agent._is_current_request(self._request) or attr not in AGENT_SILENTED_METHODS: # pylint: disable=W0212
+    def __getattr__(self, attr: str) -> object:
+        if self._agent._is_current_request(self._request) or attr not in AGENT_SILENTED_METHODS:
             return getattr(self._agent, attr)
 
         logging.debug('Silented "%s" call from the stub', attr)
         return self.empty_func
 
 
-class Request:
+class Request: # pylint: disable=too-few-public-methods
     """Tiny wrapper which represents a request sent to a skill handler.
     """
 
-    def __init__(self, agent, intent, module_translations=None):
+    def __init__(self,
+                 agent: 'Agent',
+                 intent: Intent,
+                 module_translations: Dict[str, str] = None) -> None:
         self.intent = intent
         """Intent associated with the request"""
-        self.id = uuid.uuid4().hex # pylint: disable=C0103
+        self.id = uuid.uuid4().hex # pylint: disable=invalid-name
         """Unique id of the request"""
-        self.agent = AgentProxy(self, agent)
+        self.agent: 'Agent' = AgentProxy(self, agent)
         """Agent proxy used to communicate back with the agent"""
         self.lang = agent.lang
         """Request language as extracted from the agent"""
 
         self._module_translations = module_translations or {}
 
-    def _d(self, date, date_only=False, time_only=False, **options):
+    def _d(self, date: datetime, date_only=False, time_only=False, **options) -> str:
         """Helper to localize given date using the agent current language.
 
         Args:
@@ -75,7 +81,7 @@ class Request:
 
         return func(date, locale=self.lang, **options)
 
-    def _(self, text):
+    def _(self, text: str) -> str:
         """Gets the translated value of the given text.
 
         Args:

@@ -4,6 +4,7 @@ the `CONFIG` property.
 
 import os
 import re
+from typing import Dict
 from functools import wraps
 from configparser import ConfigParser
 from pytlas.store import Store
@@ -16,7 +17,7 @@ SETTING_ALLOWED_LANGUAGES = 'allowed_languages'
 ENV_SANITIZER_RE = re.compile('[^0-9a-zA-Z]+')
 
 
-def to_env_key(section, setting):
+def to_env_key(section: str, setting: str) -> str:
     """Convert a section and a setting to an environment key.
 
     Args:
@@ -36,7 +37,7 @@ def to_env_key(section, setting):
     return ENV_SANITIZER_RE.sub('_', '%s_%s' % (section, setting)).upper()
 
 
-def stringify(value):
+def stringify(value: object) -> str:
     """Stringify the given value.
 
     Args:
@@ -82,9 +83,9 @@ class SettingsStore(Store):
     methods to make things easier.
     """
 
-    # pylint: disable=W0621
-
-    def __init__(self, config=None, additional_lookup=None):
+    def __init__(self,
+                 config: ConfigParser = None,
+                 additional_lookup: Dict[str, object] = None) -> None:
         """Instantiates a new store.
 
         Args:
@@ -95,16 +96,14 @@ class SettingsStore(Store):
         """
         super().__init__('settings', additional_lookup or {})
 
-        self._loaded_from_path = None
-        self._overriden_by_set = {}
+        self._loaded_from_path: str = None
+        self._overriden_by_set: Dict[str, set] = {}
         if config:
             self.config = config
         else:
             self.config = ConfigParser()
 
-    # pylint: enable=W0621
-
-    def load_from_file(self, path):
+    def load_from_file(self, path: str) -> None:
         """Load settings from a file.
 
         Args:
@@ -116,7 +115,7 @@ class SettingsStore(Store):
         self._loaded_from_path = abspath
         self.config.read(abspath)
 
-    def write_to_file(self, path):
+    def write_to_file(self, path: str) -> None:
         """Write this settings store to a file.
 
         Args:
@@ -142,7 +141,7 @@ class SettingsStore(Store):
         with open(path, 'w') as file:
             conf_to_write.write(file, space_around_delimiters=False)
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, str]:
         """Gets a flat dictionary representation of this store (combining
         settings from the config and the ones in additional_data).
 
@@ -160,7 +159,7 @@ class SettingsStore(Store):
             })
         return result
 
-    def set(self, setting, value, section=DEFAULT_SECTION):
+    def set(self, setting: str, value: object, section=DEFAULT_SECTION) -> None:
         """Sets a setting value in the `_data` dictionary so it will take
         precedence over all the others.
 
@@ -177,7 +176,7 @@ class SettingsStore(Store):
         self._overriden_by_set[section].add(setting)
         self._data[to_env_key(section, setting)] = stringify(value)
 
-    def get(self, setting, default=None, section=DEFAULT_SECTION):
+    def get(self, setting: str, default: str = None, section=DEFAULT_SECTION) -> str:
         """Gets a setting value, if an environment variable is defined, it will take
         precedence over the value hold in the inner config object.
 
@@ -199,7 +198,7 @@ class SettingsStore(Store):
                               os.environ.get(env_key,
                                              self.config.get(section, setting, fallback=default)))
 
-    def getbool(self, setting, default=False, section=DEFAULT_SECTION):
+    def getbool(self, setting: str, default=False, section=DEFAULT_SECTION) -> bool:
         """Gets a boolean value for a setting. It uses the `get` under the hood so the same
         rules applies.
 
@@ -214,9 +213,9 @@ class SettingsStore(Store):
         """
         val = self.get(setting, section=section)
 
-        return self.config._convert_to_boolean(val) if val else default # pylint: disable=W0212
+        return self.config._convert_to_boolean(val) if val else default # pylint: disable=protected-access
 
-    def getint(self, setting, default=0, section=DEFAULT_SECTION):
+    def getint(self, setting: str, default=0, section=DEFAULT_SECTION) -> int:
         """Gets a int value for a setting. It uses the `get` under the hood so the same
         rules applies.
 
@@ -233,7 +232,7 @@ class SettingsStore(Store):
 
         return int(val) if val else default
 
-    def getfloat(self, setting, default=0.0, section=DEFAULT_SECTION):
+    def getfloat(self, setting: str, default=0.0, section=DEFAULT_SECTION) -> float:
         """Gets a float value for a setting. It uses the `get` under the hood so the same
         rules applies.
 
@@ -250,7 +249,7 @@ class SettingsStore(Store):
 
         return float(val) if val else default
 
-    def getlist(self, setting, default=[], section=DEFAULT_SECTION): # pylint: disable=W0102
+    def getlist(self, setting: str, default=[], section=DEFAULT_SECTION) -> list: # pylint: disable=W0102
         """Gets a list for a setting. It will split values separated by a comma.
 
         It uses the `get` under the hood so the same rules applies.
@@ -268,7 +267,7 @@ class SettingsStore(Store):
 
         return val.split(',') if val else default
 
-    def getpath(self, setting, default=None, section=DEFAULT_SECTION):
+    def getpath(self, setting: str, default: str = None, section=DEFAULT_SECTION) -> str:
         """Gets an absolute path for a setting. If the value is not an absolute
         path, it will be resolved based on the loaded config file directory.
 
@@ -303,7 +302,7 @@ class SettingsStore(Store):
 CONFIG = SettingsStore()
 
 
-def write_to_store(section=DEFAULT_SECTION, store=None):
+def write_to_store(section=DEFAULT_SECTION, store: SettingsStore = None) -> None:
     """Simple decorator used to write each argument value to the current settings store
     if they're set.
 
@@ -313,13 +312,13 @@ def write_to_store(section=DEFAULT_SECTION, store=None):
 
     """
 
-    s = store or CONFIG # pylint: disable=C0103
+    s = store or CONFIG # pylint: disable=invalid-name
 
-    def new(f): # pylint: disable=C0103
+    def new(f): # pylint: disable=invalid-name
         @wraps(f)
         def func(**kwargs):
             # For each argument, update the SettingsStore object if value is set
-            for (k, v) in kwargs.items(): # pylint: disable=C0103
+            for (k, v) in kwargs.items(): # pylint: disable=invalid-name
                 if v:
                     s.set(k, v, section)
 
