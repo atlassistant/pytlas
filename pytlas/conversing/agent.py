@@ -160,6 +160,9 @@ class Agent: # pylint: disable=R0902
     def _build_is_in_context_lambda(self, ctx):
         return lambda _: self.current_context == ctx
 
+    def _has_current_request(self, _=None) -> bool:
+        return self._request is not None
+
     def build(self):
         """Setup the state machine based on the interpreter available intents. This is
         especialy useful if you have trained the interpreter after creating this agent.
@@ -210,11 +213,12 @@ class Agent: # pylint: disable=R0902
             STATE_ASLEEP,  # destination
             after=self.end_conversation)
 
-        # Go to the cancel state from anywhere
+        # Go to the cancel state from anywhere if a request exists
         self._machine.add_transition(
             STATE_CANCEL,
             [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK] + intents,
             STATE_CANCEL,
+            conditions=[self._has_current_request],
             after=self._on_cancel)
 
         # Go to the ask state from every intents
