@@ -1,14 +1,14 @@
 """Define class to ease slot handling.
 """
 
-class SlotValue: # pylint: disable=R0903
+class SlotValue: # pylint: disable=too-few-public-methods
     """Represents a single slot value.
 
     This class adds some utility methods to ease the process when working with skills.
 
     """
 
-    def __init__(self, raw_value, **meta):
+    def __init__(self, raw_value: object, **meta) -> None:
         self.value = raw_value
         self.meta = meta
 
@@ -26,7 +26,7 @@ class SlotValues(list):
 
     """
 
-    def __init__(self, iterable=[]): # pylint: disable=W0102
+    def __init__(self, iterable=[]): # pylint: disable=dangerous-default-value
         # Force iterable
         if not isinstance(iterable, list):
             iterable = [iterable]
@@ -35,7 +35,7 @@ class SlotValues(list):
         super(SlotValues, self).__init__(
             [v if isinstance(v, SlotValue) else SlotValue(v) for v in iterable])
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         """Returns true if it does not have any value.
 
         Returns:
@@ -44,7 +44,7 @@ class SlotValues(list):
         """
         return len(self) == 0
 
-    def first(self):
+    def first(self) -> SlotValue:
         """Returns the first slot value if any.
 
         Returns:
@@ -53,7 +53,7 @@ class SlotValues(list):
         """
         return self[0] if not self.is_empty() else SlotValue(None)
 
-    def last(self):
+    def last(self) -> SlotValue:
         """Returns the last slot value if any.
 
         Returns:
@@ -71,7 +71,7 @@ class UnitValue:
 
     """
 
-    def __init__(self, value, unit):
+    def __init__(self, value: float, unit: str) -> None:
         # Maybe we should use decimal instead :/
         self.value = value
         self.unit = unit
@@ -79,7 +79,7 @@ class UnitValue:
     def __str__(self):
         return '%.2g%s' % (self.value, self.unit)
 
-    def __get_other_value(self, other):
+    def __get_other_value(self, other: object) -> object:
         if isinstance(other, UnitValue):
             if other.unit != self.unit:
                 raise ArithmeticError('Unit are not the same!')
