@@ -3,9 +3,9 @@
 import os
 import sys
 import subprocess
+from typing import List
 import importlib
 import pkg_resources
-from typing import List
 from dateutil.relativedelta import relativedelta
 from dateutil.parser import parse as parse_date
 from snips_nlu import SnipsNLUEngine, __version__
