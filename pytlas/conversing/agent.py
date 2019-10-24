@@ -168,8 +168,8 @@ class Agent: # pylint: disable=too-many-instance-attributes
     def _build_is_in_context_lambda(self, ctx: str) -> Callable:
         return lambda _: self.current_context == ctx
 
-    def _has_current_request(self, _=None) -> bool:
-        return self._request is not None
+    def _has_current_request_or_context(self, _=None) -> bool:
+        return (self._request is not None) or (self.current_context is not None)
 
     def build(self) -> None:
         """Setup the state machine based on the interpreter available intents. This is
@@ -226,7 +226,7 @@ class Agent: # pylint: disable=too-many-instance-attributes
             STATE_CANCEL,
             [STATE_ASLEEP, STATE_ASK, STATE_FALLBACK] + intents,
             STATE_CANCEL,
-            conditions=[self._has_current_request],
+            conditions=[self._has_current_request_or_context],
             after=self._on_cancel)
 
         # Go to the ask state from every intents
