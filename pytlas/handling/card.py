@@ -1,9 +1,9 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 from pytlas.datautils import strip_format
 
 
-class Card: # pylint: disable=R0902,R0903
+class Card: # pylint: disable=too-few-public-methods,too-many-instance-attributes
 
     """Simple class to hold card properties which the primary way for skill to communicate
     visual data to the end user.
@@ -14,7 +14,12 @@ class Card: # pylint: disable=R0902,R0903
 
     """
 
-    def __init__(self, header, text, subhead=None, header_link=None, media=None): # pylint: disable=R0913
+    def __init__(self, # pylint: disable=too-many-arguments
+                 header: str,
+                 text: str,
+                 subhead: str = None,
+                 header_link: str = None,
+                 media: str = None) -> None:
         """Instantiates a new card.
 
         Args:
@@ -25,7 +30,6 @@ class Card: # pylint: disable=R0902,R0903
           media (str): Media tied to this card, ideally you should give a base64 string
 
         """
-
         self.header = header
         self.raw_header = strip_format(header)
 

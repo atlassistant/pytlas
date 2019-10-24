@@ -1,4 +1,4 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 import os
 import sys

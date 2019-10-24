@@ -1,4 +1,4 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 class AttrDict(dict):
     """Simple object to access dict keys like attributes.

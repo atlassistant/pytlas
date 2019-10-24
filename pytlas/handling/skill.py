@@ -1,16 +1,21 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
+from typing import Callable, List
 from pytlas.settings import DEFAULT_SECTION
 from pytlas.pkgutils import get_caller_package_name
 from pytlas.store import Store
-from pytlas.handling.localization import GLOBAL_TRANSLATIONS
+from pytlas.handling.localization import GLOBAL_TRANSLATIONS, TranslationsStore
 
 
 class Setting:
     """Represents a skill settings.
     """
 
-    def __init__(self, section, name, data_type=str, description='No description provided'):
+    def __init__(self,
+                 section: str,
+                 name: str,
+                 data_type: type = str,
+                 description='No description provided') -> None:
         """Instantiate a new setting.
 
         Args:
@@ -26,7 +31,7 @@ class Setting:
         self.type = data_type
 
     @classmethod
-    def from_value(cls, value):
+    def from_value(cls, value: str) -> 'Setting':
         """Instantiate a setting from a string representation in the form section.name
 
         Args:
@@ -55,15 +60,21 @@ class Setting:
         return f'{self.section}.{self.name} ({self.type.__name__})'
 
 
-class Meta: # pylint: disable=R0902
+class Meta: # pylint: disable=too-many-instance-attributes
     """Represents a single skill metadata. It's used primarly for skill listing and
     comprehensive help on how your assistant can help you.
     """
 
-    # pylint: disable=W0102,R0913
+    # pylint: disable=dangerous-default-value,too-many-arguments
 
-    def __init__(self, name=None, description='No description provided',
-                 version='?.?.?', author='', homepage='', media='', settings=[]):
+    def __init__(self,
+                 name: str = None,
+                 description='No description provided',
+                 version='?.?.?',
+                 author='',
+                 homepage='',
+                 media='',
+                 settings=[]):
         """Instantiate a new Metadata instance for a skill.
 
         Args:
@@ -86,7 +97,7 @@ class Meta: # pylint: disable=R0902
             setting, Setting) else Setting.from_value(setting) for setting in settings]
         self.package = name # Represents the module which defines this meta
 
-    # pylint: enable=W0102,R0913
+    # pylint: enable=dangerous-default-value,too-many-arguments
 
     def __eq__(self, value):
         if not isinstance(value, self.__class__):
@@ -111,7 +122,7 @@ class MetasStore(Store):
     """Hold skill metadatas.
     """
 
-    def __init__(self, translations_store=None, data=None):
+    def __init__(self, translations_store: TranslationsStore = None, data: dict = None) -> None:
         """Instantiates a new store.
 
         Args:
@@ -122,7 +133,7 @@ class MetasStore(Store):
         super().__init__('meta', data or {})
         self._translations = translations_store or GLOBAL_TRANSLATIONS
 
-    def _apply_meta_func(self, package, func, translations): # pylint: disable=R0201
+    def _apply_meta_func(self, package: str, func: Callable, translations: dict) -> Meta: # pylint: disable=no-self-use
         result = func(lambda k: translations.get(k, k))
 
         if not isinstance(result, Meta):
@@ -132,7 +143,7 @@ class MetasStore(Store):
 
         return result
 
-    def all(self, lang):
+    def all(self, lang: str) -> List[Meta]:
         """Retrieve all registered meta in the given language.
 
         Args:
@@ -152,7 +163,7 @@ class MetasStore(Store):
 
         return metas
 
-    def get(self, package, lang):
+    def get(self, package: str, lang: str) -> Meta:
         """Retrieve a meta for the given package.
 
         Args:
@@ -171,7 +182,7 @@ class MetasStore(Store):
         translations = self._translations.get(package, lang)
         return self._apply_meta_func(package, meta_func, translations)
 
-    def register(self, func, package=None):
+    def register(self, func: Callable, package: str = None) -> None:
         """Register skill package metadata
 
         Args:
@@ -191,7 +202,7 @@ class MetasStore(Store):
 GLOBAL_METAS = MetasStore()
 
 
-def meta(store=None, package=None):
+def meta(store: MetasStore = None, package: str = None) -> None:
     """Decorator used to register skill metadata.
 
     Args:
@@ -200,7 +211,7 @@ def meta(store=None, package=None):
         pytlas will try to determine it based on the call stack
 
     """
-    ms = store or GLOBAL_METAS # pylint: disable=C0103
+    ms = store or GLOBAL_METAS # pylint: disable=invalid-name
 
     def new(func):
         ms.register(func, package or get_caller_package_name()
@@ -214,7 +225,7 @@ class HandlersStore(Store):
     """Holds skill handlers.
     """
 
-    def __init__(self, data=None):
+    def __init__(self, data: dict = None) -> None:
         """Instantiates a new store.
 
         Args:
@@ -223,7 +234,7 @@ class HandlersStore(Store):
         """
         super().__init__('handl', data or {})
 
-    def get(self, intent_name):
+    def get(self, intent_name: str) -> Callable:
         """Try to retrieve the handler associated with a particular intent.
 
         Args:
@@ -235,7 +246,7 @@ class HandlersStore(Store):
         """
         return self._data.get(intent_name)
 
-    def register(self, intent_name, func, package=None):
+    def register(self, intent_name: str, func: Callable, package: str = None) -> None:
         """Register an intent handler.
 
         Args:
@@ -258,7 +269,7 @@ class HandlersStore(Store):
 GLOBAL_HANDLERS = HandlersStore()
 
 
-def intent(intent_name, store=None, package=None):
+def intent(intent_name: str, store: HandlersStore = None, package: str = None) -> None:
     """Decorator used to register an intent handler.
 
     Args:
@@ -267,7 +278,7 @@ def intent(intent_name, store=None, package=None):
         pytlas will try to determine it based on the call stack
 
     """
-    hs = store or GLOBAL_HANDLERS # pylint: disable=C0103
+    hs = store or GLOBAL_HANDLERS # pylint: disable=invalid-name
 
     def new(func):
         hs.register(intent_name, func,

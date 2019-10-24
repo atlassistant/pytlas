@@ -28,7 +28,7 @@ def instantiate_and_fit_interpreter(training_file=None):  # pragma: no cover
         import_skills(CONFIG.getpath(SKILLS_DIR), CONFIG.getbool(WATCH))
 
     try:
-        from pytlas.understanding.snips import SnipsInterpreter
+        from pytlas.understanding.snips import SnipsInterpreter # pylint: disable=import-outside-toplevel
 
         interpreter = SnipsInterpreter(
             CONFIG.get(LANGUAGE), CONFIG.getpath(CACHE_DIR))

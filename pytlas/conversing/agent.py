@@ -192,7 +192,7 @@ class Agent: # pylint: disable=too-many-instance-attributes
         if self._transitions_graph_path:  # pragma: no cover
             try:
                 import pygraphviz # pylint: disable=import-outside-toplevel,unused-import
-                from transitions.extensions import GraphMachine
+                from transitions.extensions import GraphMachine # pylint: disable=import-outside-toplevel
 
                 MachineKlass = GraphMachine
                 kwargs['show_conditions'] = True
@@ -381,10 +381,10 @@ class Agent: # pylint: disable=too-many-instance-attributes
             self._intents_queue.extend(intents)
 
         # If the user wants to cancel the current action, immediately go to the cancel state
-        if cancel_intent:  # pylint: disable=no-member
+        if cancel_intent:
             self.go(STATE_CANCEL, intent=cancel_intent)
         else:
-            if self.state == STATE_ASK:  # pylint: disable=no-member
+            if self.state == STATE_ASK: # pylint: disable=no-member
 
                 # If choices are limited, try to extract a match
                 if self._choices:

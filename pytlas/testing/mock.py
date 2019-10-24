@@ -1,4 +1,4 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 from unittest.mock import MagicMock
 from pytlas.testing.attrdict import AttrDict
@@ -54,7 +54,7 @@ class ModelMock(MagicMock):
             except IndexError:
                 pass
 
-        for (k, v) in self.call_args_list[number][1].items(): # pylint: disable=C0103
+        for (k, v) in self.call_args_list[number][1].items(): # pylint: disable=invalid-name
             result[k] = v
 
         return result

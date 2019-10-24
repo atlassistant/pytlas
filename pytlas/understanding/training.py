@@ -1,4 +1,4 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 from pytlas.pkgutils import get_caller_package_name
 from pytlas.datautils import should_load_resources
@@ -84,7 +84,7 @@ def training(lang, store=None, package=None):
         will try to determine it based on the call stack
 
     """
-    ts = store or GLOBAL_TRAININGS # pylint: disable=C0103
+    ts = store or GLOBAL_TRAININGS # pylint: disable=invalid-name
 
     def new(func):
         ts.register(lang, func, package or get_caller_package_name()
