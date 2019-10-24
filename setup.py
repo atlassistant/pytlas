@@ -1,4 +1,4 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 from setuptools import setup, find_packages
 
@@ -7,7 +7,7 @@ with open('README.rst', encoding='utf-8') as f:
 
 with open('pytlas/__about__.py') as about_file:
     ABOUT = {}
-    exec(about_file.read(), ABOUT) # pylint: disable=W0122
+    exec(about_file.read(), ABOUT) # pylint: disable=exec-used
 
 setup(
     name=ABOUT['__title__'],

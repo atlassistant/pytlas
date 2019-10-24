@@ -1,15 +1,18 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 import logging
 import hashlib
 import json
+from typing import List
 import pychatl.adapters as adapters
 from pychatl import parse, merge
+from pytlas.understanding.training import TrainingsStore
 from pytlas.understanding.slot import SlotValue
+from pytlas.understanding.intent import Intent
 from pytlas.understanding.training import GLOBAL_TRAININGS
 
 
-def compute_checksum(data):
+def compute_checksum(data: object) -> str:
     """Generates a checksum from a raw string or object.
 
     If the given data is not a string, a json representation will be used.
@@ -34,7 +37,11 @@ class Interpreter:
 
     """
 
-    def __init__(self, name, lang, cache_directory=None, trainings_store=None):
+    def __init__(self,
+                 name: str,
+                 lang: str,
+                 cache_directory: str = None,
+                 trainings_store: TrainingsStore = None) -> None:
         """Instantiates a new interpreter.
 
         Args:
@@ -49,15 +56,15 @@ class Interpreter:
 
         self.lang = lang
         self.name = name
-        self.intents = []
+        self.intents: List[str] = []
         self.cache_directory = cache_directory
 
-    def load_from_cache(self):
+    def load_from_cache(self) -> None:
         """Loads the interpreter from the cache directory.
         """
         pass # pylint: disable=W0107
 
-    def fit(self, data):
+    def fit(self, data: dict) -> None:
         """Fit the interpreter with given data.
 
         Args:
@@ -66,7 +73,7 @@ class Interpreter:
         """
         self._logger.debug(data)
 
-    def fit_from_skill_data(self, skills=None): # pylint: disable=R1710
+    def fit_from_skill_data(self, skills: List[str] = None) -> None: # pylint: disable=inconsistent-return-statements
         """Fit the interpreter with every training data registered in the inner TrainingsStore.
 
         Args:
@@ -105,7 +112,7 @@ class Interpreter:
 
         self.fit(data)
 
-    def fit_from_file(self, path):
+    def fit_from_file(self, path: str) -> None:
         """Fit the interpreter from a training file path.
 
         Args:
@@ -117,7 +124,7 @@ class Interpreter:
         with open(path, encoding='utf-8') as file:
             self.fit(json.load(file))
 
-    def parse_slot(self, intent, slot, msg): # pylint: disable=W0613,R0201
+    def parse_slot(self, intent: str, slot: str, msg: str) -> List[SlotValue]: # pylint: disable=unused-argument,no-self-use
         """Parses the given raw message to extract a slot matching given criterias.
 
         Args:
@@ -132,7 +139,7 @@ class Interpreter:
         # Default is to wrap the raw msg in a SlotValue
         return [SlotValue(msg)]
 
-    def parse(self, msg, scopes=None): # pylint: disable=W0613,R0201
+    def parse(self, msg: str, scopes: List[str] = None) -> List[Intent]: # pylint: disable=unused-argument,no-self-use
         """Parses the given raw message and returns parsed intents.
 
         Args:

@@ -1,5 +1,6 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
+from typing import List
 from unittest.mock import MagicMock
 from pytlas.testing.attrdict import AttrDict
 
@@ -9,11 +10,11 @@ class ModelMock(MagicMock):
     agent model.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._args_map = []
 
-    def has_arguments_mapping(self, mapping):
+    def has_arguments_mapping(self, mapping: List[str]) -> 'ModelMock':
         """Adds arguments names to this instance to be able to test against them. Maybe
         there is a better way to handle it, I don't know yet.
 
@@ -24,7 +25,7 @@ class ModelMock(MagicMock):
         self._args_map = mapping
         return self
 
-    def get_call(self, number=-1):
+    def get_call(self, number=-1) -> AttrDict:
         """Retrieve call args for the given call number. With this tiny method, you can
         call a mock multiple times and assert against a specific one.
 
@@ -54,17 +55,17 @@ class ModelMock(MagicMock):
             except IndexError:
                 pass
 
-        for (k, v) in self.call_args_list[number][1].items(): # pylint: disable=C0103
+        for (k, v) in self.call_args_list[number][1].items(): # pylint: disable=invalid-name
             result[k] = v
 
         return result
 
 
-class AgentModelMock: # pylint: disable=R0903
+class AgentModelMock: # pylint: disable=too-few-public-methods
     """Represents an agent model targeted at testing skills easily.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.on_answer = ModelMock().has_arguments_mapping(['text', 'cards'])
         self.on_ask = ModelMock().has_arguments_mapping(
             ['slot', 'text', 'choices'])
@@ -72,7 +73,7 @@ class AgentModelMock: # pylint: disable=R0903
         self.on_context = ModelMock().has_arguments_mapping(['context_name'])
         self.on_thinking = ModelMock().has_arguments_mapping([])
 
-    def reset(self):
+    def reset(self) -> None:
         """Resets all magic mocks calls. Basically, you should call it in your test
         setup method to make sure each instance starts from a fresh state.
         """

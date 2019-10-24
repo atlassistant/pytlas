@@ -1,13 +1,15 @@
-# pylint: disable=C0111,R0913
+# pylint: disable=missing-module-docstring,too-many-arguments
 
 import logging
 import uuid
+from typing import List, Callable, Dict, Union
 from transitions import Machine, MachineError
 from pytlas.conversing.request import Request
-from pytlas.handling.localization import GLOBAL_TRANSLATIONS
-from pytlas.handling.skill import GLOBAL_HANDLERS
-from pytlas.handling.hooks import GLOBAL_HOOKS, ON_AGENT_CREATED, ON_AGENT_DESTROYED
-from pytlas.understanding import Intent
+from pytlas.handling.card import Card
+from pytlas.handling.localization import GLOBAL_TRANSLATIONS, TranslationsStore
+from pytlas.handling.skill import GLOBAL_HANDLERS, HandlersStore
+from pytlas.handling.hooks import GLOBAL_HOOKS, ON_AGENT_CREATED, ON_AGENT_DESTROYED, HooksStore
+from pytlas.understanding import Intent, Interpreter
 from pytlas.settings import CONFIG, SettingsStore
 from pytlas.pkgutils import get_package_name_from_module
 from pytlas.datautils import keep_one, strip_format, find_match
@@ -24,7 +26,7 @@ STATE_ASK = STATE_PREFIX + 'ask' + STATE_SUFFIX
 CONTEXT_SEPARATOR = '/'
 
 
-def is_builtin(state):
+def is_builtin(state: str) -> bool:
     """Checks if the given state is a builtin one.
 
     Args:
@@ -37,7 +39,7 @@ def is_builtin(state):
     return state.startswith(STATE_PREFIX) and state.endswith(STATE_SUFFIX) if state else False
 
 
-def build_scopes(intents, include_cancel_state=True):
+def build_scopes(intents: List[str], include_cancel_state=True) -> Dict[str, List[str]]:
     """Build all scopes given an intents list. It will create a dict which contains
     association between a context and available scopes.
 
@@ -73,7 +75,7 @@ def build_scopes(intents, include_cancel_state=True):
     return scopes
 
 
-class Agent: # pylint: disable=R0902
+class Agent: # pylint: disable=too-many-instance-attributes
     """Manages a conversation with a client.
 
     Conversation state is represented by a finite state machine. It handle ask states
@@ -82,8 +84,14 @@ class Agent: # pylint: disable=R0902
 
     """
 
-    def __init__(self, interpreter, model=None, handlers_store=None, transitions_graph_path=None,
-                 hooks_store=None, translations_store=None, **meta):
+    def __init__(self,
+                 interpreter: Interpreter,
+                 model: object = None,
+                 handlers_store: HandlersStore = None,
+                 transitions_graph_path: str = None,
+                 hooks_store: HooksStore = None,
+                 translations_store: TranslationsStore = None,
+                 **meta) -> None:
         """Initialize an agent.
 
         When skills ask or answer something to the client, they can send markdown
@@ -110,11 +118,11 @@ class Agent: # pylint: disable=R0902
         self._interpreter = interpreter
         self._transitions_graph_path = transitions_graph_path
 
-        self._on_ask = None
-        self._on_answer = None
-        self._on_done = None
-        self._on_thinking = None
-        self._on_context = None
+        self._on_ask: Callable = None
+        self._on_answer: Callable = None
+        self._on_done: Callable = None
+        self._on_thinking: Callable = None
+        self._on_context: Callable = None
 
         # Extract stores data
         self._handlers = handlers_store or GLOBAL_HANDLERS
@@ -124,15 +132,15 @@ class Agent: # pylint: disable=R0902
             translations_store or GLOBAL_TRANSLATIONS).all(self.lang)
         self._hooks = hooks_store or GLOBAL_HOOKS
 
-        self._intents_queue = []
-        self._request = None
-        self._asked_slot = None
-        self._choices = None
-        self._available_scopes = {}
-        self._current_scopes = None
+        self._intents_queue: List[Intent] = []
+        self._request: Request = None
+        self._asked_slot: str = None
+        self._choices: List[str] = None
+        self._available_scopes: Dict[str, List[str]] = {}
+        self._current_scopes: List[str] = None
 
-        self.id = uuid.uuid4().hex # pylint: disable=C0103
-        self._model = None
+        self.id = uuid.uuid4().hex # pylint: disable=invalid-name
+        self._model: object = None
         self.model = model
         self.meta = meta
 
@@ -143,9 +151,9 @@ class Agent: # pylint: disable=R0902
         # data, we manually affect the inner data to reference the agent meta. With
         # this tiny hack, agent settings and meta will be in sync because they share
         # the same dict pointer.
-        self.settings._data = self.meta # pylint: disable=W0212
+        self.settings._data = self.meta
 
-        self.current_context = None
+        self.current_context: str = None
 
         self._machine = None
         self.build()
@@ -153,14 +161,14 @@ class Agent: # pylint: disable=R0902
 
         self._hooks.trigger(ON_AGENT_CREATED, self)
 
-    def __del__(self):
+    def __del__(self) -> None:
         # Maybe we should use a finalizer instead
         self._hooks.trigger(ON_AGENT_DESTROYED, self)
 
-    def _build_is_in_context_lambda(self, ctx):
+    def _build_is_in_context_lambda(self, ctx: str) -> Callable:
         return lambda _: self.current_context == ctx
 
-    def build(self):
+    def build(self) -> None:
         """Setup the state machine based on the interpreter available intents. This is
         especialy useful if you have trained the interpreter after creating this agent.
 
@@ -184,7 +192,7 @@ class Agent: # pylint: disable=R0902
         if self._transitions_graph_path:  # pragma: no cover
             try:
                 import pygraphviz # pylint: disable=import-outside-toplevel,unused-import
-                from transitions.extensions import GraphMachine
+                from transitions.extensions import GraphMachine # pylint: disable=import-outside-toplevel
 
                 MachineKlass = GraphMachine
                 kwargs['show_conditions'] = True
@@ -257,7 +265,7 @@ class Agent: # pylint: disable=R0902
             self._machine.get_graph().draw(self._transitions_graph_path, prog='dot')
 
     @property
-    def lang(self):
+    def lang(self) -> str:
         """Retrieve the language understood by this agent.
 
         Returns:
@@ -267,7 +275,7 @@ class Agent: # pylint: disable=R0902
         return self._interpreter.lang
 
     @property
-    def model(self):
+    def model(self) -> object:
         """Retrieve the model associated with this agent instance.
 
         Returns:
@@ -277,7 +285,7 @@ class Agent: # pylint: disable=R0902
         return self._model
 
     @model.setter
-    def model(self, model):
+    def model(self, model: object) -> None:
         """Sets the model associated with this instance. It will pull handlers
         from the model attributes:
 
@@ -300,7 +308,7 @@ class Agent: # pylint: disable=R0902
             self._on_thinking = getattr(self._model, 'on_thinking', None)
             self._on_context = getattr(self._model, 'on_context', None)
 
-    def _log_transition(self, evt):
+    def _log_transition(self, evt) -> None:
         dest = evt.transition.dest
         msg = '⚡ "%s": %s -> %s' % (evt.event.name, evt.transition.source, dest)
 
@@ -309,10 +317,10 @@ class Agent: # pylint: disable=R0902
 
         self._logger.info(msg)
 
-    def _is_current_request(self, request):
+    def _is_current_request(self, request: Request) -> bool:
         return self._request and self._request.id == request.id
 
-    def _is_valid(self, data, required_keys=[]): # pylint: disable=W0102
+    def _is_valid(self, data: dict, required_keys=[]) -> bool: # pylint: disable=dangerous-default-value
         if not all(elem in data and data[elem] is not None for elem in required_keys):
             self._logger.warning(
                 'One of required keys are not present or its value is equal to None '\
@@ -321,7 +329,7 @@ class Agent: # pylint: disable=R0902
 
         return True
 
-    def queue_intent(self, intent, **slots):
+    def queue_intent(self, intent: Union[str, Intent], **slots) -> None:
         """Queue the given intent and process it if the agent is asleep.
 
         Args:
@@ -334,10 +342,10 @@ class Agent: # pylint: disable=R0902
 
         self._intents_queue.append(intent)
 
-        if self.state == STATE_ASLEEP:  # pylint: disable=E1101
+        if self.state == STATE_ASLEEP:  # pylint: disable=no-member
             self._process_next_intent()
 
-    def parse(self, msg, **meta):
+    def parse(self, msg: str, **meta) -> None:
         """Parse a raw message.
 
         The interpreter will be used to determine which intent(s) has been formulated
@@ -364,7 +372,7 @@ class Agent: # pylint: disable=R0902
             (i for i in intents if i.name == STATE_CANCEL), None)
 
         # Either way, extend the intent queue with new intents
-        if self.state != STATE_ASK:  # pylint: disable=E1101
+        if self.state != STATE_ASK:  # pylint: disable=no-member
             intents = [i for i in intents if i.name != STATE_CANCEL]
 
             self._logger.info('"%d" intent(s) found: %s',
@@ -373,10 +381,10 @@ class Agent: # pylint: disable=R0902
             self._intents_queue.extend(intents)
 
         # If the user wants to cancel the current action, immediately go to the cancel state
-        if cancel_intent:  # pylint: disable=E1101
+        if cancel_intent:
             self.go(STATE_CANCEL, intent=cancel_intent)
         else:
-            if self.state == STATE_ASK:  # pylint: disable=E1101
+            if self.state == STATE_ASK: # pylint: disable=no-member
 
                 # If choices are limited, try to extract a match
                 if self._choices:
@@ -397,10 +405,10 @@ class Agent: # pylint: disable=R0902
                                       self._asked_slot, ['"%s"' % v for v in values])
 
                 self.go(self._request.intent.name, intent=self._request.intent)
-            elif self.state == STATE_ASLEEP:  # pylint: disable=E1101
+            elif self.state == STATE_ASLEEP:  # pylint: disable=no-member
                 self._process_next_intent()
 
-    def _process_intent(self, intent):
+    def _process_intent(self, intent: Intent) -> None:
         self._logger.info('Processing intent %s', intent)
 
         handler = self._handlers.get(intent.name)
@@ -436,21 +444,21 @@ class Agent: # pylint: disable=R0902
                     self._on_thinking()
 
                 handler(self._request)
-            except Exception as err: # pylint: disable=W0703
+            except Exception as err: # pylint: disable=broad-except
                 self._logger.error(err)
                 self.done()  # Go back to the asleep state
 
-    def _on_intent(self, event):
+    def _on_intent(self, event) -> None:
         if not self._is_valid(event.kwargs, ['intent']):
             self.done()
         else:
             self._process_intent(**event.kwargs)
 
-    def _on_cancel(self, event):
+    def _on_cancel(self, event) -> None:
         self.context(None)
         self._on_intent(event)
 
-    def _on_asked(self, event):
+    def _on_asked(self, event) -> None:
         if not self._is_valid(event.kwargs, ['slot', 'text']):
             self.done()
         else:
@@ -465,13 +473,13 @@ class Agent: # pylint: disable=R0902
                 self._on_ask(slot, text, choices, raw_text=strip_format(
                     text), **event.kwargs.get('meta'))
 
-    def _process_next_intent(self):
+    def _process_next_intent(self) -> None:
         if self._intents_queue:
             intent = self._intents_queue.pop(0)
 
             self.go(intent.name, intent=intent)
 
-    def go(self, state, **kwargs): # pylint: disable=C0103
+    def go(self, state: str, **kwargs): # pylint: disable=invalid-name
         """Try to move the state machine to the given state.
 
         Args:
@@ -480,11 +488,15 @@ class Agent: # pylint: disable=R0902
 
         """
         try:
-            self.trigger(state, **kwargs)  # pylint: disable=E1101
+            self.trigger(state, **kwargs)  # pylint: disable=no-member
         except (MachineError, AttributeError) as err:
             self._logger.error('Could not trigger "%s": %s', state, err)
 
-    def ask(self, slot, text, choices=None, **meta):
+    def ask(self,
+            slot: str,
+            text: Union[str, List[str]],
+            choices: List[str] = None,
+            **meta) -> None:
         """Ask something to the user.
 
         Args:
@@ -499,7 +511,7 @@ class Agent: # pylint: disable=R0902
 
         self.go(STATE_ASK, slot=slot, text=text, choices=choices, meta=meta)
 
-    def answer(self, text, cards=None, **meta):
+    def answer(self, text: str, cards: Union[Card, List[Card]] = None, **meta) -> None:
         """Answer something to the user.
 
         Args:
@@ -515,7 +527,7 @@ class Agent: # pylint: disable=R0902
             txt = keep_one(text)
             self._on_answer(txt, cards, raw_text=strip_format(txt), **meta)
 
-    def done(self, require_input=False):
+    def done(self, require_input=False) -> None:
         """Done should be called by skills when they are done with their stuff. It enables
         threaded scenarii. When asking something to the user, you should not call this method
         since `ask` end the skill immediately.
@@ -527,7 +539,7 @@ class Agent: # pylint: disable=R0902
         """
         self.go(STATE_ASLEEP, require_input=require_input)
 
-    def context(self, context_name):
+    def context(self, context_name: str) -> None:
         """Switch the agent to the given context name. It will populates the list of reachable
         scopes so the interpreter will only parse intents defined in this scope.
 
@@ -546,7 +558,7 @@ class Agent: # pylint: disable=R0902
         if self._on_context:
             self._on_context(self.current_context)
 
-    def end_conversation(self, event=None):
+    def end_conversation(self, event=None) -> None:
         """Ends a conversation, means nothing would come from the skill anymore and
         it does not require user inputs. This is especially useful when you are showing
         an activity indicator.

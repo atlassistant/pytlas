@@ -1,8 +1,9 @@
-# pylint: disable=C0111,W0511
+# pylint: disable=missing-module-docstring,fixme
 
 import os
 import sys
 import subprocess
+from typing import List
 import importlib
 import pkg_resources
 from dateutil.relativedelta import relativedelta
@@ -15,12 +16,13 @@ from snips_nlu.constants import ENTITIES, AUTOMATICALLY_EXTENSIBLE, RESOLVED_VAL
 from snips_nlu.entity_parser.builtin_entity_parser import is_builtin_entity
 import snips_nlu.default_configs as snips_confs
 from pytlas.understanding.intent import Intent
+from pytlas.understanding.training import TrainingsStore
 from pytlas.understanding.slot import SlotValue, UnitValue
 from pytlas.understanding.interpreter import Interpreter, compute_checksum
 from pytlas.ioutils import read_file, rmtree
 
 
-def get_entity_value(data):
+def get_entity_value(data: dict) -> object:
     """Try to retrieve a flat value from a parsed snips entity.
 
     It will try to convert the parsed slot value to a python representation:
@@ -41,7 +43,7 @@ def get_entity_value(data):
     """
     kind = data.get('kind')
 
-    if kind == 'Duration': # pylint: disable=R1705
+    if kind == 'Duration': # pylint: disable=no-else-return
         return relativedelta(
             days=data.get('days'),
             hours=data.get('hours'),
@@ -67,7 +69,10 @@ class SnipsInterpreter(Interpreter):
     """Wraps the snips-nlu stuff to provide valuable informations to an agent.
     """
 
-    def __init__(self, lang, cache_directory=None, trainings_store=None):
+    def __init__(self,
+                 lang: str,
+                 cache_directory: str = None,
+                 trainings_store: TrainingsStore = None) -> None:
         """Instantiates a new Snips interpreter.
 
         Args:
@@ -83,19 +88,19 @@ class SnipsInterpreter(Interpreter):
         self._slot_mappings = {}
         self._entities = {}
 
-    def _configure(self):
+    def _configure(self) -> None:
         self._slot_mappings = self._engine.dataset_metadata.get(
             'slot_name_mappings', {})
         self._entities = self._engine.dataset_metadata.get(ENTITIES, {})
 
         self.intents = list(self._slot_mappings.keys())
 
-    def load_from_cache(self):
+    def load_from_cache(self) -> None:
         self._logger.info('Loading engine from "%s"', self.cache_directory)
         self._engine = SnipsNLUEngine.from_path(self.cache_directory)
         self._configure()
 
-    def _check_and_install_resources_package(self):
+    def _check_and_install_resources_package(self) -> None:
         resource_pkg_name = f'snips_nlu_{self.lang}'
 
         if not importlib.util.find_spec(resource_pkg_name):
@@ -118,7 +123,7 @@ class SnipsInterpreter(Interpreter):
 
         return resource_pkg_name
 
-    def fit(self, data):
+    def fit(self, data: dict) -> None:
         super().fit(data)
 
         data_lang = data.get('language')
@@ -178,7 +183,7 @@ class SnipsInterpreter(Interpreter):
             self._configure()
 
     @property
-    def is_ready(self):
+    def is_ready(self) -> bool:
         """Returns true if the interpreter is ready.
 
         Returns:
@@ -187,7 +192,7 @@ class SnipsInterpreter(Interpreter):
         """
         return self._engine and self._engine.fitted
 
-    def parse(self, msg, scopes=None):
+    def parse(self, msg: str, scopes: List[str] = None) -> List[Intent]:
         if not self.is_ready:
             return []
 
@@ -214,7 +219,7 @@ class SnipsInterpreter(Interpreter):
             Intent(parsed[RES_INTENT][RES_INTENT_NAME], **slots),
         ]
 
-    def parse_slot(self, intent, slot, msg):
+    def parse_slot(self, intent: str, slot: str, msg: str) -> List[SlotValue]:
         if not self.is_ready:
             return []
 

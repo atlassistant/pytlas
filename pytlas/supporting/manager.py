@@ -1,19 +1,20 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 import logging
 import re
 import os
 import subprocess
+from typing import Tuple, List
 from pkg_resources import Requirement
 from packaging.version import Version
 from packaging.specifiers import SpecifierSet
 from pytlas.__about__ import __title__, __version__
-from pytlas.handling.skill import GLOBAL_METAS, GLOBAL_HANDLERS, Meta
+from pytlas.handling.skill import GLOBAL_METAS, GLOBAL_HANDLERS, Meta, HandlersStore, MetasStore
 from pytlas.pkgutils import get_package_name_from_module
 from pytlas.ioutils import rmtree
 
 
-def extract_repo_data(path):
+def extract_repo_data(path: str) -> Tuple[str, str]:
     """Retrieve the skill owner and repository.
 
     Args:
@@ -62,7 +63,7 @@ def extract_repo_data(path):
 DISPLAY_NAME_SEPARATOR = '/'
 
 
-def to_display_name(owner, repo):
+def to_display_name(owner: str, repo: str) -> str:
     """Returns the display name for the given owner and repo.
 
     Args:
@@ -83,7 +84,7 @@ def to_display_name(owner, repo):
 SKILL_FOLDER_SEPARATOR = '__'
 
 
-def to_skill_folder(owner, repo):
+def to_skill_folder(owner: str, repo: str) -> str:
     """Gets the skill folder name from owner and repo.
 
     Args:
@@ -101,7 +102,7 @@ def to_skill_folder(owner, repo):
     return owner + SKILL_FOLDER_SEPARATOR + repo
 
 
-def from_skill_folder(folder):
+def from_skill_folder(folder: str) -> str:
     """Gets the skill package name in the form owner/repo from the given folder.
 
     Args:
@@ -126,7 +127,7 @@ def from_skill_folder(folder):
     return parts[0]
 
 
-def path_to_skill_folder(path):
+def path_to_skill_folder(path: str) -> str:
     """Convert a skill name to a folder representation for pytlas.
 
     Args:
@@ -158,7 +159,7 @@ class CompatibilityError(Exception):
     pytlas environment.
     """
 
-    def __init__(self, current_version, expected_specifications):
+    def __init__(self, current_version: str, expected_specifications: Requirement) -> None:
         super().__init__(f'Current pytlas version "{current_version}" does not '\
                          f'satisfy skill dependency "{expected_specifications}"')
 
@@ -167,10 +168,14 @@ class SkillsManager:
     It can be used with the built-in CLI or used as a library.
     """
 
-    # pylint: disable=R0913
+    # pylint: disable=too-many-arguments
 
-    def __init__(self, directory, lang='en', default_git_url='https://github.com/',
-                 handlers_store=None, metas_store=None):
+    def __init__(self,
+                 directory: str,
+                 lang='en',
+                 default_git_url='https://github.com/',
+                 handlers_store: HandlersStore = None,
+                 metas_store: MetasStore = None) -> None:
         """Instantiate a new SkillManager for the given directory.
 
         Args:
@@ -189,9 +194,9 @@ class SkillsManager:
         self._handlers = handlers_store or GLOBAL_HANDLERS
         self._version = Version(__version__)
 
-    # pylint: enable=R0913
+    # pylint: enable=too-many-arguments
 
-    def get(self):
+    def get(self) -> List[Meta]:
         """Retrieve currently loaded skills. That means you should first start to
         imports them by using the `pytlas.handling.importers` namespace.
 
@@ -212,7 +217,7 @@ class SkillsManager:
 
         return skills_meta
 
-    def install(self, *names):
+    def install(self, *names: str) -> Tuple[List[str], List[str]]:
         """Install or update given skill names.
 
         Args:
@@ -262,7 +267,7 @@ class SkillsManager:
 
         return (succeeded, failed)
 
-    def update(self, *names):
+    def update(self, *names: str) -> Tuple[List[str], List[str]]:
         """Update given skill names.
 
         Args:
@@ -308,7 +313,7 @@ class SkillsManager:
 
         return (succeeded, failed)
 
-    def uninstall(self, *names):
+    def uninstall(self, *names: str) -> Tuple[List[str], List[str]]:
         """Uninstall given skill names.
 
         Args:
@@ -346,7 +351,7 @@ class SkillsManager:
 
         return (succeeded, failed)
 
-    def _install_dependencies(self, directory):
+    def _install_dependencies(self, directory: str) -> None:
         requirements_path = os.path.join(directory, 'requirements.txt')
 
         if os.path.isfile(requirements_path):
@@ -361,12 +366,12 @@ class SkillsManager:
             self._logger.info(
                 'No requirements.txt available inside "%s", skipping', directory)
 
-    def _ensure_compatibility(self, requirements_path):
+    def _ensure_compatibility(self, requirements_path: str) -> None:
         with open(requirements_path, encoding='utf8') as reqs_file:
             def try_parse_requirement(line):
                 try:
                     return Requirement.parse(line)
-                except: # pylint: disable=W0702
+                except: # pylint: disable=bare-except
                     return None
 
             requirements = [try_parse_requirement(line) for line in reqs_file.readlines()]

@@ -1,4 +1,4 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 import os
 import sys
@@ -11,7 +11,7 @@ from pytlas.understanding.snips import SnipsInterpreter
 from pytlas.testing.mock import AgentModelMock
 
 
-def create_skill_agent(skill_folder, lang='en', additional_skills=[]):  # pylint: disable=W0102
+def create_skill_agent(skill_folder: str, lang='en', additional_skills=[]) -> Agent:  # pylint: disable=dangerous-default-value
     """Create an agent specifically targeted at the specified skill folder. It makes
     it easy to write skill tests using a specific mock object as the Agent model.
 

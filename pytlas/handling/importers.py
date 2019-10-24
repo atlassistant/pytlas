@@ -1,4 +1,4 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 import importlib
 import os
@@ -8,7 +8,7 @@ import threading
 from types import ModuleType
 
 
-def _reload(module):
+def _reload(module: ModuleType) -> None:
     """Recursively reloads a module. It only works for simple scenario but it may
     be suitable for pytlas ;)
 
@@ -25,7 +25,7 @@ def _reload(module):
             _reload(attr)
 
 
-def import_or_reload(module_name):
+def import_or_reload(module_name: str) -> None:
     """Import or reload the given module name.
 
     Args:
@@ -50,9 +50,9 @@ def import_or_reload(module_name):
             logging.error('Could not import module "%s"', module_name)
 
 
-def _watch(directory): # pragma: no cover
+def _watch(directory: str) -> None: # pragma: no cover
     try:
-        from watchgod import watch
+        from watchgod import watch # pylint: disable=import-outside-toplevel
     except ImportError:
         logging.error(
             'Could not watch for file changes, is "watchgod" installed?')
@@ -72,7 +72,7 @@ def _watch(directory): # pragma: no cover
             import_or_reload(module_name)
 
 
-def import_skills(directory, auto_reload=False):
+def import_skills(directory: str, auto_reload=False) -> None:
     """Import skills inside the givne directory.
 
     Args:

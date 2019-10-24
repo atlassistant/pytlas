@@ -1,4 +1,4 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
 from pytlas.understanding.slot import SlotValues
 
@@ -7,13 +7,13 @@ class Intent:
     """Represents a single intent with multiple slot values attached to it.
     """
 
-    def __init__(self, intent_name, **slots):
+    def __init__(self, intent_name: str, **slots) -> None:
         self.name = intent_name
         self.slots = {}
         self.meta = {}
         self.update_slots(**slots)
 
-    def slot(self, slot_name):
+    def slot(self, slot_name: str) -> SlotValues:
         """Retrieve slot values for the given slot name.
 
         Args:
@@ -25,7 +25,7 @@ class Intent:
         """
         return self.slots.get(slot_name, SlotValues())
 
-    def update_slots(self, **kwargs):
+    def update_slots(self, **kwargs) -> None:
         """Update the intent slots with given keyword args.
 
         Values will be wrapped in a SlotValues object for easier use.

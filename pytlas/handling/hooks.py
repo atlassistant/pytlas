@@ -1,5 +1,6 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
+from typing import Callable
 from pytlas.pkgutils import get_caller_package_name
 from pytlas.store import Store
 
@@ -11,7 +12,7 @@ class HooksStore(Store):
     """Holds registered hooks and provide a way to trigger them.
     """
 
-    def __init__(self, data=None):
+    def __init__(self, data: dict = None) -> None:
         """Instantiates a new store.
 
         Args:
@@ -23,7 +24,7 @@ class HooksStore(Store):
             ON_AGENT_DESTROYED: [],
         })
 
-    def register(self, name, func, package=None):
+    def register(self, name: str, func: Callable, package: str = None) -> None:
         """Register a new handler for the given hook.
 
         Args:
@@ -44,7 +45,7 @@ class HooksStore(Store):
                 'Registered "%s.%s" handler for hook "%s"',
                 pkg, func.__name__, name)
 
-    def trigger(self, name, *args, **kwargs):
+    def trigger(self, name: str, *args, **kwargs) -> None:
         """Trigger a hook with given arguments.
 
         Args:
@@ -64,7 +65,7 @@ class HooksStore(Store):
 GLOBAL_HOOKS = HooksStore()
 
 
-def on_agent_created(store=None, package=None):
+def on_agent_created(store: HooksStore = None, package: str = None) -> None:
     """Decorator applied to a function that should be called when an agent is created
 
     Args:
@@ -73,7 +74,7 @@ def on_agent_created(store=None, package=None):
         will try to determine it based on the call stack
 
     """
-    hs = store or GLOBAL_HOOKS # pylint: disable=C0103
+    hs = store or GLOBAL_HOOKS # pylint: disable=invalid-name
 
     def new(func):
         hs.register(ON_AGENT_CREATED, func,
@@ -83,7 +84,7 @@ def on_agent_created(store=None, package=None):
     return new
 
 
-def on_agent_destroyed(store=None, package=None):
+def on_agent_destroyed(store: HooksStore = None, package: str = None) -> None:
     """Decorator applied to a function that should be called when an agent is destroyed
 
     Args:
@@ -92,7 +93,7 @@ def on_agent_destroyed(store=None, package=None):
         will try to determine it based on the call stack
 
     """
-    s = store or GLOBAL_HOOKS # pylint: disable=C0103
+    s = store or GLOBAL_HOOKS # pylint: disable=invalid-name
 
     def new(func):
         s.register(ON_AGENT_DESTROYED, func,
