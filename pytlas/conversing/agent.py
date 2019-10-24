@@ -171,7 +171,7 @@ class Agent: # pylint: disable=too-many-instance-attributes
     def _has_current_request(self, _=None) -> bool:
         return self._request is not None
 
-    def build(self):
+    def build(self) -> None:
         """Setup the state machine based on the interpreter available intents. This is
         especialy useful if you have trained the interpreter after creating this agent.
 
