@@ -6,7 +6,7 @@ Handler
 Handlers are python code that will be executed when an intent has been
 recognized.
 
-Your handler will received one and only arguments, a :ref:`request` instance
+Your handler will received one and only argument, a :ref:`request` instance
 which represents the agent and the context for which your handler is being
 called.
 
@@ -24,7 +24,7 @@ to inform the agent that it should returns to its asleep state.
 
   from pytlas import intent
 
-  # Remember we have defined this handler in the training section with %[lights_on]
+  # Remember we have defined this intent in the training section with %[lights_on]
 
   @intent('lights_on')
   def my_handler(request):

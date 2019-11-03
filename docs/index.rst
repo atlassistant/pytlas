@@ -27,7 +27,8 @@ people and made to be super easy to setup and understand.
 
 Its goal is to make easy to **map natural language sentences** to
 **python function handlers**. It also manages a conversation with the help of
-a finite state machine to enable back and forth communications.
+a finite state machine to enable back and forth communications between a user
+and its agent.
 
 Ever wanted to develop your own Alexa, Siri or Google Assistant and host it
 yourself? This is possible!
