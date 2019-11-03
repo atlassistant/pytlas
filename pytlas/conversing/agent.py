@@ -375,13 +375,12 @@ class Agent: # pylint: disable=too-many-instance-attributes
         cancel_intent = next(
             (i for i in intents if i.name == STATE_CANCEL), None)
 
+        self._logger.info('"%d" intent(s) found: %s',
+                          len(intents), ', '.join([str(i) for i in intents]))
+
         # Either way, extend the intent queue with new intents
         if self.state != STATE_ASK:  # pylint: disable=no-member
             intents = [i for i in intents if i.name != STATE_CANCEL]
-
-            self._logger.info('"%d" intent(s) found: %s',
-                              len(intents), ', '.join([str(i) for i in intents]))
-
             self._intents_queue.extend(intents)
 
         # If the user wants to cancel the current action, immediately go to the cancel state
