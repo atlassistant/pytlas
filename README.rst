@@ -1,5 +1,5 @@
-pytlas |travis| |cover| |pypi| |rtd| |license|
-==============================================
+pytlas |travis| |cover| |pypi| |rtd| |license| |donate|
+=======================================================
 
 .. |travis| image:: https://travis-ci.org/atlassistant/pytlas.svg?branch=master
     :target: https://travis-ci.org/atlassistant/pytlas
@@ -16,6 +16,9 @@ pytlas |travis| |cover| |pypi| |rtd| |license|
 
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
+
+.. |donate| image:: http://img.shields.io/liberapay/goal/atlassistant.svg?logo=liberapay
+    :target: https://liberapay.com/atlassistant/donate
 
 An open-source 🤖💬 Python 3 assistant library built for people and made to be super easy to setup and understand.
 
@@ -54,10 +57,16 @@ Linting
 
   $ pylint pytlas setup.py # in the root directory
 
+Authors
+-------
+
+- `Julien Leicher <https://github.com/YuukanOO>`_
+- `Jean-Michel Lekston <https://github.com/lekstonjm>`_
+
 Contributing
 ------------
 
-Contributions are **welcome**! **pytlas** is being developed on my spare time so every help is greatly appreciated to push this project further.
+Contributions are **welcome**! **pytlas** is being developed on our spare time so every help is greatly appreciated to push this project further.
 
 I have ideas!
 ~~~~~~~~~~~~~
@@ -73,6 +82,6 @@ I have money!
 ~~~~~~~~~~~~~
 
 .. |liberapay| image:: https://liberapay.com/assets/widgets/donate.svg
-    :target: https://liberapay.com/YuukanOO/donate
+    :target: https://liberapay.com/atlassistant/donate
 
 If you want to donate to help me find more time to work on **pytlas** and similar projects, you can support me on liberapay |liberapay|, thanks ❤️!
