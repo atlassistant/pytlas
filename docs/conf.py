@@ -14,6 +14,7 @@
 #
 import sys
 import os
+from datetime import datetime
 
 with open('../pytlas/__about__.py') as f:
     ABOUT = {}
@@ -22,7 +23,7 @@ with open('../pytlas/__about__.py') as f:
 # -- Project information -----------------------------------------------------
 
 project = ABOUT['__title__']
-copyright = '2018, %s' % ABOUT['__author__']
+copyright = '%s, %s' % (datetime.utcnow().year, ABOUT['__author__'])
 author = ABOUT['__author__']
 
 # The short X.Y version

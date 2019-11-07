@@ -1,4 +1,4 @@
-# pylint: disable=C0111,R0201,W0613,W0212
+# pylint: disable=missing-docstring,R0201,W0613,W0212
 
 import cmd
 import sys

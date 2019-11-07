@@ -14,6 +14,11 @@ you must provide enough data for it to understand patterns.
 
   You should define training data in all languages that you wish to support in your skill.
 
+.. warning::
+
+  At runtime, all trainings will be merged into a single dictionary. So don't forget
+  to namespace your intents and entities when that makes sense.
+
 Format
 ------
 
@@ -79,7 +84,7 @@ this intent, something as simple as this:
 Best practices
 --------------
 
-Here is some thoughts about making great training data.
+Here is some thoughts about making great training data:
 
 * Use lowercase
 * Avoid punctuation

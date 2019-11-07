@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.6"
+install:
+  - pip install codecov nosexcover
+  - pip uninstall -y pytest
+  - pip install -r requirements_tests.txt
+script:
+  - python -m nose --with-doctest --with-xcoverage --cover-package=hoover
+  - codecov

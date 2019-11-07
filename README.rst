@@ -1,5 +1,5 @@
-pytlas |travis| |cover| |pypi| |rtd| |license|
-==============================================
+pytlas |travis| |cover| |pypi| |rtd| |license| |donate| |gitter|
+================================================================
 
 .. |travis| image:: https://travis-ci.org/atlassistant/pytlas.svg?branch=master
     :target: https://travis-ci.org/atlassistant/pytlas
@@ -17,9 +17,17 @@ pytlas |travis| |cover| |pypi| |rtd| |license|
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
 
+.. |donate| image:: http://img.shields.io/liberapay/goal/atlassistant.svg?logo=liberapay
+    :target: https://liberapay.com/atlassistant/donate
+
+.. |gitter| image:: https://img.shields.io/gitter/room/atlassistant/pytlas
+    :target: https://gitter.im/pytlas/community
+
 An open-source 🤖💬 Python 3 assistant library built for people and made to be super easy to setup and understand.
 
 **pytlas** translates natural language sentences into python skills you can easily define yourself. It makes it really easy to develop your own Google Assistant, Alexa or whatever but runs on **your device** with **your trusted code** and **no connection** to obscure servers.
+
+🎮 Want to try it? Check the `official demo <https://atlassistant.github.io/>`_!
 
 🌊 Want to get your feet wet? Have a look at the `example/skills` folder to see how it works!
 
@@ -54,10 +62,16 @@ Linting
 
   $ pylint pytlas setup.py # in the root directory
 
+Authors
+-------
+
+- `Julien Leicher <https://github.com/YuukanOO>`_
+- `Jean-Michel Lekston <https://github.com/lekstonjm>`_
+
 Contributing
 ------------
 
-Contributions are **welcome**! **pytlas** is being developed on my spare time so every help is greatly appreciated to push this project further.
+Contributions are **welcome**! **pytlas** is being developed on our spare time so every help is greatly appreciated to push this project further.
 
 I have ideas!
 ~~~~~~~~~~~~~
@@ -73,6 +87,6 @@ I have money!
 ~~~~~~~~~~~~~
 
 .. |liberapay| image:: https://liberapay.com/assets/widgets/donate.svg
-    :target: https://liberapay.com/YuukanOO/donate
+    :target: https://liberapay.com/atlassistant/donate
 
-If you want to donate to help me find more time to work on **pytlas** and similar projects, you can support me on liberapay |liberapay|, thanks ❤️!
+If you want to donate to help us find more time to work on **pytlas** and similar projects, you can support us on liberapay |liberapay|, thanks ❤️!

@@ -3,10 +3,11 @@
 
 import os
 import stat
+from typing import Callable
 from shutil import rmtree as shrmtree
 
 
-def read_file(path, ignore_errors=False, relative_to=None):
+def read_file(path: str, ignore_errors=False, relative_to: str = None) -> str:
     """Read the file content as utf-8 at the specified path.
 
     Args:
@@ -25,14 +26,14 @@ def read_file(path, ignore_errors=False, relative_to=None):
     try:
         with open(path, encoding='utf-8') as file:
             return file.read()
-    except Exception as err: # pylint: disable=W0703
+    except Exception as err: # pylint: disable=broad-except
         if not ignore_errors:
             raise err
 
         return None
 
 
-def _onerror(func, path, exc_info):  # pragma: no cover pylint: disable=W0613
+def _onerror(func: Callable, path: str, exc_info) -> None:  # pragma: no cover
     """Error handler for ``shutil.rmtree``.
 
     If the error is due to an access error (read only file)
@@ -46,10 +47,10 @@ def _onerror(func, path, exc_info):  # pragma: no cover pylint: disable=W0613
         os.chmod(path, stat.S_IWUSR)
         func(path)
     else:
-        raise # pylint: disable=E0704
+        raise # pylint: disable=misplaced-bare-raise
 
 
-def rmtree(path, ignore_errors=False):
+def rmtree(path: str, ignore_errors=False) -> None:
     """Recursively deletes a folder and its children and handle readonly files as per
     https://stackoverflow.com/a/2656405/7641999.
 

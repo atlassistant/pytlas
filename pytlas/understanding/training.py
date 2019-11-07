@@ -1,5 +1,6 @@
-# pylint: disable=C0111
+# pylint: disable=missing-module-docstring
 
+from typing import Dict, Callable
 from pytlas.pkgutils import get_caller_package_name
 from pytlas.datautils import should_load_resources
 from pytlas.store import Store
@@ -9,7 +10,7 @@ class TrainingsStore(Store):
     """Contains training data.
     """
 
-    def __init__(self, data=None):
+    def __init__(self, data: dict = None) -> None:
         """Instantiates a new store.
 
         Args:
@@ -18,7 +19,7 @@ class TrainingsStore(Store):
         """
         super().__init__('train', data or {})
 
-    def all(self, lang):
+    def all(self, lang: str) -> Dict[str, str]:
         """Retrieve all training data in the given language.
 
         It will evaluate all register functions for the given language.
@@ -32,8 +33,8 @@ class TrainingsStore(Store):
         """
         return {k: v.get(lang, lambda: None)() for k, v in self._data.items()}
 
-    def get(self, package, lang):
-        """Retrieve all training data for a particular package in the given language.
+    def get(self, package: str, lang: str) -> str:
+        """Retrieve training data for a particular package in the given language.
 
         It will evaluate all register functions for the given language.
 
@@ -47,7 +48,7 @@ class TrainingsStore(Store):
         """
         return self._data.get(package, {}).get(lang, lambda: None)()
 
-    def register(self, lang, func, package=None):
+    def register(self, lang: str, func: Callable, package: str = None) -> None:
         """Register training data written using the chatl DSL language into the system.
 
         Args:
@@ -74,7 +75,7 @@ class TrainingsStore(Store):
 GLOBAL_TRAININGS = TrainingsStore()
 
 
-def training(lang, store=None, package=None):
+def training(lang: str, store: TrainingsStore = None, package: str = None) -> None:
     """Decorator applied to a function that returns DSL data to register training data.
 
     Args:
@@ -84,7 +85,7 @@ def training(lang, store=None, package=None):
         will try to determine it based on the call stack
 
     """
-    ts = store or GLOBAL_TRAININGS # pylint: disable=C0103
+    ts = store or GLOBAL_TRAININGS # pylint: disable=invalid-name
 
     def new(func):
         ts.register(lang, func, package or get_caller_package_name()

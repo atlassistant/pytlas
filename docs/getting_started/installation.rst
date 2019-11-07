@@ -52,4 +52,4 @@ The official interpreter use the fantastic `snips-nlu <https://github.com/snipsc
 Given the language you want your assistant to understand, it will need to
 download additional resources. Fortunately, you don't have to do it manually
 since `v5.0.0`, pytlas will automatically try to download them when fitting the
-interpreter with a language it doesn't know already.
+interpreter with a language it doesn't already know.

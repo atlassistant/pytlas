@@ -6,3 +6,4 @@ to an intent by triggering registered skills.
 """
 
 from pytlas.conversing.agent import Agent
+from pytlas.conversing.request import Request
