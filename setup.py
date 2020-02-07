@@ -33,7 +33,7 @@ setup(
         'transitions~=0.7.0',
         'fuzzywuzzy~=0.17.0',
         'colorlog~=4.0.2',
-        'pychatl~=2.0.1',
+        'pychatl~=2.0.3',
         'python-dateutil~=2.8.0',
         'Babel~=2.7.0',
         # Those lines are required for markdown display and raw_text generation
@@ -43,7 +43,7 @@ setup(
     extras_require={
         'snips': [
             # For snips, target a specific version since it may break sometimes
-            'snips-nlu==0.20.1',
+            'snips-nlu==0.20.2',
         ],
         'test': [
             'nose~=1.3.7',

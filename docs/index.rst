@@ -3,14 +3,14 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-pytlas |travis| |coveralls| |pypi| |rtd| |license|
-==================================================
+pytlas |travis| |cover| |pypi| |rtd| |license| |donate| |gitter|
+================================================================
 
 .. |travis| image:: https://travis-ci.org/atlassistant/pytlas.svg?branch=master
     :target: https://travis-ci.org/atlassistant/pytlas
 
-.. |coveralls| image:: https://coveralls.io/repos/github/atlassistant/pytlas/badge.svg?branch=master
-    :target: https://coveralls.io/github/atlassistant/pytlas?branch=master
+.. |cover| image:: https://codecov.io/gh/atlassistant/pytlas/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/atlassistant/pytlas
 
 .. |pypi| image:: https://badge.fury.io/py/pytlas.svg
     :target: https://badge.fury.io/py/pytlas
@@ -21,6 +21,12 @@ pytlas |travis| |coveralls| |pypi| |rtd| |license|
 
 .. |license| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
     :target: https://www.gnu.org/licenses/gpl-3.0
+
+.. |donate| image:: http://img.shields.io/liberapay/goal/atlassistant.svg?logo=liberapay
+    :target: https://liberapay.com/atlassistant/donate
+
+.. |gitter| image:: https://img.shields.io/gitter/room/atlassistant/pytlas
+    :target: https://gitter.im/pytlas/community
 
 pytlas is an open-source 🤖💬 **python 3** assistant library built for
 people and made to be super easy to setup and understand.
